@@ -1,0 +1,7 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = 'libgdx-entity-editor-ashley-graph-design'
+
+dependencies {
+	api project(':core')
+	api project(':libgdx-entity-editor-ashley-graph-runtime')
+}

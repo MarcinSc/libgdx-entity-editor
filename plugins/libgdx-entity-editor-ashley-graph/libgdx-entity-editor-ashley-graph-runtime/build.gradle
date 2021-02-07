@@ -1,0 +1,7 @@
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+eclipse.project.name = 'libgdx-entity-editor-ashley-graph-runtime'
+
+dependencies {
+    api "com.gempukku.libgdx.lib:libgdx-gemp-lib-ashley:$gdxGempLibVersion"
+    api "com.gempukku.libgdx.graph:libgdx-graph:$gdxGraphVersion"
+}
