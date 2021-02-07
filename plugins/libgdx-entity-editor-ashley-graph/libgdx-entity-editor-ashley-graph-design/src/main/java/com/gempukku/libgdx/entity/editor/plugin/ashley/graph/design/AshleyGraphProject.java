@@ -5,10 +5,14 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
+import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
+import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 
-public class AshleyGraphProject implements EntityEditorProject {
+public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedback {
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
+
+    private EntityEditorScreen editorScreen;
 
     private Engine ashleyEngine;
     private AshleyGraphSettings settings;
@@ -36,9 +40,13 @@ public class AshleyGraphProject implements EntityEditorProject {
     }
 
     public void initialize(FileHandle folder, EntityEditorScreen entityEditorScreen) {
+        this.editorScreen = entityEditorScreen;
+
         ashleyEngine = new Engine();
         createSettings(folder, readProject(folder), entityEditorScreen);
+
         entityEditorScreen.setPluginSettings(settings);
+        entityEditorScreen.getObjectTreeData().setObjectTreeFeedback(this);
     }
 
     private JsonValue readProject(FileHandle folder) {
@@ -65,6 +73,11 @@ public class AshleyGraphProject implements EntityEditorProject {
                     "assets/pipeline.json", "assets/templates",
                     "assets/entities", "assets");
         }
+    }
+
+    @Override
+    public void createEntityGroup(String entityGroupName) {
+        editorScreen.getObjectTreeData().addEntityGroup(new DefaultEntityGroup(entityGroupName));
     }
 
     @Override
