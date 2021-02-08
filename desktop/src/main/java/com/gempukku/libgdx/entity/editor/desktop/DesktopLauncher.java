@@ -57,7 +57,7 @@ public class DesktopLauncher {
 
     private static LwjglApplicationConfiguration getDefaultConfiguration() {
         LwjglApplicationConfiguration configuration = new LwjglApplicationConfiguration();
-        configuration.title = "as";
+        configuration.title = "libGDX Entity Editor";
         configuration.width = 1440;
         configuration.height = 810;
         //// This prevents a confusing error that would appear after exiting normally.

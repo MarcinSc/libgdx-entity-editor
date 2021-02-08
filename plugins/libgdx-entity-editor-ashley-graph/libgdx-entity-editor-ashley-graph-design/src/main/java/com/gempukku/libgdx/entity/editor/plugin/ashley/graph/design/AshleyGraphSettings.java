@@ -19,19 +19,19 @@ public class AshleyGraphSettings extends Table {
 
         add("Project settings").colspan(2).row();
 
-        add("Renderer pipeline: ");
+        add("Renderer pipeline: ").left();
         rendererPipelineTextField = new TextField(rendererPipeline, skin);
         add(rendererPipelineTextField).growX().row();
 
-        add("Templates folder: ");
+        add("Templates folder: ").left();
         templatesFolderTextField = new TextField(templatesFolder, skin);
         add(templatesFolderTextField).growX().row();
 
-        add("Entities folder: ");
+        add("Entities folder: ").left();
         entityGroupsFolderTextField = new TextField(entityGroupsFolder, skin);
         add(entityGroupsFolderTextField).growX().row();
 
-        add("Assets folder: ");
+        add("Assets folder: ").left();
         assetsFolderTextField = new TextField(assetsFolder, skin);
         add(assetsFolderTextField).growX().row();
     }

@@ -34,7 +34,8 @@ public class GraphPreviewRenderer implements PreviewRenderer, Disposable {
     @Override
     public void render(Batch batch, float x, float y, float width, float height) {
         if (renderToTexture != null) {
-            batch.draw(renderToTexture, x, y, width, height);
+            // Flip X
+            batch.draw(renderToTexture, x, y + height, width, -height);
         }
     }
 

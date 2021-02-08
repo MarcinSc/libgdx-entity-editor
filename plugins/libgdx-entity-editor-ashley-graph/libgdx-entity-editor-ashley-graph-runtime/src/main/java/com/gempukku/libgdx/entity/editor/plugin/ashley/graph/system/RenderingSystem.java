@@ -151,10 +151,12 @@ public class RenderingSystem extends EntitySystem {
             }
 
             for (String addedTag : spriteComponent.getAddedTags()) {
-                graphSprites.addTag(graphSprite, addedTag);
+                if (!graphSprite.hasTag(addedTag))
+                    graphSprites.addTag(graphSprite, addedTag);
             }
             for (String removedTag : spriteComponent.getRemovedTags()) {
-                graphSprites.removeTag(graphSprite, removedTag);
+                if (graphSprite.hasTag(removedTag))
+                    graphSprites.removeTag(graphSprite, removedTag);
             }
         }
     }

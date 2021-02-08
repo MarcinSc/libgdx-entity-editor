@@ -63,7 +63,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         ashleyEngine = new Engine();
         ashleyEngine.addSystem(new CleaningSystem(100));
         timeKeeper = new DefaultTimeKeeper();
-        directTextureLoader = new DirectTextureLoader();
+        directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
 
         ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
         objectTreeData.addEntityGroup(new DefaultEntityGroup("level-1"));
