@@ -1,38 +1,29 @@
 apply plugin: 'application'
 
 sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
-mainClassName = 'com.gempukku.libgdx.entity.editor.lwjgl3.Lwjgl3Launcher'
-eclipse.project.name = appName + '-lwjgl3'
+mainClassName = 'com.gempukku.libgdx.entity.editor.desktop.DesktopLauncher'
+eclipse.project.name = appName + '-desktop'
 sourceCompatibility = 8.0
 
 dependencies {
 	implementation project(':core')
 	implementation project(':libgdx-entity-editor-ashley-graph-design')
-	implementation "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+	implementation "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
 	implementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
 }
 
-import org.gradle.internal.os.OperatingSystem
-
-run {
-	workingDir = rootProject.file('assets').path
-	setIgnoreExitValue(true)
-	
-	if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-		// Required to run LWJGL3 Java apps on MacOS
-		jvmArgs += "-XstartOnFirstThread"
-	}
-}
 jar {
 	archiveBaseName = appName
 	dependsOn configurations.runtimeClasspath
 	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } } 
 	manifest {
 		attributes 'Main-Class': project.mainClassName
-		attributes 'Premain-Class': 'com.gempukku.libgdx.entity.editor.lwjgl3.PluginJarInclusionAgent'
 	}
 	doLast {
 		file(archivePath).setExecutable(true, false)
 	}
 }
 
+run {
+	ignoreExitValue = true
+}

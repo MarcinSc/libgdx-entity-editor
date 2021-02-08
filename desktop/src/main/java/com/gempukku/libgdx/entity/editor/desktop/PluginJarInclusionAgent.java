@@ -1,4 +1,4 @@
-package com.gempukku.libgdx.entity.editor.lwjgl3;
+package com.gempukku.libgdx.entity.editor.desktop;
 
 import java.io.BufferedReader;
 import java.io.File;

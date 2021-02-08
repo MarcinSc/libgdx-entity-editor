@@ -253,6 +253,11 @@ public class MainEditorScreen extends Table implements Disposable {
         });
     }
 
+    public void update(float delta) {
+        if (entityEditorProject != null)
+            entityEditorProject.update(delta);
+    }
+
     @Override
     public void dispose() {
         if (entityEditorProject != null) {

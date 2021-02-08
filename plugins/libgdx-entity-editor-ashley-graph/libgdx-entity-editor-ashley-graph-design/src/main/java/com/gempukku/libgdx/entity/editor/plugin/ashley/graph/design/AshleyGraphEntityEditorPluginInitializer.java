@@ -8,12 +8,14 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComp
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
+import com.gempukku.libgdx.graph.plugin.sprites.SpritesPluginRuntimeInitializer;
 
 public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPluginInitializer {
     private AshleyGraphProjectReader projectReader = new AshleyGraphProjectReader();
 
     @Override
     public void initialize() {
+        SpritesPluginRuntimeInitializer.register();
         ProjectReaderRegistry.register(projectReader);
 
         EntityComponentRegistry.registerCoreComponent(FacingComponent.class);

@@ -1,7 +1,8 @@
-package com.gempukku.libgdx.entity.editor.lwjgl3;
+package com.gempukku.libgdx.entity.editor.desktop;
 
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.gempukku.libgdx.entity.editor.GdxEntityEditor;
 import com.gempukku.libgdx.entity.editor.plugin.PluginDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.PluginRegistry;
@@ -13,13 +14,13 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 
 /**
- * Launches the desktop (LWJGL3) application.
+ * Launches the desktop (LWJGL) application.
  */
-public class Lwjgl3Launcher {
+public class DesktopLauncher {
     public static void main(String[] arg) throws IOException, URISyntaxException {
         String executeArgument = "NoPlugins";
         if (arg.length == 0 || !arg[0].equals(executeArgument)) {
-            String jarPath = Lwjgl3Launcher.class
+            String jarPath = DesktopLauncher.class
                     .getProtectionDomain()
                     .getCodeSource()
                     .getLocation()
@@ -50,15 +51,21 @@ public class Lwjgl3Launcher {
         }
     }
 
-    private static Lwjgl3Application createApplication() {
-        return new Lwjgl3Application(new GdxEntityEditor(), getDefaultConfiguration());
+    private static LwjglApplication createApplication() {
+        return new LwjglApplication(new GdxEntityEditor(), getDefaultConfiguration());
     }
 
-    private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
-        Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
-        configuration.setTitle("libGDX entity editor");
-        configuration.setWindowedMode(1440, 810);
-        configuration.setWindowIcon("libgdx128.png", "libgdx64.png", "libgdx32.png", "libgdx16.png");
+    private static LwjglApplicationConfiguration getDefaultConfiguration() {
+        LwjglApplicationConfiguration configuration = new LwjglApplicationConfiguration();
+        configuration.title = "as";
+        configuration.width = 1440;
+        configuration.height = 810;
+        //// This prevents a confusing error that would appear after exiting normally.
+        configuration.forceExit = false;
+
+        for (int size : new int[]{128, 64, 32, 16}) {
+            configuration.addIcon("libgdx" + size + ".png", FileType.Internal);
+        }
         return configuration;
     }
 }

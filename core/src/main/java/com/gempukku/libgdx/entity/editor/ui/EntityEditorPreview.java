@@ -19,9 +19,8 @@ public class EntityEditorPreview extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        camera.setToOrtho(false, getWidth(), getHeight());
         if (previewRenderer != null) {
-            previewRenderer.render(camera, batch);
+            previewRenderer.render(batch, getX(), getY(), getWidth(), getHeight());
         }
     }
 }

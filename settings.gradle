@@ -1,4 +1,4 @@
-include 'lwjgl3', 'core'
+include 'core', 'desktop'
 
 new File(rootDir, "plugins").listFiles().each {plugin->
     if (plugin.directory) {
