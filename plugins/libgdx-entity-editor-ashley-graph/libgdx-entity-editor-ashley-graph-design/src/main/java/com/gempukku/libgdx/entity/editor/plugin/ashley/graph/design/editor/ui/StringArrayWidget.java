@@ -18,7 +18,7 @@ public class StringArrayWidget extends Table {
         super(skin);
 
         final VerticalGroup verticalGroup = new VerticalGroup();
-        verticalGroup.top();
+        verticalGroup.fill();
         verticalGroup.align(Align.topLeft);
 
         for (String value : values) {
@@ -76,6 +76,7 @@ public class StringArrayWidget extends Table {
 
     private void addString(Skin skin, VerticalGroup verticalGroup, String value) {
         CheckBox checkBox = new CheckBox(value, skin);
+        checkBox.align(Align.left);
         verticalGroup.addActor(checkBox);
     }
 
