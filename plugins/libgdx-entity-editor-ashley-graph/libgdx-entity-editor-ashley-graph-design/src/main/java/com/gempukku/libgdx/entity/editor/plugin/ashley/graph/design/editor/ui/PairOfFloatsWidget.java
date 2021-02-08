@@ -9,11 +9,11 @@ import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class TwoFloatEntryWidget extends Table {
+public class PairOfFloatsWidget extends Table {
     private final VisValidatableTextField field1;
     private final VisValidatableTextField field2;
 
-    public TwoFloatEntryWidget(
+    public PairOfFloatsWidget(
             Skin skin,
             String label1, float value1,
             String label2, float value2,

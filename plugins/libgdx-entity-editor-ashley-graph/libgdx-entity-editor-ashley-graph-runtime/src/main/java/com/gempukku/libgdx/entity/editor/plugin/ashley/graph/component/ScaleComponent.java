@@ -1,8 +1,8 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
 public class ScaleComponent extends DirtyComponent {
-    private float x;
-    private float y;
+    private float x = 1;
+    private float y = 1;
 
     public float getX() {
         return x;

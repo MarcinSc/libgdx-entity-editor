@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.TwoFloatEntryWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsWidget;
 import com.kotcrab.vis.ui.widget.Separator;
 
 public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
@@ -22,10 +22,10 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
         public PositionComponentEditor(Skin skin, PositionComponent component) {
             this.component = component;
 
-            TwoFloatEntryWidget widget = new TwoFloatEntryWidget(
+            PairOfFloatsWidget widget = new PairOfFloatsWidget(
                     skin,
                     "X", component.getX(), "Y", component.getY(),
-                    new TwoFloatEntryWidget.Callback() {
+                    new PairOfFloatsWidget.Callback() {
                         @Override
                         public void update(float value1, float value2) {
                             component.setPosition(value1, value2);

@@ -60,7 +60,7 @@ public class RenderingSystem extends EntitySystem {
                         GraphSprite graphSprite = graphSprites.createSprite(spriteComponent.getLayer());
                         spriteComponent.setGraphSprite(graphSprite);
 
-                        setSpriteProperties(entity);
+                        setSpriteProperties(entity, true);
 
                         for (String tag : spriteComponent.getTags()) {
                             graphSprites.addTag(graphSprite, tag);
@@ -92,11 +92,11 @@ public class RenderingSystem extends EntitySystem {
                     sprite.getProperties().put(timePropertyName, timeProvider.getTime());
             }
 
-            setSpriteProperties(spriteEntity);
+            setSpriteProperties(spriteEntity, false);
         }
     }
 
-    private void setSpriteProperties(Entity entity) {
+    private void setSpriteProperties(Entity entity, boolean force) {
         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         final PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
@@ -105,7 +105,7 @@ public class RenderingSystem extends EntitySystem {
 
         GraphSprite graphSprite = spriteComponent.getGraphSprite();
 
-        if (spriteComponent.isDirty() || positionComponent.isDirty() || (scaleComponent != null && scaleComponent.isDirty())
+        if (force || spriteComponent.isDirty() || positionComponent.isDirty() || (scaleComponent != null && scaleComponent.isDirty())
                 || (facingComponent != null && facingComponent.isDirty())) {
             graphSprites.updateSprite(graphSprite,
                     new SpriteUpdater() {
@@ -130,7 +130,7 @@ public class RenderingSystem extends EntitySystem {
                     });
         }
 
-        if (spriteComponent.isDirty()) {
+        if (force || spriteComponent.isDirty()) {
             TextureRegion textureRegion = textureLoader.loadTexture(spriteComponent.getAtlas(), spriteComponent.getTexture());
             if (textureRegion != null)
                 graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), textureRegion);
@@ -150,13 +150,14 @@ public class RenderingSystem extends EntitySystem {
                 }
             }
 
-            for (String addedTag : spriteComponent.getAddedTags()) {
-                if (!graphSprite.hasTag(addedTag))
-                    graphSprites.addTag(graphSprite, addedTag);
+            for (String tag : graphSprite.getAllTags()) {
+                if (!spriteComponent.hasTag(tag))
+                    graphSprites.removeTag(graphSprite, tag);
             }
-            for (String removedTag : spriteComponent.getRemovedTags()) {
-                if (graphSprite.hasTag(removedTag))
-                    graphSprites.removeTag(graphSprite, removedTag);
+
+            for (String tag : spriteComponent.getTags()) {
+                if (!graphSprite.hasTag(tag))
+                    graphSprites.addTag(graphSprite, tag);
             }
         }
     }

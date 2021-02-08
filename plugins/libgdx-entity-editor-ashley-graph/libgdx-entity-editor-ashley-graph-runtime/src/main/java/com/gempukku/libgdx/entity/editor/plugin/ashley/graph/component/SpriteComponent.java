@@ -2,7 +2,6 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
 
 public class SpriteComponent extends DirtyComponent {
@@ -16,8 +15,6 @@ public class SpriteComponent extends DirtyComponent {
     private ObjectMap<String, Object> properties = new ObjectMap<>();
 
     private transient GraphSprite graphSprite;
-    private transient ObjectSet<String> addedTags = new ObjectSet<>();
-    private transient ObjectSet<String> removedTags = new ObjectSet<>();
 
     public GraphSprite getGraphSprite() {
         return graphSprite;
@@ -58,36 +55,21 @@ public class SpriteComponent extends DirtyComponent {
         return tags;
     }
 
-    public Iterable<String> getAddedTags() {
-        return addedTags;
-    }
-
-    public Iterable<String> getRemovedTags() {
-        return removedTags;
+    public boolean hasTag(String tag) {
+        return tags.contains(tag, false);
     }
 
     public void addTag(String tag) {
         if (!tags.contains(tag, false)) {
             tags.add(tag);
-            addedTags.add(tag);
-            removedTags.remove(tag);
             setDirty();
         }
     }
 
     public void removeTag(String tag) {
         if (tags.removeValue(tag, false)) {
-            removedTags.add(tag);
-            addedTags.remove(tag);
             setDirty();
         }
-    }
-
-    @Override
-    public void clean() {
-        super.clean();
-        addedTags.clear();
-        removedTags.clear();
     }
 
     public void setTexture(String atlas, String texture) {
