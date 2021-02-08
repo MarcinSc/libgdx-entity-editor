@@ -7,25 +7,25 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.Separator;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
+public class ScaleComponentEditorFactory implements ComponentEditorFactory<ScaleComponent> {
     @Override
-    public ComponentEditor<PositionComponent> createComponentEditor(Skin skin, PositionComponent component) {
-        return new PositionComponentEditor(skin, component);
+    public ComponentEditor<ScaleComponent> createComponentEditor(Skin skin, ScaleComponent component) {
+        return new ScaleComponentEditor(skin, component);
     }
 
-    private class PositionComponentEditor implements ComponentEditor<PositionComponent> {
+    private class ScaleComponentEditor implements ComponentEditor<ScaleComponent> {
         private final VisValidatableTextField xTextField;
         private final VisValidatableTextField yTextField;
         private Actor actor;
-        private PositionComponent component;
+        private ScaleComponent component;
 
-        public PositionComponentEditor(Skin skin, PositionComponent component) {
+        public ScaleComponentEditor(Skin skin, ScaleComponent component) {
             this.component = component;
 
             xTextField = new VisValidatableTextField(Validators.FLOATS);
@@ -36,7 +36,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
                             if (xTextField.isInputValid()) {
-                                component.setPosition(Float.parseFloat(xTextField.getText()), component.getY());
+                                component.setScale(Float.parseFloat(xTextField.getText()), component.getY());
                             }
                         }
                     });
@@ -49,7 +49,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
                             if (yTextField.isInputValid()) {
-                                component.setPosition(component.getX(), Float.parseFloat(yTextField.getText()));
+                                component.setScale(component.getX(), Float.parseFloat(yTextField.getText()));
                             }
                         }
                     });
@@ -58,7 +58,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
             tbl.add(new Separator()).growX().row();
 
             Table dataTable = new Table(skin);
-            dataTable.add("Position component").colspan(2).growX().row();
+            dataTable.add("Scale component").colspan(2).growX().row();
             dataTable.add("X: ");
             dataTable.add(xTextField).growX().row();
             dataTable.add("Y: ");
@@ -79,7 +79,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
         }
 
         @Override
-        public PositionComponent getComponent() {
+        public ScaleComponent getComponent() {
             return component;
         }
     }

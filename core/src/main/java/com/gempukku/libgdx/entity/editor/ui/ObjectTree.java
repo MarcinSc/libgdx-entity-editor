@@ -69,6 +69,8 @@ public class ObjectTree extends Table implements ObjectTreeData {
                         Tree.Node selectedNode = tree.getSelectedNode();
                         if (selectedNode instanceof EntityDefinitionNode) {
                             fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue()));
+                        } else {
+                            fire(new EntitySelected(null));
                         }
                     }
                 });
@@ -196,11 +198,26 @@ public class ObjectTree extends Table implements ObjectTreeData {
     }
 
     @Override
+    public void addEntityGroupFolder(String entityGroup, String parentPath, String name, EntityGroupFolder folder) {
+        EntityGroupNode group = getEntityGroupNode(entityGroup);
+        Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath);
+        EntityGroupFolderNode node = new EntityGroupFolderNode(getSkin(), folder);
+        mergeInNode(entityGroupFolderNode, node);
+    }
+
+    @Override
+    public void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity) {
+        EntityGroupNode group = getEntityGroupNode(entityGroup);
+        Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath);
+        EntityDefinitionNode node = new EntityDefinitionNode(getSkin(), entity);
+        mergeInNode(entityGroupFolderNode, node);
+    }
+
+    @Override
     public EntityGroup getEntityGroup(String name) {
-        for (EntityGroupNode child : entityGroupsNode.getChildren()) {
-            if (child.getValue().getName().equals(name))
-                return child.getValue();
-        }
+        EntityGroupNode entityGroupNode = getEntityGroupNode(name);
+        if (entityGroupNode != null)
+            return entityGroupNode.getValue();
         return null;
     }
 
@@ -212,6 +229,39 @@ public class ObjectTree extends Table implements ObjectTreeData {
         }
 
         return result;
+    }
+
+    private EntityGroupNode getEntityGroupNode(String name) {
+        for (EntityGroupNode child : entityGroupsNode.getChildren()) {
+            if (child.getValue().getName().equals(name))
+                return child;
+        }
+        return null;
+    }
+
+    private Tree.Node getEntityGroupFolderNode(EntityGroupNode groupNode, String path) {
+        if (path == null)
+            return groupNode;
+
+        String[] pathElements = path.split("/");
+
+        return findEntityGroupFolderNode(groupNode, pathElements, 0);
+    }
+
+    private Tree.Node findEntityGroupFolderNode(Tree.Node<? extends Tree.Node, ? extends Object, ? extends Actor> node, String[] path, int index) {
+        if (path.length == index)
+            return node;
+
+        String name = path[index];
+        for (Tree.Node child : node.getChildren()) {
+            if (child instanceof EntityGroupFolderNode) {
+                EntityGroupFolder folder = ((EntityGroupFolderNode) child).getValue();
+                if (folder.getName().equals(name))
+                    return findEntityGroupFolderNode(child, path, index + 1);
+            }
+        }
+
+        return null;
     }
 
     private static class ObjectTreeNodeComparator implements Comparator<Tree.Node> {

@@ -1,6 +1,5 @@
 package com.gempukku.libgdx.entity.editor;
 
-import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -38,7 +37,7 @@ public class GdxEntityEditor extends ApplicationAdapter {
 
     @Override
     public void create() {
-        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        //Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         preferences = Gdx.app.getPreferences("libgdx-entity-editor");
 

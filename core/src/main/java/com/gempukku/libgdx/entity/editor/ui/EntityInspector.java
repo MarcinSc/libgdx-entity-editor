@@ -34,9 +34,10 @@ public class EntityInspector extends Table {
 
     public void setEditedEntity(EntityDefinition editedEntity, EntityEditorProject project) {
         this.editedEntity = editedEntity;
-        if (editedEntity == null) {
-            entityDetails.clearChildren();
-        } else {
+
+        entityDetails.clearChildren();
+
+        if (editedEntity != null) {
             Skin skin = getSkin();
 
             TextButton addComponent = new TextButton("Add component", skin);

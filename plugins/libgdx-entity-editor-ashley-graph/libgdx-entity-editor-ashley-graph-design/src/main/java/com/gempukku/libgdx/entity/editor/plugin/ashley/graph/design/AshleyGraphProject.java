@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
+import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
@@ -21,6 +22,7 @@ import com.gempukku.libgdx.graph.loader.GraphLoader;
 import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
 import com.gempukku.libgdx.graph.time.DefaultTimeKeeper;
+import com.gempukku.libgdx.graph.util.WhitePixel;
 
 import java.io.InputStream;
 
@@ -28,6 +30,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
 
     private EntityEditorScreen editorScreen;
+    private WhitePixel whitePixel;
 
     private Engine ashleyEngine;
     private DefaultTimeKeeper timeKeeper;
@@ -43,6 +46,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
 
     @Override
     public void initialize(Skin skin, EntityEditorScreen entityEditorScreen) {
+        this.whitePixel = new WhitePixel();
         this.editorScreen = entityEditorScreen;
 
         createSettings(readProject(folder), skin);
@@ -58,12 +62,20 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         timeKeeper = new DefaultTimeKeeper();
         directTextureLoader = new DirectTextureLoader();
 
+        ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
+        objectTreeData.addEntityGroup(new DefaultEntityGroup("level-1"));
+        Entity entity = ashleyEngine.createEntity();
+        ashleyEngine.addEntity(entity);
+        objectTreeData.addEntity("level-1", null, "entity-1", new AshleyEntityDefinition("entity-1", entity));
+
         FileHandle child = folder.child(settings.getRendererPipeline());
         try {
             InputStream inputStream = child.read();
             try {
                 PipelineRenderer pipelineRenderer = GraphLoader.loadGraph(inputStream, new PipelineLoaderCallback(timeKeeper));
-                ashleyEngine.addSystem(new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader));
+                RenderingSystem renderingSystem = new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
+                renderingSystem.setDefaultTextureRegion(whitePixel.textureRegion);
+                ashleyEngine.addSystem(renderingSystem);
                 graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
                 entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);
             } finally {
@@ -165,5 +177,6 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
             graphPreviewRenderer.dispose();
         }
         directTextureLoader.dispose();
+        whitePixel.dispose();
     }
 }

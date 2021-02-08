@@ -12,6 +12,9 @@ public class DirectTextureLoader implements TextureLoader, Disposable {
 
     @Override
     public TextureRegion loadTexture(String atlas, String texture) {
+        if (texture == null)
+            return null;
+
         TextureRegion result = textures.get(texture);
         if (result == null) {
             result = new TextureRegion(new Texture(Gdx.files.internal(texture)));

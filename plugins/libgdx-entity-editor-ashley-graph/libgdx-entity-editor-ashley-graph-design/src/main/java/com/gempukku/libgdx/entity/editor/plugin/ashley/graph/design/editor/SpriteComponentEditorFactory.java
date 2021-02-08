@@ -7,61 +7,61 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.Separator;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
+public class SpriteComponentEditorFactory implements ComponentEditorFactory<SpriteComponent> {
     @Override
-    public ComponentEditor<PositionComponent> createComponentEditor(Skin skin, PositionComponent component) {
-        return new PositionComponentEditor(skin, component);
+    public ComponentEditor createComponentEditor(Skin skin, SpriteComponent component) {
+        return new SpriteComponentEditor(skin, component);
     }
 
-    private class PositionComponentEditor implements ComponentEditor<PositionComponent> {
+    private class SpriteComponentEditor implements ComponentEditor<SpriteComponent> {
         private final VisValidatableTextField xTextField;
         private final VisValidatableTextField yTextField;
         private Actor actor;
-        private PositionComponent component;
+        private SpriteComponent component;
 
-        public PositionComponentEditor(Skin skin, PositionComponent component) {
+        public SpriteComponentEditor(Skin skin, SpriteComponent component) {
             this.component = component;
 
             xTextField = new VisValidatableTextField(Validators.FLOATS);
             xTextField.setAlignment(Align.right);
-            xTextField.setText(SimpleNumberFormatter.format(component.getX()));
+            xTextField.setText(SimpleNumberFormatter.format(component.getAnchorX()));
             xTextField.addListener(
                     new ChangeListener() {
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
                             if (xTextField.isInputValid()) {
-                                component.setPosition(Float.parseFloat(xTextField.getText()), component.getY());
+                                component.setAnchor(Float.parseFloat(xTextField.getText()), component.getAnchorY());
                             }
                         }
                     });
 
             yTextField = new VisValidatableTextField(Validators.FLOATS);
             yTextField.setAlignment(Align.right);
-            yTextField.setText(SimpleNumberFormatter.format(component.getY()));
+            yTextField.setText(SimpleNumberFormatter.format(component.getAnchorY()));
             yTextField.addListener(
                     new ChangeListener() {
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
                             if (yTextField.isInputValid()) {
-                                component.setPosition(component.getX(), Float.parseFloat(yTextField.getText()));
+                                component.setAnchor(component.getAnchorX(), Float.parseFloat(yTextField.getText()));
                             }
                         }
                     });
 
             Table tbl = new Table(skin);
             tbl.add(new Separator()).growX().row();
+            tbl.add("Sprite component").growX().row();
 
             Table dataTable = new Table(skin);
-            dataTable.add("Position component").colspan(2).growX().row();
-            dataTable.add("X: ");
+            dataTable.add("Anchor X: ");
             dataTable.add(xTextField).growX().row();
-            dataTable.add("Y: ");
+            dataTable.add("Anchor Y: ");
             dataTable.add(yTextField).growX().row();
             tbl.add(dataTable).growX().pad(3);
 
@@ -79,7 +79,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
         }
 
         @Override
-        public PositionComponent getComponent() {
+        public SpriteComponent getComponent() {
             return component;
         }
     }

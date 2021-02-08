@@ -1,6 +1,5 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -9,11 +8,12 @@ import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
 public class SpriteComponent extends DirtyComponent {
     private String texturePropertyName = "Texture";
     private float layer;
-    private Vector2 anchor;
-    private Array<String> tags;
+    private float anchorX = 0.5f;
+    private float anchorY = 0.5f;
+    private Array<String> tags = new Array<>();
     private String atlas;
     private String texture;
-    private ObjectMap<String, Object> properties;
+    private ObjectMap<String, Object> properties = new ObjectMap<>();
 
     private transient GraphSprite graphSprite;
     private transient ObjectSet<String> addedTags = new ObjectSet<>();
@@ -38,8 +38,20 @@ public class SpriteComponent extends DirtyComponent {
         }
     }
 
-    public Vector2 getAnchor() {
-        return anchor;
+    public float getAnchorX() {
+        return anchorX;
+    }
+
+    public float getAnchorY() {
+        return anchorY;
+    }
+
+    public void setAnchor(float x, float y) {
+        if (anchorX != x || anchorY != y) {
+            anchorX = x;
+            anchorY = y;
+            setDirty();
+        }
     }
 
     public Iterable<String> getTags() {

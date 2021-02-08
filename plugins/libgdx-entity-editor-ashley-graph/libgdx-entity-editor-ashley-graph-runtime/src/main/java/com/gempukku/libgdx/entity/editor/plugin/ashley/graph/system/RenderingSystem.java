@@ -33,11 +33,17 @@ public class RenderingSystem extends EntitySystem {
     private TextureLoader textureLoader;
     private ImmutableArray<Entity> spriteEntities;
 
+    private TextureRegion defaultTextureRegion;
+
     public RenderingSystem(int priority, TimeProvider timeProvider, PipelineRenderer pipelineRenderer, TextureLoader textureLoader) {
         super(priority);
         this.timeProvider = timeProvider;
         this.pipelineRenderer = pipelineRenderer;
         this.textureLoader = textureLoader;
+    }
+
+    public void setDefaultTextureRegion(TextureRegion defaultTextureRegion) {
+        this.defaultTextureRegion = defaultTextureRegion;
     }
 
     @Override
@@ -48,6 +54,7 @@ public class RenderingSystem extends EntitySystem {
                 new EntityListener() {
                     @Override
                     public void entityAdded(Entity entity) {
+                        System.out.println("Entity added");
                         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
 
                         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
@@ -119,7 +126,7 @@ public class RenderingSystem extends EntitySystem {
                                 size.scl(faceDirection.getDirection(), 1);
                             }
 
-                            anchor.set(spriteComponent.getAnchor());
+                            anchor.set(spriteComponent.getAnchorX(), spriteComponent.getAnchorY());
                         }
                     });
         }
@@ -135,6 +142,8 @@ public class RenderingSystem extends EntitySystem {
             TextureRegion textureRegion = textureLoader.loadTexture(spriteComponent.getAtlas(), spriteComponent.getTexture());
             if (textureRegion != null)
                 graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), textureRegion);
+            else if (defaultTextureRegion != null)
+                graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), defaultTextureRegion);
 
             for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
                 Object value = property.value;

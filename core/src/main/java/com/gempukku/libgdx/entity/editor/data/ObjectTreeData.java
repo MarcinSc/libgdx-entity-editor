@@ -7,6 +7,10 @@ public interface ObjectTreeData {
 
     void addEntityGroup(EntityGroup entityGroup);
 
+    void addEntityGroupFolder(String entityGroup, String parentPath, String name, EntityGroupFolder folder);
+
+    void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity);
+
     EntityGroup getEntityGroup(String name);
 
     Iterable<EntityGroup> getEntityGroups();

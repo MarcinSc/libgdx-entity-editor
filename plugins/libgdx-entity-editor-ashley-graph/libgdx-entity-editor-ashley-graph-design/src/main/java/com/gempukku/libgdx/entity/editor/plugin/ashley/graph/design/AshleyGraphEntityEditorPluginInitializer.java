@@ -8,6 +8,8 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComp
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.PositionComponentEditorFactory;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ScaleComponentEditorFactory;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.SpriteComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
 import com.gempukku.libgdx.graph.plugin.sprites.SpritesPluginRuntimeInitializer;
 
@@ -20,9 +22,9 @@ public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPlu
         ProjectReaderRegistry.register(projectReader);
 
         EntityComponentRegistry.registerCoreComponent(PositionComponent.class, new PositionComponentEditorFactory());
-        EntityComponentRegistry.registerCoreComponent(ScaleComponent.class, null);
+        EntityComponentRegistry.registerCoreComponent(ScaleComponent.class, new ScaleComponentEditorFactory());
+        EntityComponentRegistry.registerCoreComponent(SpriteComponent.class, new SpriteComponentEditorFactory());
         EntityComponentRegistry.registerCoreComponent(FacingComponent.class, null);
-        EntityComponentRegistry.registerCoreComponent(SpriteComponent.class, null);
         EntityComponentRegistry.registerCoreComponent(SpriteStateComponent.class, null);
     }
 }
