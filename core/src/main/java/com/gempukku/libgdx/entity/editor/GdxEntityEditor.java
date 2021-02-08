@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Cubemap;
 import com.badlogic.gdx.graphics.GL20;
@@ -28,6 +29,8 @@ import com.kotcrab.vis.ui.widget.file.FileChooser;
  * {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms.
  */
 public class GdxEntityEditor extends ApplicationAdapter {
+    public static Preferences preferences;
+
     private Stage stage;
     private MainEditorScreen screen;
     private ScreenViewport viewport;
@@ -36,6 +39,8 @@ public class GdxEntityEditor extends ApplicationAdapter {
     @Override
     public void create() {
         Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+        preferences = Gdx.app.getPreferences("libgdx-entity-editor");
 
         readPlugins();
 
@@ -108,6 +113,8 @@ public class GdxEntityEditor extends ApplicationAdapter {
 
     @Override
     public void dispose() {
+        preferences.flush();
+
         screen.dispose();
         stage.dispose();
 

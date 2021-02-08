@@ -165,8 +165,9 @@ public class MainEditorScreen extends Table implements Disposable {
                                 public void selected(Array<FileHandle> file) {
                                     FileHandle selectedFolder = file.get(0);
                                     try {
-                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin());
-                                        entityEditorProject = initializer.createNewProject(selectedFolder, entityEditorScreen);
+                                        entityEditorProject = initializer.createNewProject(selectedFolder);
+                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin(), entityEditorProject);
+                                        entityEditorProject.initialize(getSkin(), entityEditorScreen);
                                         setEditedFile(entityEditorScreen, selectedFolder, true);
                                         entityEditorScreenContainer.setActor(entityEditorScreen);
                                     } catch (Exception exp) {
@@ -191,8 +192,9 @@ public class MainEditorScreen extends Table implements Disposable {
             public void selected(Array<FileHandle> file) {
                 FileHandle selectedFile = file.get(0);
                 try {
-                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin());
-                    entityEditorProject = loadProjectFromFolder(selectedFile, entityEditorScreen);
+                    entityEditorProject = loadProjectFromFolder(selectedFile);
+                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin(), entityEditorProject);
+                    entityEditorProject.initialize(getSkin(), entityEditorScreen);
                     setEditedFile(entityEditorScreen, selectedFile, true);
                     entityEditorScreenContainer.setActor(entityEditorScreen);
                 } catch (Exception exp) {
@@ -217,10 +219,10 @@ public class MainEditorScreen extends Table implements Disposable {
         Gdx.app.exit();
     }
 
-    private EntityEditorProject loadProjectFromFolder(FileHandle folder, EntityEditorScreen entityEditorScreen) {
+    private EntityEditorProject loadProjectFromFolder(FileHandle folder) {
         for (EntityEditorProjectInitializer initializer : ProjectReaderRegistry.getInitializers()) {
             if (initializer.canReadProject(folder)) {
-                return initializer.openProject(folder, entityEditorScreen);
+                return initializer.openProject(folder);
             }
         }
         throw new GdxRuntimeException("Unable to find plugin supporting the project file");

@@ -2,13 +2,18 @@ package com.gempukku.libgdx.entity.editor;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreview;
 import com.gempukku.libgdx.entity.editor.ui.EntityInspector;
+import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.entity.editor.ui.PluginSettings;
 import com.gempukku.libgdx.entity.editor.ui.UtilityPanel;
@@ -20,7 +25,7 @@ public class EntityEditorScreen extends Table {
     private UtilityPanel utilityPanel;
     private EntityInspector entityInspector;
 
-    public EntityEditorScreen(Skin skin) {
+    public EntityEditorScreen(Skin skin, EntityEditorProject project) {
         super(skin);
 
         objectTree = new ObjectTree(skin);
@@ -38,6 +43,19 @@ public class EntityEditorScreen extends Table {
         SplitPane mainSplitPane = new SplitPane(leftCenterSplitPane, entityInspector, false, skin);
 
         add(mainSplitPane).grow();
+
+        addListener(
+                new EventListener() {
+                    @Override
+                    public boolean handle(Event event) {
+                        if (event instanceof EntitySelected) {
+                            EntityDefinition entity = ((EntitySelected) event).getEntity();
+                            entityInspector.setEditedEntity(entity, project);
+                            return true;
+                        }
+                        return false;
+                    }
+                });
     }
 
     public ObjectTreeData getObjectTreeData() {

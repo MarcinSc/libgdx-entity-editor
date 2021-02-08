@@ -47,6 +47,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
 
         tree = new VisTree<>();
         tree.setIndentSpacing(20);
+
         tree.addListener(
                 new ClickListener(Input.Buttons.RIGHT) {
                     @Override
@@ -61,6 +62,17 @@ public class ObjectTree extends Table implements ObjectTreeData {
                         }
                     }
                 });
+        tree.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Tree.Node selectedNode = tree.getSelectedNode();
+                        if (selectedNode instanceof EntityDefinitionNode) {
+                            fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue()));
+                        }
+                    }
+                });
+
         entityGroupsNode = new EntityGroupsNode(getSkin(), "Entity Groups");
         templatesNode = new EntityEditorNode(getSkin(), "Templates");
         tree.add(entityGroupsNode);

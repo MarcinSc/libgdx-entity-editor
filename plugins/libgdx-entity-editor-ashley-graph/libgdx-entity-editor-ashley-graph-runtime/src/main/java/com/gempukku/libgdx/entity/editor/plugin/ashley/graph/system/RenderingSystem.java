@@ -9,7 +9,6 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FacingComponent;
@@ -26,7 +25,7 @@ import com.gempukku.libgdx.graph.plugin.sprites.GraphSprites;
 import com.gempukku.libgdx.graph.plugin.sprites.SpriteUpdater;
 import com.gempukku.libgdx.graph.time.TimeProvider;
 
-public class RenderingSystem extends EntitySystem implements Disposable {
+public class RenderingSystem extends EntitySystem {
     private static Vector2 tmpPosition = new Vector2();
 
     private TimeProvider timeProvider;
@@ -43,9 +42,9 @@ public class RenderingSystem extends EntitySystem implements Disposable {
 
     @Override
     public void addedToEngine(Engine engine) {
-        Family sprite = Family.all(SpriteComponent.class).get();
-        spriteEntities = engine.getEntitiesFor(sprite);
-        engine.addEntityListener(sprite,
+        Family spriteAndPosition = Family.all(SpriteComponent.class, PositionComponent.class).get();
+        spriteEntities = engine.getEntitiesFor(spriteAndPosition);
+        engine.addEntityListener(spriteAndPosition,
                 new EntityListener() {
                     @Override
                     public void entityAdded(Entity entity) {
@@ -91,10 +90,6 @@ public class RenderingSystem extends EntitySystem implements Disposable {
         }
     }
 
-    @Override
-    public void dispose() {
-    }
-
     private void setSpriteProperties(Entity entity) {
         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
@@ -110,7 +105,7 @@ public class RenderingSystem extends EntitySystem implements Disposable {
                     new SpriteUpdater() {
                         @Override
                         public void processUpdate(Vector3 position, Vector2 size, Vector2 anchor) {
-                            positionComponent.getPosition(tmpPosition);
+                            tmpPosition.set(positionComponent.getX(), positionComponent.getY());
                             position.set(tmpPosition, spriteComponent.getLayer());
 
                             if (scaleComponent != null) {

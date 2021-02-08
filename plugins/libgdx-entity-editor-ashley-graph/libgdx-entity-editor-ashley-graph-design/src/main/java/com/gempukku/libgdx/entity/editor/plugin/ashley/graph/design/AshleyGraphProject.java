@@ -1,9 +1,13 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
@@ -11,6 +15,7 @@ import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.RenderingSystem;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
 import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
@@ -27,8 +32,47 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     private Engine ashleyEngine;
     private DefaultTimeKeeper timeKeeper;
     private GraphPreviewRenderer graphPreviewRenderer;
+    private DirectTextureLoader directTextureLoader;
 
+    private FileHandle folder;
     private AshleyGraphSettings settings;
+
+    public AshleyGraphProject(FileHandle folder) {
+        this.folder = folder;
+    }
+
+    @Override
+    public void initialize(Skin skin, EntityEditorScreen entityEditorScreen) {
+        this.editorScreen = entityEditorScreen;
+
+        createSettings(readProject(folder), skin);
+        entityEditorScreen.setPluginSettings(settings);
+
+        entityEditorScreen.getObjectTreeData().setObjectTreeFeedback(this);
+
+        setupProject(entityEditorScreen);
+    }
+
+    private void setupProject(EntityEditorScreen entityEditorScreen) {
+        ashleyEngine = new Engine();
+        timeKeeper = new DefaultTimeKeeper();
+        directTextureLoader = new DirectTextureLoader();
+
+        FileHandle child = folder.child(settings.getRendererPipeline());
+        try {
+            InputStream inputStream = child.read();
+            try {
+                PipelineRenderer pipelineRenderer = GraphLoader.loadGraph(inputStream, new PipelineLoaderCallback(timeKeeper));
+                ashleyEngine.addSystem(new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader));
+                graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
+                entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);
+            } finally {
+                inputStream.close();
+            }
+        } catch (Exception exp) {
+            exp.printStackTrace();
+        }
+    }
 
     public static boolean hasProject(FileHandle folder) {
         return folder.child(PROJECT_FILE_NAME).exists();
@@ -57,32 +101,6 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         project.addChild("settings", settingsValue);
     }
 
-    public void initialize(FileHandle folder, EntityEditorScreen entityEditorScreen) {
-        this.editorScreen = entityEditorScreen;
-
-        createSettings(readProject(folder), entityEditorScreen);
-        entityEditorScreen.setPluginSettings(settings);
-
-        entityEditorScreen.getObjectTreeData().setObjectTreeFeedback(this);
-
-        ashleyEngine = new Engine();
-        timeKeeper = new DefaultTimeKeeper();
-
-        FileHandle child = folder.child(settings.getRendererPipeline());
-        try {
-            InputStream inputStream = child.read();
-            try {
-                PipelineRenderer pipelineRenderer = GraphLoader.loadGraph(inputStream, new PipelineLoaderCallback(timeKeeper));
-                graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
-                entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);
-            } finally {
-                inputStream.close();
-            }
-        } catch (Exception exp) {
-            exp.printStackTrace();
-        }
-    }
-
     private JsonValue readProject(FileHandle folder) {
         JsonReader reader = new JsonReader();
         FileHandle child = folder.child(PROJECT_FILE_NAME);
@@ -92,7 +110,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
             return new JsonValue(JsonValue.ValueType.object);
     }
 
-    private void createSettings(JsonValue project, EntityEditorScreen entityEditorScreen) {
+    private void createSettings(JsonValue project, Skin skin) {
         JsonValue settings = project.get("settings");
         if (settings != null) {
             String rendererPipeline = settings.getString("rendererPipeline", null);
@@ -100,10 +118,10 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
             String entityGroupsFolder = settings.getString("entityGroupsFolder", null);
             String assetsFolder = settings.getString("assetsFolder", null);
 
-            this.settings = new AshleyGraphSettings(entityEditorScreen.getSkin(),
+            this.settings = new AshleyGraphSettings(skin,
                     rendererPipeline, templatesFolder, entityGroupsFolder, assetsFolder);
         } else {
-            this.settings = new AshleyGraphSettings(entityEditorScreen.getSkin(),
+            this.settings = new AshleyGraphSettings(skin,
                     "assets/pipeline.json", "assets/templates",
                     "assets/entities", "assets");
         }
@@ -123,9 +141,22 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
 
     @Override
     public EntityDefinition createEntity(EntityGroupFolder folder, String name) {
-        DefaultEntityDefinition entityDefinition = new DefaultEntityDefinition(name);
+        Entity entity = ashleyEngine.createEntity();
+        ashleyEngine.addEntity(entity);
+
+        DefaultEntityDefinition entityDefinition = new AshleyEntityDefinition(name, entity);
         folder.createEntity(entityDefinition);
         return entityDefinition;
+    }
+
+    @Override
+    public boolean supportsComponent(Class<?> componentClass) {
+        return ClassReflection.isAssignableFrom(Component.class, componentClass);
+    }
+
+    @Override
+    public Object createCoreComponent(Class<?> coreComponent) {
+        return ashleyEngine.createComponent((Class<Component>) coreComponent);
     }
 
     @Override
@@ -133,5 +164,6 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         if (graphPreviewRenderer != null) {
             graphPreviewRenderer.dispose();
         }
+        directTextureLoader.dispose();
     }
 }
