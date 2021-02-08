@@ -40,6 +40,9 @@ public class EntityInspector extends Table {
         if (editedEntity != null) {
             Skin skin = getSkin();
 
+            Table tbl = new Table();
+            tbl.top();
+
             TextButton addComponent = new TextButton("Add component", skin);
             addComponent.addListener(
                     new ClickListener() {
@@ -56,7 +59,7 @@ public class EntityInspector extends Table {
                                                 public void changed(ChangeEvent event, Actor actor) {
                                                     Object component = project.createCoreComponent(coreComponent);
                                                     editedEntity.addCoreComponent(component);
-                                                    addCoreComponentEditor(skin, entityDetails, component);
+                                                    addCoreComponentEditor(skin, tbl, component);
                                                 }
                                             });
                                     menu.addItem(menuItem);
@@ -70,8 +73,6 @@ public class EntityInspector extends Table {
             entityDetails.add("Name: " + editedEntity.getName()).row();
             entityDetails.add(addComponent).row();
 
-            Table tbl = new Table();
-
             for (Object coreComponent : editedEntity.getCoreComponents()) {
                 addCoreComponentEditor(skin, tbl, coreComponent);
             }
@@ -80,7 +81,7 @@ public class EntityInspector extends Table {
             scrollPane.setFadeScrollBars(true);
             scrollPane.setForceScroll(false, true);
 
-            entityDetails.add(scrollPane).row();
+            entityDetails.add(scrollPane).grow().row();
         }
     }
 
