@@ -11,10 +11,11 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
+import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
+import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.CleaningSystem;
@@ -151,20 +152,27 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     }
 
     @Override
-    public EntityGroupFolder createEntityFolder(EntityGroupFolder folder, String name) {
-        DefaultEntityGroupFolder result = new DefaultEntityGroupFolder(name);
-        folder.createFolder(result);
-        return result;
+    public EntityGroupFolder createEntityFolder(String name) {
+        return new DefaultEntityGroupFolder(name);
     }
 
     @Override
-    public EntityDefinition createEntity(EntityGroupFolder folder, String name) {
+    public EntityDefinition createEntity(String name) {
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
 
-        DefaultEntityDefinition entityDefinition = new AshleyEntityDefinition(name, entity);
-        folder.createEntity(entityDefinition);
-        return entityDefinition;
+        return new AshleyEntityDefinition(name, entity);
+    }
+
+    @Override
+    public EntityTemplatesFolder createTemplatesFolder(String name) {
+        return new DefaultEntityTemplatesFolder(name);
+    }
+
+    @Override
+    public EntityDefinition createTemplate(String name) {
+        Entity entity = ashleyEngine.createEntity();
+        return new AshleyEntityDefinition(name, entity);
     }
 
     @Override

@@ -1,12 +1,12 @@
-package com.gempukku.libgdx.entity.editor.ui;
+package com.gempukku.libgdx.entity.editor.data;
 
 import com.badlogic.gdx.scenes.scene2d.EventListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 
-public class EntityEditorNode extends Tree.Node<Tree.Node, Object, Label> {
-    public EntityEditorNode(Skin skin, String text) {
+public class EntityTemplatesNode extends Tree.Node<Tree.Node, Object, Label> {
+    public EntityTemplatesNode(Skin skin, String text) {
         super(new Label(text, skin));
     }
 

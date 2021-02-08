@@ -1,5 +1,5 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-public interface EntityGroupFolder {
+public interface EntityTemplatesFolder {
     String getName();
 }

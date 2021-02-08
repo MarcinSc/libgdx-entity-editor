@@ -17,6 +17,10 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupNode;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupsNode;
+import com.gempukku.libgdx.entity.editor.data.EntityTemplateNode;
+import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
+import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
+import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -32,7 +36,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
     private ObjectTreeFeedback objectTreeFeedback;
 
     private EntityGroupsNode entityGroupsNode;
-    private EntityEditorNode templatesNode;
+    private EntityTemplatesNode templatesNode;
 
     private Comparator<Tree.Node> comparator = new ObjectTreeNodeComparator();
 
@@ -55,10 +59,12 @@ public class ObjectTree extends Table implements ObjectTreeData {
                         Tree.Node clickedNode = tree.getNodeAt(y);
                         if (clickedNode instanceof EntityGroupsNode) {
                             entityGroupsClicked(clickedNode, x, y);
-                        } else if (clickedNode instanceof EntityGroupNode) {
-                            entityGroupClicked(clickedNode, ((EntityGroupNode) clickedNode).getValue(), x, y);
-                        } else if (clickedNode instanceof EntityGroupFolderNode) {
-                            entityGroupFolderClicked(clickedNode, ((EntityGroupFolderNode) clickedNode).getValue(), x, y);
+                        } else if (clickedNode instanceof EntityGroupNode
+                                || clickedNode instanceof EntityGroupFolderNode) {
+                            entityGroupClicked(clickedNode, x, y);
+                        } else if (clickedNode instanceof EntityTemplatesNode
+                                || clickedNode instanceof EntityTemplatesFolder) {
+                            entityTemplatesClicked(clickedNode, x, y);
                         }
                     }
                 });
@@ -69,6 +75,8 @@ public class ObjectTree extends Table implements ObjectTreeData {
                         Tree.Node selectedNode = tree.getSelectedNode();
                         if (selectedNode instanceof EntityDefinitionNode) {
                             fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue()));
+                        } else if (selectedNode instanceof EntityTemplateNode) {
+                            fire(new EntitySelected(((EntityTemplateNode) selectedNode).getValue()));
                         } else {
                             fire(new EntitySelected(null));
                         }
@@ -76,7 +84,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
                 });
 
         entityGroupsNode = new EntityGroupsNode(getSkin(), "Entity Groups");
-        templatesNode = new EntityEditorNode(getSkin(), "Templates");
+        templatesNode = new EntityTemplatesNode(getSkin(), "Templates");
         tree.add(entityGroupsNode);
         tree.add(templatesNode);
 
@@ -85,6 +93,59 @@ public class ObjectTree extends Table implements ObjectTreeData {
         scrollPane.setFadeScrollBars(false);
 
         add(scrollPane).grow();
+    }
+
+    private void entityTemplatesClicked(Tree.Node treeNode, float x, float y) {
+        MenuItem createFolder = new MenuItem("Create folder");
+        createFolder.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Dialogs.showInputDialog(getStage(), "Create folder", "Folder name",
+                                new InputDialogListener() {
+                                    @Override
+                                    public void finished(String input) {
+                                        EntityTemplatesFolder templatesFolder = objectTreeFeedback.createTemplatesFolder(input);
+                                        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(getSkin(), templatesFolder);
+                                        mergeInNode(treeNode, node);
+                                        treeNode.setExpanded(true);
+                                    }
+
+                                    @Override
+                                    public void canceled() {
+
+                                    }
+                                });
+                    }
+                });
+
+        MenuItem createEntity = new MenuItem("Create template");
+        createEntity.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Dialogs.showInputDialog(getStage(), "Create entity", "Entity name",
+                                new InputDialogListener() {
+                                    @Override
+                                    public void finished(String input) {
+                                        EntityDefinition template = objectTreeFeedback.createTemplate(input);
+                                        EntityTemplateNode node = new EntityTemplateNode(getSkin(), template);
+                                        mergeInNode(treeNode, node);
+                                        treeNode.setExpanded(true);
+                                    }
+
+                                    @Override
+                                    public void canceled() {
+
+                                    }
+                                });
+                    }
+                });
+
+        PopupMenu popupMenu = new PopupMenu();
+        popupMenu.addItem(createFolder);
+        popupMenu.addItem(createEntity);
+        popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
     private void entityGroupsClicked(Tree.Node node, float x, float y) {
@@ -113,7 +174,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private void entityGroupClicked(Tree.Node treeNode, EntityGroupFolder entityGroupFolder, float x, float y) {
+    private void entityGroupClicked(Tree.Node treeNode, float x, float y) {
         MenuItem createFolder = new MenuItem("Create folder");
         createFolder.addListener(
                 new ChangeListener() {
@@ -123,7 +184,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityGroupFolder entityFolder = objectTreeFeedback.createEntityFolder(entityGroupFolder, input);
+                                        EntityGroupFolder entityFolder = objectTreeFeedback.createEntityFolder(input);
                                         EntityGroupFolderNode node = new EntityGroupFolderNode(getSkin(), entityFolder);
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -146,7 +207,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityDefinition entity = objectTreeFeedback.createEntity(entityGroupFolder, input);
+                                        EntityDefinition entity = objectTreeFeedback.createEntity(input);
                                         EntityDefinitionNode node = new EntityDefinitionNode(getSkin(), entity);
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -179,11 +240,6 @@ public class ObjectTree extends Table implements ObjectTreeData {
             index++;
         }
         return index;
-    }
-
-
-    private void entityGroupFolderClicked(Tree.Node treeNode, EntityGroupFolder folder, float x, float y) {
-        entityGroupClicked(treeNode, folder, x, y);
     }
 
     @Override
@@ -280,6 +336,10 @@ public class ObjectTree extends Table implements ObjectTreeData {
                 return 0;
             if (node instanceof EntityDefinitionNode)
                 return 1;
+            if (node instanceof EntityTemplatesFolderNode)
+                return 2;
+            if (node instanceof EntityTemplateNode)
+                return 3;
             throw new IllegalArgumentException("Unknown type of node");
         }
 
@@ -288,6 +348,10 @@ public class ObjectTree extends Table implements ObjectTreeData {
                 return ((EntityGroupFolderNode) node).getValue().getName();
             if (node instanceof EntityDefinitionNode)
                 return ((EntityDefinitionNode) node).getValue().getName();
+            if (node instanceof EntityTemplatesFolderNode)
+                return ((EntityTemplatesFolderNode) node).getValue().getName();
+            if (node instanceof EntityTemplateNode)
+                return ((EntityTemplateNode) node).getValue().getName();
             throw new IllegalArgumentException("Unknown type of node");
         }
     }
