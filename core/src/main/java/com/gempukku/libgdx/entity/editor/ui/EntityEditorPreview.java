@@ -9,8 +9,17 @@ public class EntityEditorPreview extends Actor {
     private PreviewRenderer previewRenderer;
     private OrthographicCamera camera;
 
-    public EntityEditorPreview() {
-        this.camera = new OrthographicCamera();
+    public EntityEditorPreview(OrthographicCamera camera) {
+        this.camera = camera;
+    }
+
+    @Override
+    public void act(float delta) {
+        super.act(delta);
+
+        camera.viewportWidth = getWidth();
+        camera.viewportHeight = getHeight();
+        camera.update();
     }
 
     public void setPreviewRenderer(PreviewRenderer previewRenderer) {

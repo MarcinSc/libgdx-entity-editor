@@ -54,7 +54,6 @@ public class RenderingSystem extends EntitySystem {
                 new EntityListener() {
                     @Override
                     public void entityAdded(Entity entity) {
-                        System.out.println("Entity added");
                         SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
 
                         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
@@ -116,7 +115,7 @@ public class RenderingSystem extends EntitySystem {
                             position.set(tmpPosition, spriteComponent.getLayer());
 
                             if (scaleComponent != null) {
-                                scaleComponent.getScale(size);
+                                size.set(scaleComponent.getX(), scaleComponent.getY());
                             } else {
                                 size.set(1, 1);
                             }
@@ -132,13 +131,6 @@ public class RenderingSystem extends EntitySystem {
         }
 
         if (spriteComponent.isDirty()) {
-            for (String addedTag : spriteComponent.getAddedTags()) {
-                graphSprites.addTag(graphSprite, addedTag);
-            }
-            for (String removedTag : spriteComponent.getRemovedTags()) {
-                graphSprites.removeTag(graphSprite, removedTag);
-            }
-
             TextureRegion textureRegion = textureLoader.loadTexture(spriteComponent.getAtlas(), spriteComponent.getTexture());
             if (textureRegion != null)
                 graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), textureRegion);
@@ -156,6 +148,13 @@ public class RenderingSystem extends EntitySystem {
                 } else {
                     graphSprites.setProperty(graphSprite, property.key, value);
                 }
+            }
+
+            for (String addedTag : spriteComponent.getAddedTags()) {
+                graphSprites.addTag(graphSprite, addedTag);
+            }
+            for (String removedTag : spriteComponent.getRemovedTags()) {
+                graphSprites.removeTag(graphSprite, removedTag);
             }
         }
     }

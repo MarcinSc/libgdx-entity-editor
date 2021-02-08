@@ -16,6 +16,7 @@ import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.RenderingSystem;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
@@ -73,6 +74,9 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
             InputStream inputStream = child.read();
             try {
                 PipelineRenderer pipelineRenderer = GraphLoader.loadGraph(inputStream, new PipelineLoaderCallback(timeKeeper));
+                // TODO temporary camera
+                pipelineRenderer.setPipelineProperty("Camera", entityEditorScreen.getCamera());
+
                 RenderingSystem renderingSystem = new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
                 renderingSystem.setDefaultTextureRegion(whitePixel.textureRegion);
                 ashleyEngine.addSystem(renderingSystem);
@@ -168,7 +172,10 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
 
     @Override
     public Object createCoreComponent(Class<?> coreComponent) {
-        return ashleyEngine.createComponent((Class<Component>) coreComponent);
+        Component component = ashleyEngine.createComponent((Class<Component>) coreComponent);
+        if (component instanceof SpriteComponent)
+            ((SpriteComponent) component).addTag("Animated");
+        return component;
     }
 
     @Override

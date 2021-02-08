@@ -1,0 +1,314 @@
+{
+  "version": "0.5.0",
+  "type": "Render_Pipeline",
+  "nodes": [
+    {
+      "id": "ffd9b5257b944d4480b9e62c420bb54a",
+      "type": "Property",
+      "x": 50.0,
+      "y": 344.0,
+      "data": {
+        "name": "Camera",
+        "type": "Camera"
+      }
+    },
+    {
+      "id": "b5610adeabe44ebe92bea7eb5f53259f",
+      "type": "ValueColor",
+      "x": 69.0,
+      "y": 487.0,
+      "data": {
+        "color": "5e5e5eff"
+      }
+    },
+    {
+      "id": "end",
+      "type": "PipelineEnd",
+      "x": 343.0,
+      "y": 50.0
+    },
+    {
+      "id": "0c1699efe0414cf295be58e74319f00a",
+      "type": "SpriteShaderRenderer",
+      "x": 262.0,
+      "y": 144.0,
+      "data": {
+        "shaders": [
+          {
+            "id": "d2bdcffbda864c748b52e1a212966c58",
+            "tag": "Animated",
+            "shader": {
+              "version": "0.5.0",
+              "type": "Sprite_Shader",
+              "nodes": [
+                {
+                  "id": "cb06a9014aa14f6cbc8aba7c79ba4978",
+                  "type": "Subtract",
+                  "x": 264.0,
+                  "y": 161.0
+                },
+                {
+                  "id": "d9e1a2bf9834405aa5260163d8818f82",
+                  "type": "Property",
+                  "x": 262.0,
+                  "y": 245.0,
+                  "data": {
+                    "name": "Animation Speed",
+                    "type": "Float"
+                  }
+                },
+                {
+                  "id": "1140308b879e4cd7a4c96752e0708839",
+                  "type": "SpriteUV",
+                  "x": 618.0,
+                  "y": 409.0
+                },
+                {
+                  "id": "e99c9493abfa4c85b6b8d38e3e69dc4d",
+                  "type": "Time",
+                  "x": 52.0,
+                  "y": 115.0,
+                  "data": {
+                    "multiplier": 1.0
+                  }
+                },
+                {
+                  "id": "f3c5520f52974179af5ceb000f35f890",
+                  "type": "Property",
+                  "x": 618.0,
+                  "y": 350.0,
+                  "data": {
+                    "name": "Sprite Count",
+                    "type": "Vector2"
+                  }
+                },
+                {
+                  "id": "17061776ddbe4018b09cfe3a3574b454",
+                  "type": "Property",
+                  "x": 819.0,
+                  "y": 432.0,
+                  "data": {
+                    "name": "Texture",
+                    "type": "TextureRegion"
+                  }
+                },
+                {
+                  "id": "180a7715db0d494784b6629bfb054c9b",
+                  "type": "Multiply",
+                  "x": 451.0,
+                  "y": 216.0
+                },
+                {
+                  "id": "3a83146b38634b1e812b8396fd2dfcc4",
+                  "type": "Property",
+                  "x": 50.0,
+                  "y": 50.0,
+                  "data": {
+                    "name": "Animation Start",
+                    "type": "Float"
+                  }
+                },
+                {
+                  "id": "2affc280f9074df4bcd62e7fcd2513c9",
+                  "type": "Sampler2D",
+                  "x": 1024.0,
+                  "y": 365.0
+                },
+                {
+                  "id": "a085b0923c604a9bb35c80b8cd602b0a",
+                  "type": "Property",
+                  "x": 621.0,
+                  "y": 158.0,
+                  "data": {
+                    "name": "Animation Looping",
+                    "type": "Float"
+                  }
+                },
+                {
+                  "id": "end",
+                  "type": "SpriteShaderEnd",
+                  "x": 1248.0,
+                  "y": 98.0,
+                  "data": {
+                    "blending": "opaque",
+                    "depthTest": "less"
+                  }
+                },
+                {
+                  "id": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "type": "UVFlipbook",
+                  "x": 821.0,
+                  "y": 258.0,
+                  "data": {
+                    "invertX": false,
+                    "invertY": false
+                  }
+                }
+              ],
+              "connections": [
+                {
+                  "fromNode": "2affc280f9074df4bcd62e7fcd2513c9",
+                  "fromField": "a",
+                  "toNode": "end",
+                  "toField": "alpha"
+                },
+                {
+                  "fromNode": "1140308b879e4cd7a4c96752e0708839",
+                  "fromField": "uv",
+                  "toNode": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "toField": "uv"
+                },
+                {
+                  "fromNode": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "fromField": "output",
+                  "toNode": "2affc280f9074df4bcd62e7fcd2513c9",
+                  "toField": "uv"
+                },
+                {
+                  "fromNode": "2affc280f9074df4bcd62e7fcd2513c9",
+                  "fromField": "color",
+                  "toNode": "end",
+                  "toField": "color"
+                },
+                {
+                  "fromNode": "17061776ddbe4018b09cfe3a3574b454",
+                  "fromField": "value",
+                  "toNode": "2affc280f9074df4bcd62e7fcd2513c9",
+                  "toField": "texture"
+                },
+                {
+                  "fromNode": "e99c9493abfa4c85b6b8d38e3e69dc4d",
+                  "fromField": "time",
+                  "toNode": "cb06a9014aa14f6cbc8aba7c79ba4978",
+                  "toField": "a"
+                },
+                {
+                  "fromNode": "3a83146b38634b1e812b8396fd2dfcc4",
+                  "fromField": "value",
+                  "toNode": "cb06a9014aa14f6cbc8aba7c79ba4978",
+                  "toField": "b"
+                },
+                {
+                  "fromNode": "cb06a9014aa14f6cbc8aba7c79ba4978",
+                  "fromField": "output",
+                  "toNode": "180a7715db0d494784b6629bfb054c9b",
+                  "toField": "inputs"
+                },
+                {
+                  "fromNode": "d9e1a2bf9834405aa5260163d8818f82",
+                  "fromField": "value",
+                  "toNode": "180a7715db0d494784b6629bfb054c9b",
+                  "toField": "inputs"
+                },
+                {
+                  "fromNode": "a085b0923c604a9bb35c80b8cd602b0a",
+                  "fromField": "value",
+                  "toNode": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "toField": "looping"
+                },
+                {
+                  "fromNode": "180a7715db0d494784b6629bfb054c9b",
+                  "fromField": "output",
+                  "toNode": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "toField": "index"
+                },
+                {
+                  "fromNode": "f3c5520f52974179af5ceb000f35f890",
+                  "fromField": "value",
+                  "toNode": "656d45cb9eed4e4ebf7d010f93f67fb7",
+                  "toField": "tileCount"
+                }
+              ],
+              "properties": [
+                {
+                  "name": "Texture",
+                  "type": "TextureRegion"
+                },
+                {
+                  "name": "Animation Start",
+                  "type": "Float",
+                  "data": {
+                    "x": 0.0
+                  }
+                },
+                {
+                  "name": "Animation Speed",
+                  "type": "Float",
+                  "data": {
+                    "x": 1.0
+                  }
+                },
+                {
+                  "name": "Animation Looping",
+                  "type": "Float",
+                  "data": {
+                    "x": 1.0
+                  }
+                },
+                {
+                  "name": "Sprite Count",
+                  "type": "Vector2",
+                  "data": {
+                    "x": 1.0,
+                    "y": 1.0
+                  }
+                }
+              ],
+              "groups": [
+                {
+                  "name": "Animation Frame",
+                  "nodes": [
+                    "180a7715db0d494784b6629bfb054c9b",
+                    "e99c9493abfa4c85b6b8d38e3e69dc4d",
+                    "d9e1a2bf9834405aa5260163d8818f82",
+                    "3a83146b38634b1e812b8396fd2dfcc4",
+                    "cb06a9014aa14f6cbc8aba7c79ba4978"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "e856fcafa98141b8819599ff70ed2d53",
+      "type": "PipelineStart",
+      "x": 342.0,
+      "y": 464.0
+    }
+  ],
+  "connections": [
+    {
+      "fromNode": "b5610adeabe44ebe92bea7eb5f53259f",
+      "fromField": "value",
+      "toNode": "e856fcafa98141b8819599ff70ed2d53",
+      "toField": "background"
+    },
+    {
+      "fromNode": "e856fcafa98141b8819599ff70ed2d53",
+      "fromField": "output",
+      "toNode": "0c1699efe0414cf295be58e74319f00a",
+      "toField": "input"
+    },
+    {
+      "fromNode": "0c1699efe0414cf295be58e74319f00a",
+      "fromField": "output",
+      "toNode": "end",
+      "toField": "input"
+    },
+    {
+      "fromNode": "ffd9b5257b944d4480b9e62c420bb54a",
+      "fromField": "value",
+      "toNode": "0c1699efe0414cf295be58e74319f00a",
+      "toField": "camera"
+    }
+  ],
+  "properties": [
+    {
+      "name": "Camera",
+      "type": "Camera"
+    }
+  ],
+  "groups": []
+}

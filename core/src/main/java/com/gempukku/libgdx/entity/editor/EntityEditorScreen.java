@@ -1,5 +1,7 @@
 package com.gempukku.libgdx.entity.editor;
 
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
@@ -24,13 +26,18 @@ public class EntityEditorScreen extends Table {
     private EntityEditorPreview entityEditorPreview;
     private UtilityPanel utilityPanel;
     private EntityInspector entityInspector;
+    private OrthographicCamera camera;
 
     public EntityEditorScreen(Skin skin, EntityEditorProject project) {
         super(skin);
 
+        camera = new OrthographicCamera();
+        camera.position.set(0, 0, 0);
+        camera.update();
+
         objectTree = new ObjectTree(skin);
         pluginSettings = new PluginSettings(skin);
-        entityEditorPreview = new EntityEditorPreview();
+        entityEditorPreview = new EntityEditorPreview(camera);
         utilityPanel = new UtilityPanel();
         entityInspector = new EntityInspector(skin);
 
@@ -80,5 +87,9 @@ public class EntityEditorScreen extends Table {
 
     public int getPreviewHeight() {
         return MathUtils.round(entityEditorPreview.getHeight());
+    }
+
+    public Camera getCamera() {
+        return camera;
     }
 }
