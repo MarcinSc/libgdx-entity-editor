@@ -28,6 +28,7 @@ import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
 import com.gempukku.libgdx.graph.time.DefaultTimeKeeper;
 import com.gempukku.libgdx.graph.util.WhitePixel;
+import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 import java.io.InputStream;
 
@@ -62,6 +63,28 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         objectTreeData.setObjectTreeFeedback(this);
 
         setupProject(entityEditorScreen);
+
+        AshleyEngineJson engineJson = new AshleyEngineJson(ashleyEngine);
+
+        for (JsonValue entityGroup : project.get("entityGroups")) {
+            String name = entityGroup.getString("name");
+            for (JsonValue entity : entityGroup.get("entities")) {
+                String path = entity.getString("path", null);
+                Entity ashleyEntity = ashleyEngine.createEntity();
+                JsonValue data = entity.get("data");
+                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, ashleyEntity, data);
+                objectTreeData.addEntity(name, path, entityDefinition.getName(), entityDefinition);
+                ashleyEngine.addEntity(ashleyEntity);
+            }
+        }
+
+        for (JsonValue template : project.get("templates")) {
+            String path = template.getString("path", null);
+            Entity ashleyEntity = ashleyEngine.createEntity();
+            JsonValue data = template.get("data");
+            AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, ashleyEntity, data);
+            objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
+        }
     }
 
     private void setupProject(EntityEditorScreen entityEditorScreen) {
@@ -70,10 +93,10 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         timeKeeper = new DefaultTimeKeeper();
         directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
 
-        ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
-        objectTreeData.addEntity("level-1", null, "entity-1", new AshleyEntityDefinition("entity-1", entity));
+        //ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
+        //objectTreeData.addEntity("level-1", null, "entity-1", new AshleyEntityDefinition("entity-1", entity));
 
         FileHandle child = folder.child(settings.getRendererPipeline());
         try {

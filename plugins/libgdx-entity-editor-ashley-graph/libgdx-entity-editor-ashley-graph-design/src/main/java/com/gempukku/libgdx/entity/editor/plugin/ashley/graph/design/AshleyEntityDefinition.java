@@ -8,9 +8,19 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
+import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     private Entity entity;
+
+    public AshleyEntityDefinition(AshleyEngineJson json, Entity entity, JsonValue value) {
+        super(value.getString("name"));
+        this.entity = entity;
+        for (JsonValue coreComponent : value.get("coreComponents")) {
+            Component component = json.readValue(Component.class, coreComponent);
+            entity.add(component);
+        }
+    }
 
     public AshleyEntityDefinition(String name, Entity entity) {
         super(name);

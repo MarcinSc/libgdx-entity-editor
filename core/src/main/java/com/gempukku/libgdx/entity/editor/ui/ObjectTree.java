@@ -273,7 +273,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
     @Override
     public void addTemplate(String parentPath, String name, EntityDefinition template) {
         Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath);
-        EntityDefinitionNode node = new EntityDefinitionNode(getSkin(), template);
+        EntityTemplateNode node = new EntityTemplateNode(getSkin(), template);
         mergeInNode(entityGroupFolderNode, node);
     }
 
