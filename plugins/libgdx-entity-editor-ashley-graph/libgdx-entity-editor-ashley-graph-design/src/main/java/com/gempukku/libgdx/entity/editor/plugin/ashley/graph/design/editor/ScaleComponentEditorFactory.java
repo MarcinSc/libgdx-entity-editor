@@ -6,7 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.kotcrab.vis.ui.widget.Separator;
 
 public class ScaleComponentEditorFactory implements ComponentEditorFactory<ScaleComponent> {
@@ -22,17 +22,15 @@ public class ScaleComponentEditorFactory implements ComponentEditorFactory<Scale
         public ScaleComponentEditor(Skin skin, ScaleComponent component) {
             this.component = component;
 
-
-            PairOfFloatsWidget widget = new PairOfFloatsWidget(
-                    skin,
+            PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
+                    skin, EditorConfig.LABEL_WIDTH,
                     "X", component.getX(), "Y", component.getY(),
-                    new PairOfFloatsWidget.Callback() {
+                    new PairOfFloatsEditorWidget.Callback() {
                         @Override
                         public void update(float value1, float value2) {
                             component.setScale(value1, value2);
                         }
-                    }
-            );
+                    });
 
             Table tbl = new Table(skin);
             tbl.add(new Separator()).growX().row();

@@ -9,13 +9,13 @@ import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class OneFloatWidget extends Table {
+public class FloatEditorWidget extends Table {
     private final VisValidatableTextField field;
 
-    public OneFloatWidget(
-            Skin skin,
+    public FloatEditorWidget(
+            Skin skin, float width,
             String label, float value,
-            OneFloatWidget.Callback callback) {
+            FloatEditorWidget.Callback callback) {
         super(skin);
 
         ChangeListener changeListener = new ChangeListener() {
@@ -33,7 +33,7 @@ public class OneFloatWidget extends Table {
         field.setText(SimpleNumberFormatter.format(value));
         field.addListener(changeListener);
 
-        add(label + ": ");
+        add(label + ": ").width(width);
         add(field).growX().row();
     }
 

@@ -9,12 +9,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 
-public class StringArrayWidget extends Table {
-    public StringArrayWidget(
-            Skin skin, String label, Iterable<String> values, Callback callback) {
+public class StringArrayEditorWidget extends Table {
+    public StringArrayEditorWidget(
+            Skin skin,
+            String label, Iterable<String> values, Callback callback) {
         super(skin);
 
         final VerticalGroup verticalGroup = new VerticalGroup();
@@ -43,7 +45,7 @@ public class StringArrayWidget extends Table {
                                     @Override
                                     public void finished(String input) {
                                         addString(skin, verticalGroup, input);
-                                        callback.addValue(input);
+                                        updateValues(verticalGroup, callback);
                                     }
 
                                     @Override
@@ -61,17 +63,24 @@ public class StringArrayWidget extends Table {
                         for (Actor child : verticalGroup.getChildren()) {
                             CheckBox checkbox = (CheckBox) child;
                             if (checkbox.isChecked()) {
-                                callback.removeValue(checkbox.getText().toString());
                                 verticalGroup.removeActor(child);
                             }
                         }
-
+                        updateValues(verticalGroup, callback);
                     }
                 });
 
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
         add(buttonTable).growX().row();
+    }
+
+    private void updateValues(VerticalGroup group, Callback callback) {
+        Array<String> result = new Array<>();
+        for (Actor child : group.getChildren()) {
+            result.add(((CheckBox) child).getText().toString());
+        }
+        callback.setValue(result);
     }
 
     private void addString(Skin skin, VerticalGroup verticalGroup, String value) {
@@ -81,8 +90,6 @@ public class StringArrayWidget extends Table {
     }
 
     public interface Callback {
-        void removeValue(String value);
-
-        void addValue(String value);
+        void setValue(Array<String> value);
     }
 }

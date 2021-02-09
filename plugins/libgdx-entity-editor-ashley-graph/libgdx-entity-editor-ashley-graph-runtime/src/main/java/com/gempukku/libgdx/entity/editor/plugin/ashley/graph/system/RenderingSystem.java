@@ -17,7 +17,6 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComp
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.value.FloatValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.value.TextureValue;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
 import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
@@ -139,8 +138,8 @@ public class RenderingSystem extends EntitySystem {
 
             for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
                 Object value = property.value;
-                if (value instanceof FloatValue) {
-                    graphSprites.setProperty(graphSprite, property.key, ((FloatValue) value).getValue());
+                if (value instanceof Number) {
+                    graphSprites.setProperty(graphSprite, property.key, ((Number) value).floatValue());
                 } else if (value instanceof TextureValue) {
                     TextureValue textureValue = (TextureValue) value;
                     TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());

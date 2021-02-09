@@ -3,7 +3,7 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 import com.badlogic.ashley.core.Component;
 
 public abstract class DirtyComponent implements Component {
-    private boolean dirty = true;
+    private transient boolean dirty = true;
 
     protected void setDirty() {
         dirty = true;

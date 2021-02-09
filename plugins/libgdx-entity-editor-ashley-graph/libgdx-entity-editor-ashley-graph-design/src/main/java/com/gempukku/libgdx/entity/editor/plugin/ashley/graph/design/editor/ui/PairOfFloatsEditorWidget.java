@@ -9,12 +9,12 @@ import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class PairOfFloatsWidget extends Table {
+public class PairOfFloatsEditorWidget extends Table {
     private final VisValidatableTextField field1;
     private final VisValidatableTextField field2;
 
-    public PairOfFloatsWidget(
-            Skin skin,
+    public PairOfFloatsEditorWidget(
+            Skin skin, float width,
             String label1, float value1,
             String label2, float value2,
             Callback callback) {
@@ -41,9 +41,9 @@ public class PairOfFloatsWidget extends Table {
         field2.setText(SimpleNumberFormatter.format(value2));
         field2.addListener(changeListener);
 
-        add(label1 + ": ");
+        add(label1 + ": ").width(width);
         add(field1).growX().row();
-        add(label2 + ": ");
+        add(label2 + ": ").width(width);
         add(field2).growX().row();
     }
 

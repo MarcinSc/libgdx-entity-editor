@@ -59,15 +59,10 @@ public class SpriteComponent extends DirtyComponent {
         return tags.contains(tag, false);
     }
 
-    public void addTag(String tag) {
-        if (!tags.contains(tag, false)) {
-            tags.add(tag);
-            setDirty();
-        }
-    }
-
-    public void removeTag(String tag) {
-        if (tags.removeValue(tag, false)) {
+    public void setTags(Array<String> tags) {
+        if (!tags.equals(this.tags)) {
+            this.tags.clear();
+            this.tags.addAll(tags);
             setDirty();
         }
     }
@@ -80,6 +75,10 @@ public class SpriteComponent extends DirtyComponent {
 
     public String getTexturePropertyName() {
         return texturePropertyName;
+    }
+
+    public void setTexturePropertyName(String texturePropertyName) {
+        this.texturePropertyName = texturePropertyName;
     }
 
     public String getAtlas() {

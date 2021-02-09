@@ -19,7 +19,6 @@ import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.CleaningSystem;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.RenderingSystem;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
@@ -238,10 +237,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
 
     @Override
     public Object createCoreComponent(Class<?> coreComponent) {
-        Component component = ashleyEngine.createComponent((Class<Component>) coreComponent);
-        if (component instanceof SpriteComponent)
-            ((SpriteComponent) component).addTag("Animated");
-        return component;
+        return ashleyEngine.createComponent((Class<Component>) coreComponent);
     }
 
     @Override

@@ -55,15 +55,17 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
     @Override
     public JsonValue toJson() {
+        Json json = new Json(JsonWriter.OutputType.json);
+        json.setUsePrototypes(false);
+
+        JsonReader jsonReader = new JsonReader();
+
         JsonValue result = new JsonValue(JsonValue.ValueType.object);
         result.addChild("name", new JsonValue(getName()));
 
         JsonValue coreComponents = new JsonValue(JsonValue.ValueType.array);
         for (Component component : entity.getComponents()) {
-            Json json = new Json(JsonWriter.OutputType.json);
-            JsonValue componentJson = new JsonReader().parse(json.toJson(component, Component.class));
-            componentJson.remove("dirty");
-            coreComponents.addChild(componentJson);
+            coreComponents.addChild(jsonReader.parse(json.toJson(component, Component.class)));
         }
         result.addChild("coreComponents", coreComponents);
 

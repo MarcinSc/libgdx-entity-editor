@@ -391,7 +391,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
             if (type1 != type2)
                 return type1 - type2;
 
-            return getNameForNode(o1).compareTo(getNameForNode(o2));
+            return getNameForNode(o1).compareToIgnoreCase(getNameForNode(o2));
         }
 
         private int getTypeValue(Tree.Node node) {
