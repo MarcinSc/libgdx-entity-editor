@@ -1,5 +1,6 @@
 package com.gempukku.libgdx.entity.editor.data;
 
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 
 public interface EntityDefinition<T> {
@@ -14,4 +15,6 @@ public interface EntityDefinition<T> {
     Iterable<CustomComponentDefinition> getCustomComponents();
 
     boolean hasCoreComponent(Class<T> coreComponent);
+
+    JsonValue toJson();
 }

@@ -7,9 +7,11 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
+import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
@@ -52,10 +54,12 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         this.whitePixel = new WhitePixel();
         this.editorScreen = entityEditorScreen;
 
-        createSettings(readProject(folder), skin);
+        JsonValue project = readProject(folder);
+        createSettings(project, skin);
         entityEditorScreen.setPluginSettings(settings);
 
-        entityEditorScreen.getObjectTreeData().setObjectTreeFeedback(this);
+        ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
+        objectTreeData.setObjectTreeFeedback(this);
 
         setupProject(entityEditorScreen);
     }
@@ -67,7 +71,6 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
 
         ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
-        objectTreeData.addEntityGroup(new DefaultEntityGroup("level-1"));
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
         objectTreeData.addEntity("level-1", null, "entity-1", new AshleyEntityDefinition("entity-1", entity));
@@ -109,7 +112,7 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     }
 
     @Override
-    public void save(FileHandle folder) {
+    public void save(FileHandle folder, ObjectTreeData objectTreeData) {
         JsonValue project = new JsonValue(JsonValue.ValueType.object);
 
         JsonValue settingsValue = new JsonValue(JsonValue.ValueType.object);
@@ -118,6 +121,36 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         settingsValue.addChild("entityGroupsFolder", new JsonValue(settings.getEntityGroupsFolder()));
         settingsValue.addChild("assetsFolder", new JsonValue(settings.getAssetsFolder()));
         project.addChild("settings", settingsValue);
+
+        JsonValue entityGroups = new JsonValue(JsonValue.ValueType.array);
+        for (String entityGroup : objectTreeData.getEntityGroups()) {
+            JsonValue group = new JsonValue(JsonValue.ValueType.object);
+            group.addChild("name", new JsonValue(entityGroup));
+
+            JsonValue entities = new JsonValue(JsonValue.ValueType.array);
+            for (ObjectTreeData.LocatedEntityDefinition entity : objectTreeData.getEntities(entityGroup)) {
+                JsonValue entityJson = new JsonValue(JsonValue.ValueType.object);
+                entityJson.addChild("path", new JsonValue(entity.getPath()));
+                entityJson.addChild("data", entity.getEntityDefinition().toJson());
+                entities.addChild(entityJson);
+            }
+            group.addChild("entities", entities);
+
+            entityGroups.addChild(group);
+        }
+        project.addChild("entityGroups", entityGroups);
+
+        JsonValue templates = new JsonValue(JsonValue.ValueType.array);
+        for (ObjectTreeData.LocatedEntityDefinition template : objectTreeData.getTemplates()) {
+            JsonValue templateJson = new JsonValue(JsonValue.ValueType.object);
+            templateJson.addChild("path", new JsonValue(template.getPath()));
+            templateJson.addChild("data", template.getEntityDefinition().toJson());
+            templates.addChild(templateJson);
+        }
+
+        project.addChild("templates", templates);
+
+        folder.child(PROJECT_FILE_NAME).writeString(project.toJson(JsonWriter.OutputType.json), false);
     }
 
     private JsonValue readProject(FileHandle folder) {
@@ -147,8 +180,8 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     }
 
     @Override
-    public void createEntityGroup(String entityGroupName) {
-        editorScreen.getObjectTreeData().addEntityGroup(new DefaultEntityGroup(entityGroupName));
+    public EntityGroup createEntityGroup(String entityGroupName) {
+        return new DefaultEntityGroup(entityGroupName);
     }
 
     @Override

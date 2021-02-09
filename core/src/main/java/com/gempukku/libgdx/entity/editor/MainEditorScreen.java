@@ -206,7 +206,7 @@ public class MainEditorScreen extends Table implements Disposable {
     }
 
     private void save() {
-        entityEditorProject.save(editedProjectFolder);
+        entityEditorProject.save(editedProjectFolder, editorScreen.getObjectTreeData());
     }
 
     private void close() {

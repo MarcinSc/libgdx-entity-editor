@@ -2,6 +2,10 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.JsonWriter;
 import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 
@@ -37,5 +41,22 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     @Override
     public boolean hasCoreComponent(Class<Component> coreComponent) {
         return entity.getComponent(coreComponent) != null;
+    }
+
+    @Override
+    public JsonValue toJson() {
+        JsonValue result = new JsonValue(JsonValue.ValueType.object);
+        result.addChild("name", new JsonValue(getName()));
+
+        JsonValue coreComponents = new JsonValue(JsonValue.ValueType.array);
+        for (Component component : entity.getComponents()) {
+            Json json = new Json(JsonWriter.OutputType.json);
+            JsonValue componentJson = new JsonReader().parse(json.toJson(component, Component.class));
+            componentJson.remove("dirty");
+            coreComponents.addChild(componentJson);
+        }
+        result.addChild("coreComponents", coreComponents);
+
+        return result;
     }
 }
