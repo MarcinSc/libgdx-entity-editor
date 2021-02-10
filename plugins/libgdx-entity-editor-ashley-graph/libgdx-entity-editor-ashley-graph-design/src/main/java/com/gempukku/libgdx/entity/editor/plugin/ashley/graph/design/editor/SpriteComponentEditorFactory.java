@@ -3,17 +3,15 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.FloatEditorWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.GraphShaderPropertiesEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringArrayEditorWidget;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringEditorWidget;
 import com.kotcrab.vis.ui.widget.Separator;
 
 public class SpriteComponentEditorFactory implements ComponentEditorFactory<SpriteComponent> {
@@ -56,11 +54,11 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            StringEditorWidget textureProperty = new StringEditorWidget(skin, EditorConfig.LABEL_WIDTH, "Texture property", component.getTexturePropertyName(),
-                    new StringEditorWidget.Callback() {
+            GraphShaderPropertiesEditorWidget properties = new GraphShaderPropertiesEditorWidget(skin, "Shader properties", component.getProperties(),
+                    new GraphShaderPropertiesEditorWidget.Callback() {
                         @Override
-                        public void update(String value) {
-                            component.setTexturePropertyName(value);
+                        public void setValue(ObjectMap<String, Object> value) {
+                            component.setProperties(value);
                         }
                     });
 
@@ -69,38 +67,10 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
             tbl.add("Sprite component").growX().pad(3).row();
             tbl.add(position).growX().pad(3).row();
             tbl.add(layer).growX().pad(3).row();
-            tbl.add(createTextureActor(skin)).growX().pad(3).row();
-            tbl.add(textureProperty).growX().pad(3).row();
             tbl.add(tags).growX().pad(3).row();
+            tbl.add(properties).growX().pad(3).row();
 
             this.actor = tbl;
-        }
-
-        private Actor createTextureActor(Skin skin) {
-            Table textureTable = new Table(skin);
-
-            final TextField textFieldAtlas = new TextField(component.getAtlas(), skin);
-            final TextField textFieldSprite = new TextField(component.getAtlas(), skin);
-
-            ChangeListener changeListener = new ChangeListener() {
-                @Override
-                public void changed(ChangeEvent event, Actor actor) {
-                    component.setTexture(textFieldAtlas.getText(), textFieldSprite.getText());
-                }
-            };
-
-            textFieldAtlas.setAlignment(Align.right);
-            textFieldAtlas.addListener(changeListener);
-
-            textFieldSprite.setAlignment(Align.right);
-            textFieldSprite.addListener(changeListener);
-
-            textureTable.add("Atlas: ").width(EditorConfig.LABEL_WIDTH);
-            textureTable.add(textFieldAtlas).growX().row();
-            textureTable.add("Texture: ").width(EditorConfig.LABEL_WIDTH);
-            textureTable.add(textFieldSprite).growX().row();
-
-            return textureTable;
         }
 
         @Override

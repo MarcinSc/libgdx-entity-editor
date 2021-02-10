@@ -25,6 +25,7 @@ import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
 import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
+import com.gempukku.libgdx.graph.shader.common.CommonShaderConfiguration;
 import com.gempukku.libgdx.graph.time.DefaultTimeKeeper;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
@@ -52,6 +53,8 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     @Override
     public void initialize(Skin skin, EntityEditorScreen entityEditorScreen) {
         this.whitePixel = new WhitePixel();
+        CommonShaderConfiguration.setDefaultTextureRegionProperty(whitePixel.textureRegion);
+
         this.editorScreen = entityEditorScreen;
 
         JsonValue project = readProject(folder);
@@ -247,5 +250,6 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
         }
         directTextureLoader.dispose();
         whitePixel.dispose();
+        CommonShaderConfiguration.setDefaultTextureRegionProperty(null);
     }
 }

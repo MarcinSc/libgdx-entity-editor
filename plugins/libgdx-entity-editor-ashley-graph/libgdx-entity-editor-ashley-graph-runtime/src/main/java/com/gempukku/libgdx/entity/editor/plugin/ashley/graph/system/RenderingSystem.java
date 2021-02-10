@@ -17,7 +17,8 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComp
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.value.TextureValue;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.CurrentTimeValue;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
 import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
 import com.gempukku.libgdx.graph.plugin.sprites.GraphSprites;
@@ -84,11 +85,7 @@ public class RenderingSystem extends EntitySystem {
             if (spriteState != null && spriteState.isDirty()) {
                 SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
 
-                sprite.setTexture(stateData.getAtlas(), stateData.getTexture());
                 sprite.setProperties(stateData.getProperties());
-                String timePropertyName = spriteState.getTimePropertyName();
-                if (timePropertyName != null)
-                    sprite.getProperties().put(timePropertyName, timeProvider.getTime());
             }
 
             setSpriteProperties(spriteEntity, false);
@@ -130,12 +127,6 @@ public class RenderingSystem extends EntitySystem {
         }
 
         if (force || spriteComponent.isDirty()) {
-            TextureRegion textureRegion = textureLoader.loadTexture(spriteComponent.getAtlas(), spriteComponent.getTexture());
-            if (textureRegion != null)
-                graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), textureRegion);
-            else if (defaultTextureRegion != null)
-                graphSprites.setProperty(graphSprite, spriteComponent.getTexturePropertyName(), defaultTextureRegion);
-
             for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
                 Object value = property.value;
                 if (value instanceof Number) {
@@ -144,6 +135,8 @@ public class RenderingSystem extends EntitySystem {
                     TextureValue textureValue = (TextureValue) value;
                     TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());
                     graphSprites.setProperty(graphSprite, property.key, textureRegionValue);
+                } else if (value instanceof CurrentTimeValue) {
+                    graphSprites.setProperty(graphSprite, property.key, timeProvider.getTime());
                 } else {
                     graphSprites.setProperty(graphSprite, property.key, value);
                 }

@@ -20,7 +20,7 @@ public class StringArrayEditorWidget extends Table {
         super(skin);
 
         final VerticalGroup verticalGroup = new VerticalGroup();
-        verticalGroup.fill();
+        verticalGroup.grow();
         verticalGroup.align(Align.topLeft);
 
         for (String value : values) {
@@ -29,10 +29,8 @@ public class StringArrayEditorWidget extends Table {
 
         ScrollPane scrollPane = new ScrollPane(verticalGroup);
         scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(false, true);
+        scrollPane.setForceScroll(true, true);
 
-        add(label + ":").growX().row();
-        add(scrollPane).height(100).growX().row();
         Table buttonTable = new Table(skin);
 
         TextButton addButton = new TextButton("Add value", skin);
@@ -72,6 +70,9 @@ public class StringArrayEditorWidget extends Table {
 
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
+
+        add(label + ":").growX().row();
+        add(scrollPane).height(100).growX().row();
         add(buttonTable).growX().row();
     }
 

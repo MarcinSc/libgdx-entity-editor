@@ -5,15 +5,10 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.Sprit
 
 public class SpriteStateComponent extends DirtyComponent {
     private String state;
-    private String timePropertyName;
     private ObjectMap<String, SpriteStateDataDef> states;
 
     public String getState() {
         return state;
-    }
-
-    public String getTimePropertyName() {
-        return timePropertyName;
     }
 
     public void setState(String state) {

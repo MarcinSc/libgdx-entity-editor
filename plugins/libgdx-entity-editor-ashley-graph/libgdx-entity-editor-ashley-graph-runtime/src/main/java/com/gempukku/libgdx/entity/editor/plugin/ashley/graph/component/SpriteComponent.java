@@ -5,13 +5,10 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
 
 public class SpriteComponent extends DirtyComponent {
-    private String texturePropertyName = "Texture";
     private float layer;
     private float anchorX = 0.5f;
     private float anchorY = 0.5f;
     private Array<String> tags = new Array<>();
-    private String atlas;
-    private String texture;
     private ObjectMap<String, Object> properties = new ObjectMap<>();
 
     private transient GraphSprite graphSprite;
@@ -65,28 +62,6 @@ public class SpriteComponent extends DirtyComponent {
             this.tags.addAll(tags);
             setDirty();
         }
-    }
-
-    public void setTexture(String atlas, String texture) {
-        this.atlas = atlas;
-        this.texture = texture;
-        setDirty();
-    }
-
-    public String getTexturePropertyName() {
-        return texturePropertyName;
-    }
-
-    public void setTexturePropertyName(String texturePropertyName) {
-        this.texturePropertyName = texturePropertyName;
-    }
-
-    public String getAtlas() {
-        return atlas;
-    }
-
-    public String getTexture() {
-        return texture;
     }
 
     public void setProperties(ObjectMap<String, Object> properties) {
