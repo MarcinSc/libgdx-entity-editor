@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
@@ -20,6 +21,7 @@ import com.kotcrab.vis.ui.widget.Separator;
 public class EntityInspector extends Table {
     private Table entityDetails;
     private EntityDefinition editedEntity;
+    private ObjectMap<String, ComponentEditor> componentEditors = new ObjectMap<>();
 
     public EntityInspector(Skin skin) {
         super(skin);
@@ -36,6 +38,7 @@ public class EntityInspector extends Table {
         this.editedEntity = editedEntity;
 
         entityDetails.clearChildren();
+        componentEditors.clear();
 
         if (editedEntity != null) {
             Skin skin = getSkin();
@@ -70,10 +73,36 @@ public class EntityInspector extends Table {
                         }
                     });
 
-            entityDetails.add("Name: " + editedEntity.getName()).row();
-            entityDetails.add(addComponent).row();
+            TextButton removeComponent = new TextButton("Remove component", skin);
+            removeComponent.addListener(
+                    new ClickListener() {
+                        @Override
+                        public void clicked(InputEvent event, float x, float y) {
+                            PopupMenu menu = new PopupMenu();
 
-            for (Object coreComponent : editedEntity.getCoreComponents()) {
+                            for (Class coreComponent : (Iterable<Class>) editedEntity.getCoreComponents()) {
+                                MenuItem menuItem = new MenuItem(coreComponent.getSimpleName());
+                                menuItem.addListener(
+                                        new ChangeListener() {
+                                            @Override
+                                            public void changed(ChangeEvent event, Actor actor) {
+                                                editedEntity.removeCoreComponent(coreComponent);
+                                                removeCoreComponentEditor(tbl, coreComponent);
+                                            }
+                                        });
+                                menu.addItem(menuItem);
+                            }
+
+                            menu.showMenu(getStage(), removeComponent);
+                        }
+                    });
+
+            entityDetails.add("Name: " + editedEntity.getName()).colspan(2).row();
+            entityDetails.add(addComponent);
+            entityDetails.add(removeComponent).row();
+
+            for (Class coreComponentClass : (Iterable<Class>) editedEntity.getCoreComponents()) {
+                Object coreComponent = editedEntity.getCoreComponent(coreComponentClass);
                 addCoreComponentEditor(skin, tbl, coreComponent);
             }
 
@@ -81,13 +110,20 @@ public class EntityInspector extends Table {
             scrollPane.setFadeScrollBars(false);
             scrollPane.setForceScroll(false, true);
 
-            entityDetails.add(scrollPane).grow().row();
+            entityDetails.add(scrollPane).colspan(2).grow().row();
         }
     }
 
     private void addCoreComponentEditor(Skin skin, Table table, Object coreComponent) {
-        ComponentEditorFactory componentEditorFactory = EntityComponentRegistry.getComponentEditorFactory(coreComponent.getClass());
+        Class<?> clazz = coreComponent.getClass();
+        ComponentEditorFactory componentEditorFactory = EntityComponentRegistry.getComponentEditorFactory(clazz);
         ComponentEditor componentEditor = componentEditorFactory.createComponentEditor(skin, coreComponent);
         table.add(componentEditor.getActor()).growX().row();
+        componentEditors.put(clazz.getSimpleName(), componentEditor);
+    }
+
+    private void removeCoreComponentEditor(Table table, Class clazz) {
+        ComponentEditor componentEditor = componentEditors.remove(clazz.getSimpleName());
+        table.removeActor(componentEditor.getActor());
     }
 }

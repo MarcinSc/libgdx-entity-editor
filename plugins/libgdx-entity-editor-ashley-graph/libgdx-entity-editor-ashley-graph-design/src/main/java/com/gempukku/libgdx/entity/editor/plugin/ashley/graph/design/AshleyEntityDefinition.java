@@ -2,23 +2,24 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     private Entity entity;
+    private Array<Class<? extends Component>> coreComponents = new Array<>();
 
     public AshleyEntityDefinition(AshleyEngineJson json, Entity entity, JsonValue value) {
         super(value.getString("name"));
         this.entity = entity;
         for (JsonValue coreComponent : value.get("coreComponents")) {
             Component component = json.readValue(Component.class, coreComponent);
-            entity.add(component);
+            addCoreComponent(component);
         }
     }
 
@@ -30,27 +31,28 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     @Override
     public void addCoreComponent(Component coreComponent) {
         entity.add(coreComponent);
+        coreComponents.add(coreComponent.getClass());
     }
 
     @Override
-    public void removeCoreComponent(Component coreComponent) {
-        entity.remove(coreComponent.getClass());
+    public void removeCoreComponent(Class<? extends Component> coreComponent) {
+        coreComponents.removeValue(coreComponent, false);
+        entity.remove(coreComponent);
     }
 
     @Override
-    public Iterable<? extends Component> getCoreComponents() {
-        return entity.getComponents();
+    public Iterable<Class<? extends Component>> getCoreComponents() {
+        return coreComponents;
     }
 
     @Override
-    public Iterable<CustomComponentDefinition> getCustomComponents() {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public boolean hasCoreComponent(Class<Component> coreComponent) {
+    public boolean hasCoreComponent(Class<? extends Component> coreComponent) {
         return entity.getComponent(coreComponent) != null;
+    }
+
+    @Override
+    public Component getCoreComponent(Class<? extends Component> clazz) {
+        return entity.getComponent(clazz);
     }
 
     @Override
@@ -64,7 +66,8 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         result.addChild("name", new JsonValue(getName()));
 
         JsonValue coreComponents = new JsonValue(JsonValue.ValueType.array);
-        for (Component component : entity.getComponents()) {
+        for (Class<? extends Component> coreComponentClass : this.coreComponents) {
+            Component component = entity.getComponent(coreComponentClass);
             coreComponents.addChild(jsonReader.parse(json.toJson(component, Component.class)));
         }
         result.addChild("coreComponents", coreComponents);
