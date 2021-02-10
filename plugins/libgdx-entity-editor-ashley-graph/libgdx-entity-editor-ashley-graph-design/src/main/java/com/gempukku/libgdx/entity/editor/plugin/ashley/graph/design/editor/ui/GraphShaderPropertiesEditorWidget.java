@@ -55,10 +55,9 @@ public class GraphShaderPropertiesEditorWidget extends Table {
             addProperty(skin, verticalGroup, entry.key, entry.value);
         }
 
-        ScrollPane scrollPane = new ScrollPane(verticalGroup);
+        ScrollPane scrollPane = new ScrollPane(verticalGroup, skin);
         scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(true, true);
-        scrollPane.setDebug(true);
+        scrollPane.setForceScroll(false, true);
 
         Table buttonTable = new Table(skin);
 
@@ -122,7 +121,6 @@ public class GraphShaderPropertiesEditorWidget extends Table {
 
     private void addProperty(Skin skin, VerticalGroup verticalGroup, String name, Object value) {
         ShaderProperty shaderProperty = new ShaderProperty(skin, name, value, updateValue);
-        shaderProperty.setDebug(true);
         verticalGroup.addActor(shaderProperty);
     }
 

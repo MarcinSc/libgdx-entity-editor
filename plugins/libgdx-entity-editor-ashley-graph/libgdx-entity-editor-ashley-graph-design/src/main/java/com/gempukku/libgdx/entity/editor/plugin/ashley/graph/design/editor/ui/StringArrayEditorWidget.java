@@ -27,9 +27,9 @@ public class StringArrayEditorWidget extends Table {
             addString(skin, verticalGroup, value);
         }
 
-        ScrollPane scrollPane = new ScrollPane(verticalGroup);
+        ScrollPane scrollPane = new ScrollPane(verticalGroup, skin);
         scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(true, true);
+        scrollPane.setForceScroll(false, true);
 
         Table buttonTable = new Table(skin);
 

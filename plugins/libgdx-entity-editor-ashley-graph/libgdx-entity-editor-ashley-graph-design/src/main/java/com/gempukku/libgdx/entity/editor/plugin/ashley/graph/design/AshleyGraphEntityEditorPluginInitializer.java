@@ -7,6 +7,7 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionC
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.FacingComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.PositionComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ScaleComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.SpriteComponentEditorFactory;
@@ -24,7 +25,7 @@ public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPlu
         EntityComponentRegistry.registerCoreComponent(PositionComponent.class, new PositionComponentEditorFactory());
         EntityComponentRegistry.registerCoreComponent(ScaleComponent.class, new ScaleComponentEditorFactory());
         EntityComponentRegistry.registerCoreComponent(SpriteComponent.class, new SpriteComponentEditorFactory());
-        EntityComponentRegistry.registerCoreComponent(FacingComponent.class, null);
+        EntityComponentRegistry.registerCoreComponent(FacingComponent.class, new FacingComponentEditorFactory());
         EntityComponentRegistry.registerCoreComponent(SpriteStateComponent.class, null);
     }
 }

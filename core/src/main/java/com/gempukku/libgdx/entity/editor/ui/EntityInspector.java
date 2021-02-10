@@ -77,8 +77,8 @@ public class EntityInspector extends Table {
                 addCoreComponentEditor(skin, tbl, coreComponent);
             }
 
-            ScrollPane scrollPane = new ScrollPane(tbl);
-            scrollPane.setFadeScrollBars(true);
+            ScrollPane scrollPane = new ScrollPane(tbl, skin);
+            scrollPane.setFadeScrollBars(false);
             scrollPane.setForceScroll(false, true);
 
             entityDetails.add(scrollPane).grow().row();

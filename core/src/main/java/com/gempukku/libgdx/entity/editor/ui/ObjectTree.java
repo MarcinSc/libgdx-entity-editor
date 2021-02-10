@@ -89,7 +89,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
         tree.add(entityGroupsNode);
         tree.add(templatesNode);
 
-        ScrollPane scrollPane = new ScrollPane(tree);
+        ScrollPane scrollPane = new ScrollPane(tree, getSkin());
         scrollPane.setForceScroll(false, true);
         scrollPane.setFadeScrollBars(false);
 
