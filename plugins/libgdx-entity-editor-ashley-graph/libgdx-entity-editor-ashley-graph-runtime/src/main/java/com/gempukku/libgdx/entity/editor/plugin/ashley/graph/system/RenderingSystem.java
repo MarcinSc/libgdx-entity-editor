@@ -83,9 +83,13 @@ public class RenderingSystem extends EntitySystem {
             SpriteStateComponent spriteState = spriteEntity.getComponent(SpriteStateComponent.class);
 
             if (spriteState != null && spriteState.isDirty()) {
-                SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
-
-                sprite.setProperties(stateData.getProperties());
+                String state = spriteState.getState();
+                if (state != null) {
+                    SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
+                    if (stateData != null) {
+                        sprite.setProperties(stateData.getProperties());
+                    }
+                }
             }
 
             setSpriteProperties(spriteEntity, false);

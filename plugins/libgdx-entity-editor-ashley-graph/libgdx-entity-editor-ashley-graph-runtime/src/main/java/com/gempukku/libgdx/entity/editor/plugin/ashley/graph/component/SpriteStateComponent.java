@@ -5,7 +5,7 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.Sprit
 
 public class SpriteStateComponent extends DirtyComponent {
     private String state;
-    private ObjectMap<String, SpriteStateDataDef> states;
+    private ObjectMap<String, SpriteStateDataDef> states = new ObjectMap<>();
 
     public String getState() {
         return state;
@@ -18,5 +18,11 @@ public class SpriteStateComponent extends DirtyComponent {
 
     public ObjectMap<String, SpriteStateDataDef> getStates() {
         return states;
+    }
+
+    public void setStates(ObjectMap<String, SpriteStateDataDef> states) {
+        this.states.clear();
+        this.states.putAll(states);
+        setDirty();
     }
 }
