@@ -4,12 +4,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -25,19 +19,23 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 import com.kotcrab.vis.ui.widget.color.ColorPicker;
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter;
 
-public class GraphShaderPropertiesEditorWidget extends Table {
+public class GraphShaderPropertiesEditorWidget extends VisTable {
     private final Runnable updateValue;
     private final VerticalGroup verticalGroup;
     private final Callback callback;
 
     public GraphShaderPropertiesEditorWidget(
-            Skin skin,
+
             String label, ObjectMap<String, Object> pipelineProperties, Callback callback) {
-        super(skin);
         this.callback = callback;
 
         verticalGroup = new VerticalGroup();
@@ -52,16 +50,16 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         };
 
         for (ObjectMap.Entry<String, Object> entry : pipelineProperties.entries()) {
-            addProperty(skin, verticalGroup, entry.key, entry.value);
+            addProperty(verticalGroup, entry.key, entry.value);
         }
 
-        ScrollPane scrollPane = new ScrollPane(verticalGroup, skin);
+        VisScrollPane scrollPane = new VisScrollPane(verticalGroup);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setForceScroll(false, true);
 
-        Table buttonTable = new Table(skin);
+        VisTable buttonTable = new VisTable();
 
-        TextButton addButton = new TextButton("Add property...", skin);
+        VisTextButton addButton = new VisTextButton("Add property...");
         addButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -96,7 +94,7 @@ public class GraphShaderPropertiesEditorWidget extends Table {
                         popupMenu.showMenu(getStage(), addButton);
                     }
                 });
-        TextButton removeButton = new TextButton("Remove selected", skin);
+        VisTextButton removeButton = new VisTextButton("Remove selected");
         removeButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -119,8 +117,8 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         add(buttonTable).growX().row();
     }
 
-    private void addProperty(Skin skin, VerticalGroup verticalGroup, String name, Object value) {
-        ShaderProperty shaderProperty = new ShaderProperty(skin, name, value, updateValue);
+    private void addProperty(VerticalGroup verticalGroup, String name, Object value) {
+        ShaderProperty shaderProperty = new ShaderProperty(name, value, updateValue);
         verticalGroup.addActor(shaderProperty);
     }
 
@@ -150,7 +148,7 @@ public class GraphShaderPropertiesEditorWidget extends Table {
                     new InputDialogListener() {
                         @Override
                         public void finished(String input) {
-                            addProperty(getSkin(), verticalGroup, input, value);
+                            addProperty(verticalGroup, input, value);
                             updateValue();
                         }
 
@@ -162,14 +160,13 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class ShaderProperty extends Table {
+    private static class ShaderProperty extends VisTable {
         private String propertyName;
         private ShaderFieldType fieldType;
         private ShaderPropertyValue shaderPropertyValue;
-        private CheckBox checkBox;
+        private VisCheckBox checkBox;
 
-        public ShaderProperty(Skin skin, String propertyName, Object value, Runnable callback) {
-            super(skin);
+        public ShaderProperty(String propertyName, Object value, Runnable callback) {
             this.propertyName = propertyName;
             if (value instanceof Number) {
                 fieldType = ShaderFieldType.Float;
@@ -177,27 +174,27 @@ public class GraphShaderPropertiesEditorWidget extends Table {
             } else if (value instanceof Vector2) {
                 fieldType = ShaderFieldType.Vector2;
                 Vector2 v2 = (Vector2) value;
-                shaderPropertyValue = new Vector2PropertyValue(skin, v2.x, v2.y, callback);
+                shaderPropertyValue = new Vector2PropertyValue(v2.x, v2.y, callback);
             } else if (value instanceof Vector3) {
                 fieldType = ShaderFieldType.Vector3;
                 Vector3 v3 = (Vector3) value;
-                shaderPropertyValue = new Vector3PropertyValue(skin, v3.x, v3.y, v3.z, callback);
+                shaderPropertyValue = new Vector3PropertyValue(v3.x, v3.y, v3.z, callback);
             } else if (value instanceof Color) {
                 fieldType = ShaderFieldType.Vector4;
                 Color color = (Color) value;
-                shaderPropertyValue = new ColorPropertyValue(skin, color, callback);
+                shaderPropertyValue = new ColorPropertyValue(color, callback);
             } else if (value instanceof TextureValue) {
                 fieldType = ShaderFieldType.TextureRegion;
                 TextureValue texture = (TextureValue) value;
-                shaderPropertyValue = new TextureRegionPropertyValue(skin, texture, callback);
+                shaderPropertyValue = new TextureRegionPropertyValue(texture, callback);
             } else if (value instanceof CurrentTimeValue) {
                 fieldType = ShaderFieldType.Float;
-                shaderPropertyValue = new CurrentTimePropertyValue(skin, callback);
+                shaderPropertyValue = new CurrentTimePropertyValue();
             } else {
                 throw new GdxRuntimeException("Unknown property value");
             }
 
-            checkBox = new CheckBox(propertyName, skin);
+            checkBox = new VisCheckBox(propertyName);
             checkBox.align(Align.topLeft);
             add(checkBox).width(EditorConfig.LABEL_WIDTH).fill();
             add((Actor) shaderPropertyValue).growX().row();
@@ -220,11 +217,7 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class CurrentTimePropertyValue extends Table implements ShaderPropertyValue {
-        public CurrentTimePropertyValue(Skin skin, Runnable callback) {
-            super(skin);
-        }
-
+    private static class CurrentTimePropertyValue extends VisTable implements ShaderPropertyValue {
         @Override
         public Object getValue() {
             return new CurrentTimeValue();
@@ -236,17 +229,16 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class TextureRegionPropertyValue extends Table implements ShaderPropertyValue {
+    private static class TextureRegionPropertyValue extends VisTable implements ShaderPropertyValue {
         private String atlas;
         private String texture;
 
-        public TextureRegionPropertyValue(Skin skin, TextureValue textureValue, Runnable callback) {
-            super(skin);
+        public TextureRegionPropertyValue(TextureValue textureValue, Runnable callback) {
             this.atlas = textureValue.getAtlas();
             this.texture = textureValue.getTexture();
 
             PairOfStringsEditorWidget widget = new PairOfStringsEditorWidget(
-                    skin, EditorConfig.LABEL_WIDTH, "Atlas", textureValue.getAtlas(),
+                    EditorConfig.LABEL_WIDTH, "Atlas", textureValue.getAtlas(),
                     "Texture", textureValue.getTexture(), new PairOfStringsEditorWidget.Callback() {
                 @Override
                 public void update(String value1, String value2) {
@@ -270,14 +262,13 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class ColorPropertyValue extends Table implements ShaderPropertyValue {
-        private Label colorLabel;
+    private static class ColorPropertyValue extends VisTable implements ShaderPropertyValue {
+        private VisLabel colorLabel;
 
-        public ColorPropertyValue(Skin skin, Color color, Runnable callback) {
-            super(skin);
-            colorLabel = new Label(color.toString(), skin);
+        public ColorPropertyValue(Color color, Runnable callback) {
+            colorLabel = new VisLabel(color.toString());
 
-            TextButton modifyColor = new TextButton("Change", skin);
+            VisTextButton modifyColor = new VisTextButton("Change");
             modifyColor.addListener(
                     new ChangeListener() {
                         @Override
@@ -311,14 +302,12 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class Vector3PropertyValue extends Table implements ShaderPropertyValue {
+    private static class Vector3PropertyValue extends VisTable implements ShaderPropertyValue {
         private VisValidatableTextField xField;
         private VisValidatableTextField yField;
         private VisValidatableTextField zField;
 
-        public Vector3PropertyValue(Skin skin, float x, float y, float z, Runnable callback) {
-            super(skin);
-
+        public Vector3PropertyValue(float x, float y, float z, Runnable callback) {
             ChangeListener listener = new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -358,13 +347,11 @@ public class GraphShaderPropertiesEditorWidget extends Table {
         }
     }
 
-    private static class Vector2PropertyValue extends Table implements ShaderPropertyValue {
+    private static class Vector2PropertyValue extends VisTable implements ShaderPropertyValue {
         private VisValidatableTextField xField;
         private VisValidatableTextField yField;
 
-        public Vector2PropertyValue(Skin skin, float x, float y, Runnable callback) {
-            super(skin);
-
+        public Vector2PropertyValue(float x, float y, Runnable callback) {
             ChangeListener listener = new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {

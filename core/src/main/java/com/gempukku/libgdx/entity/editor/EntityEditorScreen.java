@@ -6,9 +6,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.SplitPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
@@ -19,8 +16,10 @@ import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.entity.editor.ui.PluginSettings;
 import com.gempukku.libgdx.entity.editor.ui.UtilityPanel;
+import com.kotcrab.vis.ui.widget.VisSplitPane;
+import com.kotcrab.vis.ui.widget.VisTable;
 
-public class EntityEditorScreen extends Table {
+public class EntityEditorScreen extends VisTable {
     private ObjectTree objectTree;
     private PluginSettings pluginSettings;
     private EntityEditorPreview entityEditorPreview;
@@ -28,26 +27,24 @@ public class EntityEditorScreen extends Table {
     private EntityInspector entityInspector;
     private OrthographicCamera camera;
 
-    public EntityEditorScreen(Skin skin, EntityEditorProject project) {
-        super(skin);
-
+    public EntityEditorScreen(EntityEditorProject project) {
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
         camera.update();
 
-        objectTree = new ObjectTree(skin);
-        pluginSettings = new PluginSettings(skin);
+        objectTree = new ObjectTree();
+        pluginSettings = new PluginSettings();
         entityEditorPreview = new EntityEditorPreview(camera);
         utilityPanel = new UtilityPanel();
-        entityInspector = new EntityInspector(skin);
+        entityInspector = new EntityInspector();
 
-        SplitPane leftSplitPane = new SplitPane(objectTree, pluginSettings, true, skin);
+        VisSplitPane leftSplitPane = new VisSplitPane(objectTree, pluginSettings, true);
 
-        SplitPane centerSplitPane = new SplitPane(entityEditorPreview, utilityPanel, true, skin);
+        VisSplitPane centerSplitPane = new VisSplitPane(entityEditorPreview, utilityPanel, true);
 
-        SplitPane leftCenterSplitPane = new SplitPane(leftSplitPane, centerSplitPane, false, skin);
+        VisSplitPane leftCenterSplitPane = new VisSplitPane(leftSplitPane, centerSplitPane, false);
 
-        SplitPane mainSplitPane = new SplitPane(leftCenterSplitPane, entityInspector, false, skin);
+        VisSplitPane mainSplitPane = new VisSplitPane(leftCenterSplitPane, entityInspector, false);
 
         add(mainSplitPane).grow();
 

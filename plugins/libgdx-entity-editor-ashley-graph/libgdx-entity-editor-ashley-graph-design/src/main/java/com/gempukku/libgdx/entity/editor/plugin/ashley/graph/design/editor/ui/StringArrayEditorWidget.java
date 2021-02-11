@@ -2,38 +2,35 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 
-public class StringArrayEditorWidget extends Table {
+public class StringArrayEditorWidget extends VisTable {
     public StringArrayEditorWidget(
-            Skin skin,
             String label, Iterable<String> values, Callback callback) {
-        super(skin);
-
         final VerticalGroup verticalGroup = new VerticalGroup();
         verticalGroup.grow();
         verticalGroup.align(Align.topLeft);
 
         for (String value : values) {
-            addString(skin, verticalGroup, value);
+            addString(verticalGroup, value);
         }
 
-        ScrollPane scrollPane = new ScrollPane(verticalGroup, skin);
+        VisScrollPane scrollPane = new VisScrollPane(verticalGroup);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setForceScroll(false, true);
 
-        Table buttonTable = new Table(skin);
+        VisTable buttonTable = new VisTable();
 
-        TextButton addButton = new TextButton("Add value", skin);
+        VisTextButton addButton = new VisTextButton("Add value");
         addButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -42,7 +39,7 @@ public class StringArrayEditorWidget extends Table {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        addString(skin, verticalGroup, input);
+                                        addString(verticalGroup, input);
                                         updateValues(verticalGroup, callback);
                                     }
 
@@ -53,7 +50,7 @@ public class StringArrayEditorWidget extends Table {
                                 });
                     }
                 });
-        TextButton removeButton = new TextButton("Remove selected", skin);
+        VisTextButton removeButton = new VisTextButton("Remove selected");
         removeButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -84,8 +81,8 @@ public class StringArrayEditorWidget extends Table {
         callback.setValue(result);
     }
 
-    private void addString(Skin skin, VerticalGroup verticalGroup, String value) {
-        CheckBox checkBox = new CheckBox(value, skin);
+    private void addString(VerticalGroup verticalGroup, String value) {
+        VisCheckBox checkBox = new VisCheckBox(value);
         checkBox.align(Align.left);
         verticalGroup.addActor(checkBox);
     }

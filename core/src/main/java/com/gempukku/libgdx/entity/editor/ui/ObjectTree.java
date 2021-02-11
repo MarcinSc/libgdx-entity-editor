@@ -4,9 +4,6 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -28,11 +25,13 @@ import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTree;
 
 import java.util.Comparator;
 
-public class ObjectTree extends Table implements ObjectTreeData {
+public class ObjectTree extends VisTable implements ObjectTreeData {
     private VisTree<Tree.Node, Object> tree;
     private ObjectTreeFeedback objectTreeFeedback;
 
@@ -41,9 +40,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
 
     private Comparator<Tree.Node> comparator = new ObjectTreeNodeComparator();
 
-    public ObjectTree(Skin skin) {
-        super(skin);
-
+    public ObjectTree() {
         initialize();
     }
 
@@ -84,12 +81,12 @@ public class ObjectTree extends Table implements ObjectTreeData {
                     }
                 });
 
-        entityGroupsNode = new EntityGroupsNode(getSkin(), "Entity Groups");
-        templatesNode = new EntityTemplatesNode(getSkin(), "Templates");
+        entityGroupsNode = new EntityGroupsNode("Entity Groups");
+        templatesNode = new EntityTemplatesNode("Templates");
         tree.add(entityGroupsNode);
         tree.add(templatesNode);
 
-        ScrollPane scrollPane = new ScrollPane(tree, getSkin());
+        VisScrollPane scrollPane = new VisScrollPane(tree);
         scrollPane.setForceScroll(false, true);
         scrollPane.setFadeScrollBars(false);
 
@@ -127,7 +124,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityTemplateNode node = new EntityTemplateNode(getSkin(), objectTreeFeedback.createTemplate(input));
+                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(input));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -147,13 +144,13 @@ public class ObjectTree extends Table implements ObjectTreeData {
     }
 
     private Tree.Node createEntityGroupFolderNode(Tree.Node treeNode, String input) {
-        EntityGroupFolderNode node = new EntityGroupFolderNode(getSkin(), objectTreeFeedback.createEntityGroup(input));
+        EntityGroupFolderNode node = new EntityGroupFolderNode(objectTreeFeedback.createEntityGroup(input));
         mergeInNode(treeNode, node);
         return node;
     }
 
     private Tree.Node createEntityTemplatesFolderNode(Tree.Node treeNode, String input) {
-        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(getSkin(), objectTreeFeedback.createTemplatesFolder(input));
+        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(objectTreeFeedback.createTemplatesFolder(input));
         mergeInNode(treeNode, node);
         return node;
     }
@@ -186,7 +183,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
 
     private EntityGroupNode createEntityGroupNode(String input) {
         EntityGroup entityGroup = objectTreeFeedback.createEntityGroup(input);
-        EntityGroupNode node = new EntityGroupNode(getSkin(), entityGroup);
+        EntityGroupNode node = new EntityGroupNode(entityGroup);
         mergeInNode(entityGroupsNode, node);
         return node;
     }
@@ -223,7 +220,7 @@ public class ObjectTree extends Table implements ObjectTreeData {
                                     @Override
                                     public void finished(String input) {
                                         EntityDefinition entity = objectTreeFeedback.createEntity(input);
-                                        EntityDefinitionNode node = new EntityDefinitionNode(getSkin(), entity);
+                                        EntityDefinitionNode node = new EntityDefinitionNode(entity);
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -266,14 +263,14 @@ public class ObjectTree extends Table implements ObjectTreeData {
     public void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity) {
         EntityGroupNode group = getEntityGroupNode(entityGroup);
         Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath);
-        EntityDefinitionNode node = new EntityDefinitionNode(getSkin(), entity);
+        EntityDefinitionNode node = new EntityDefinitionNode(entity);
         mergeInNode(entityGroupFolderNode, node);
     }
 
     @Override
     public void addTemplate(String parentPath, String name, EntityDefinition template) {
         Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath);
-        EntityTemplateNode node = new EntityTemplateNode(getSkin(), template);
+        EntityTemplateNode node = new EntityTemplateNode(template);
         mergeInNode(entityGroupFolderNode, node);
     }
 

@@ -1,29 +1,28 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
     @Override
-    public ComponentEditor<PositionComponent> createComponentEditor(Skin skin, PositionComponent component) {
-        return new PositionComponentEditor(skin, component);
+    public ComponentEditor<PositionComponent> createComponentEditor(PositionComponent component) {
+        return new PositionComponentEditor(component);
     }
 
     private class PositionComponentEditor implements ComponentEditor<PositionComponent> {
         private Actor actor;
         private PositionComponent component;
 
-        public PositionComponentEditor(Skin skin, PositionComponent component) {
+        public PositionComponentEditor(PositionComponent component) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
-                    skin, EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH,
                     "X", component.getX(), "Y", component.getY(),
                     new PairOfFloatsEditorWidget.Callback() {
                         @Override
@@ -33,7 +32,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
                     }
             );
 
-            Table tbl = new Table(skin);
+            VisTable tbl = new VisTable();
             tbl.add(new Separator()).growX().row();
             tbl.add("Position component").growX().pad(3).row();
             tbl.add(widget).growX().pad(3).row();

@@ -1,11 +1,10 @@
 package com.gempukku.libgdx.entity.editor.ui;
 
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
 
-public class PluginSettings extends ScrollPane {
-    public PluginSettings(Skin skin) {
-        super(null, skin);
+public class PluginSettings extends VisScrollPane {
+    public PluginSettings() {
+        super(null);
         setFadeScrollBars(true);
         setForceScroll(false, true);
     }

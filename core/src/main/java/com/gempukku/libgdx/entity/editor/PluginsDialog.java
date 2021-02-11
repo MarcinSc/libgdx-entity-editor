@@ -4,10 +4,6 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -17,6 +13,10 @@ import com.gempukku.libgdx.entity.editor.plugin.PluginPreferences;
 import com.gempukku.libgdx.entity.editor.plugin.PluginRegistry;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisLabel;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisWindow;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
@@ -26,7 +26,7 @@ public class PluginsDialog extends VisWindow {
     private Array<String> pluginJars = new Array<>();
     private final VerticalGroup pluginList;
 
-    public PluginsDialog(Skin skin) {
+    public PluginsDialog() {
         super("Plugins");
         setModal(true);
         setResizable(true);
@@ -39,7 +39,7 @@ public class PluginsDialog extends VisWindow {
         pluginList.grow();
         pluginList.pad(5);
 
-        Table listHeader = new Table(skin);
+        VisTable listHeader = new VisTable();
         listHeader.pad(2);
         listHeader.add("JAR path").growX().left();
         listHeader.add("Plugin name").width(150).left();
@@ -50,16 +50,16 @@ public class PluginsDialog extends VisWindow {
         pluginList.addActor(listHeader);
 
         for (final PluginDefinition pluginDefinition : PluginRegistry.getPluginDefinitions()) {
-            addPluginDefinition(skin, pluginDefinition);
+            addPluginDefinition(pluginDefinition);
         }
 
-        ScrollPane scrollPane = new ScrollPane(pluginList, skin);
+        VisScrollPane scrollPane = new VisScrollPane(pluginList);
         scrollPane.setFadeScrollBars(false);
         scrollPane.setForceScroll(false, true);
 
-        Table buttonTable = new Table(skin);
+        VisTable buttonTable = new VisTable();
         buttonTable.pad(5);
-        TextButton addPlugin = new TextButton("Install plugin", skin);
+        VisTextButton addPlugin = new VisTextButton("Install plugin");
         addPlugin.addListener(
                 new ChangeListener() {
                     @Override
@@ -71,7 +71,7 @@ public class PluginsDialog extends VisWindow {
         buttonTable.add(addPlugin);
         buttonTable.add("").growX();
 
-        TextButton cancel = new TextButton("Cancel", skin);
+        VisTextButton cancel = new VisTextButton("Cancel");
         cancel.addListener(
                 new ChangeListener() {
                     @Override
@@ -82,7 +82,7 @@ public class PluginsDialog extends VisWindow {
         buttonTable.add(cancel);
         buttonTable.add("").width(5);
 
-        TextButton save = new TextButton("Save", skin);
+        VisTextButton save = new VisTextButton("Save");
         save.addListener(
                 new ChangeListener() {
                     @Override
@@ -95,7 +95,7 @@ public class PluginsDialog extends VisWindow {
 
         add(scrollPane).grow();
         row();
-        add(new Label("Any changes made on this screen take effect after restarting the application", skin));
+        add(new VisLabel("Any changes made on this screen take effect after restarting the application"));
         row();
         add(new Separator());
         row();
@@ -103,18 +103,18 @@ public class PluginsDialog extends VisWindow {
         row();
     }
 
-    private void addPluginDefinition(Skin skin, final PluginDefinition pluginDefinition) {
+    private void addPluginDefinition(final PluginDefinition pluginDefinition) {
         final Separator separator = new Separator();
         pluginList.addActor(separator);
-        final Table pluginTable = new Table(skin);
+        final VisTable pluginTable = new VisTable();
         pluginTable.pad(2);
-        pluginTable.add(createValueLabel(skin, pluginDefinition.jarPath)).growX().left();
-        pluginTable.add(createValueLabel(skin, pluginDefinition.pluginName)).width(150).left();
-        pluginTable.add(createValueLabel(skin, pluginDefinition.pluginVersion)).width(80).left();
-        pluginTable.add(createValueLabel(skin, String.valueOf(pluginDefinition.loaded))).width(60);
+        pluginTable.add(createValueLabel(pluginDefinition.jarPath)).growX().left();
+        pluginTable.add(createValueLabel(pluginDefinition.pluginName)).width(150).left();
+        pluginTable.add(createValueLabel(pluginDefinition.pluginVersion)).width(80).left();
+        pluginTable.add(createValueLabel(String.valueOf(pluginDefinition.loaded))).width(60);
         if (pluginDefinition.canBeRemoved) {
             pluginJars.add(pluginDefinition.jarPath);
-            TextButton textButton = new TextButton("Remove", skin);
+            VisTextButton textButton = new VisTextButton("Remove");
             textButton.addListener(
                     new ChangeListener() {
                         @Override
@@ -132,8 +132,8 @@ public class PluginsDialog extends VisWindow {
         pluginList.addActor(pluginTable);
     }
 
-    private Label createValueLabel(Skin skin, String text) {
-        Label label = new Label(text, skin);
+    private Label createValueLabel(String text) {
+        VisLabel label = new VisLabel(text);
         label.setWrap(true);
         label.setColor(Color.GRAY);
         return label;
@@ -160,7 +160,7 @@ public class PluginsDialog extends VisWindow {
     private void processPlugin(FileHandle selectedFile) {
         try {
             PluginDefinition pluginDefinition = PluginPreferences.getPluginDefinition(selectedFile);
-            addPluginDefinition(getSkin(), pluginDefinition);
+            addPluginDefinition(pluginDefinition);
         } catch (Exception exp) {
             Dialogs.showErrorDialog(getStage(), "Unable to process the file as a plugin");
         }

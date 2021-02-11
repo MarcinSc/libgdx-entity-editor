@@ -1,23 +1,20 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
-public class FloatEditorWidget extends Table {
+public class FloatEditorWidget extends VisTable {
     private final VisValidatableTextField field;
 
     public FloatEditorWidget(
-            Skin skin, float width,
+            float width,
             String label, float value,
             FloatEditorWidget.Callback callback) {
-        super(skin);
-
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {

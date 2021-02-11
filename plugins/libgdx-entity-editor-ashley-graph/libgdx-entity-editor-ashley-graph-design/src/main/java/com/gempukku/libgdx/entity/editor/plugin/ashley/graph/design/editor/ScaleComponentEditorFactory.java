@@ -1,29 +1,28 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 public class ScaleComponentEditorFactory implements ComponentEditorFactory<ScaleComponent> {
     @Override
-    public ComponentEditor<ScaleComponent> createComponentEditor(Skin skin, ScaleComponent component) {
-        return new ScaleComponentEditor(skin, component);
+    public ComponentEditor<ScaleComponent> createComponentEditor(ScaleComponent component) {
+        return new ScaleComponentEditor(component);
     }
 
     private class ScaleComponentEditor implements ComponentEditor<ScaleComponent> {
         private Actor actor;
         private ScaleComponent component;
 
-        public ScaleComponentEditor(Skin skin, ScaleComponent component) {
+        public ScaleComponentEditor(ScaleComponent component) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
-                    skin, EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH,
                     "X", component.getX(), "Y", component.getY(),
                     new PairOfFloatsEditorWidget.Callback() {
                         @Override
@@ -32,7 +31,7 @@ public class ScaleComponentEditorFactory implements ComponentEditorFactory<Scale
                         }
                     });
 
-            Table tbl = new Table(skin);
+            VisTable tbl = new VisTable();
             tbl.add(new Separator()).growX().row();
             tbl.add("Scale component").growX().pad(3).row();
             tbl.add(widget).growX().pad(3).row();

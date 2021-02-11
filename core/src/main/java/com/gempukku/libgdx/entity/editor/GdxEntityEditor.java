@@ -56,7 +56,7 @@ public class GdxEntityEditor extends ApplicationAdapter {
         viewport.setUnitsPerPixel(scale);
         stage = new Stage(viewport);
 
-        screen = new MainEditorScreen(VisUI.getSkin());
+        screen = new MainEditorScreen();
         screen.setFillParent(true);
         stage.addActor(screen);
         // Support for switching the UI scale

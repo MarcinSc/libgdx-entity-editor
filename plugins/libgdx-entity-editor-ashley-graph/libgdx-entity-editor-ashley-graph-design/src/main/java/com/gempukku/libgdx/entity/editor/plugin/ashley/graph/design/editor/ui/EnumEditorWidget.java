@@ -1,20 +1,18 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.SelectBox;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
+import com.kotcrab.vis.ui.widget.VisSelectBox;
+import com.kotcrab.vis.ui.widget.VisTable;
 
-public class EnumEditorWidget<T extends Enum<T>> extends Table {
+public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
     private Class<T> clazz;
 
     public EnumEditorWidget(
-            Skin skin, float width,
+            float width,
             Class<T> clazz, boolean allowsNull,
             String label, T value, Callback<T> callback) {
-        super(skin);
         this.clazz = clazz;
 
         Array<String> values = new Array<>();
@@ -24,7 +22,7 @@ public class EnumEditorWidget<T extends Enum<T>> extends Table {
             values.add(getDisplayed(enumConstant));
         }
 
-        SelectBox<String> selectBox = new SelectBox<>(skin);
+        VisSelectBox<String> selectBox = new VisSelectBox<>();
         selectBox.setItems(values);
         selectBox.setSelected(getDisplayed(value));
         ChangeListener changeListener = new ChangeListener() {

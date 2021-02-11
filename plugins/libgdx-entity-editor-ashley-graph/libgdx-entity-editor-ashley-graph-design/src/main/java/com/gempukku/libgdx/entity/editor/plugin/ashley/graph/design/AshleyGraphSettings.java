@@ -1,38 +1,36 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextField;
 
-public class AshleyGraphSettings extends Table {
-    private final TextField rendererPipelineTextField;
-    private final TextField templatesFolderTextField;
-    private final TextField entityGroupsFolderTextField;
-    private final TextField assetsFolderTextField;
+public class AshleyGraphSettings extends VisTable {
+    private final VisTextField rendererPipelineTextField;
+    private final VisTextField templatesFolderTextField;
+    private final VisTextField entityGroupsFolderTextField;
+    private final VisTextField assetsFolderTextField;
 
-    public AshleyGraphSettings(Skin skin,
-                               String rendererPipeline, String templatesFolder,
-                               String entityGroupsFolder, String assetsFolder) {
-        super(skin);
+    public AshleyGraphSettings(
+            String rendererPipeline, String templatesFolder,
+            String entityGroupsFolder, String assetsFolder) {
         align(Align.topLeft);
 
         add("Project settings").colspan(2).row();
 
         add("Renderer pipeline: ").left();
-        rendererPipelineTextField = new TextField(rendererPipeline, skin);
+        rendererPipelineTextField = new VisTextField(rendererPipeline);
         add(rendererPipelineTextField).growX().row();
 
         add("Templates folder: ").left();
-        templatesFolderTextField = new TextField(templatesFolder, skin);
+        templatesFolderTextField = new VisTextField(templatesFolder);
         add(templatesFolderTextField).growX().row();
 
         add("Entities folder: ").left();
-        entityGroupsFolderTextField = new TextField(entityGroupsFolder, skin);
+        entityGroupsFolderTextField = new VisTextField(entityGroupsFolder);
         add(entityGroupsFolderTextField).growX().row();
 
         add("Assets folder: ").left();
-        assetsFolderTextField = new TextField(assetsFolder, skin);
+        assetsFolderTextField = new VisTextField(assetsFolder);
         add(assetsFolderTextField).growX().row();
     }
 

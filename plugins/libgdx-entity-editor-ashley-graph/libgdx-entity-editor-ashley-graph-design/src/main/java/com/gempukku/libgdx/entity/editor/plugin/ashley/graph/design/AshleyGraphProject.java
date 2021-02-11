@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
@@ -51,14 +50,14 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
-    public void initialize(Skin skin, EntityEditorScreen entityEditorScreen) {
+    public void initialize(EntityEditorScreen entityEditorScreen) {
         this.whitePixel = new WhitePixel();
         CommonShaderConfiguration.setDefaultTextureRegionProperty(whitePixel.textureRegion);
 
         this.editorScreen = entityEditorScreen;
 
         JsonValue project = readProject(folder);
-        createSettings(project, skin);
+        createSettings(project);
         entityEditorScreen.setPluginSettings(settings);
 
         ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
@@ -187,7 +186,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
             return new JsonValue(JsonValue.ValueType.object);
     }
 
-    private void createSettings(JsonValue project, Skin skin) {
+    private void createSettings(JsonValue project) {
         JsonValue settings = project.get("settings");
         if (settings != null) {
             String rendererPipeline = settings.getString("rendererPipeline", null);
@@ -195,10 +194,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
             String entityGroupsFolder = settings.getString("entityGroupsFolder", null);
             String assetsFolder = settings.getString("assetsFolder", null);
 
-            this.settings = new AshleyGraphSettings(skin,
+            this.settings = new AshleyGraphSettings(
                     rendererPipeline, templatesFolder, entityGroupsFolder, assetsFolder);
         } else {
-            this.settings = new AshleyGraphSettings(skin,
+            this.settings = new AshleyGraphSettings(
                     "assets/pipeline.json", "assets/templates",
                     "assets/entities", "assets");
         }

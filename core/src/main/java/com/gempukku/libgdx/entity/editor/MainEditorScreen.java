@@ -7,8 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Disposable;
@@ -23,10 +21,11 @@ import com.kotcrab.vis.ui.widget.Menu;
 import com.kotcrab.vis.ui.widget.MenuBar;
 import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
+import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
-public class MainEditorScreen extends Table implements Disposable {
+public class MainEditorScreen extends VisTable implements Disposable {
     private FileHandle editedProjectFolder;
     private EntityEditorProject entityEditorProject;
     private IntMap<Runnable> shortcuts = new IntMap<>();
@@ -38,8 +37,7 @@ public class MainEditorScreen extends Table implements Disposable {
     private Container<EntityEditorScreen> entityEditorScreenContainer;
     private EntityEditorScreen editorScreen;
 
-    public MainEditorScreen(Skin skin) {
-        super(skin);
+    public MainEditorScreen() {
         initialize();
     }
 
@@ -127,7 +125,7 @@ public class MainEditorScreen extends Table implements Disposable {
                 new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        PluginsDialog pluginsDialog = new PluginsDialog(getSkin());
+                        PluginsDialog pluginsDialog = new PluginsDialog();
                         getStage().addActor(pluginsDialog);
                         pluginsDialog.centerWindow();
                     }
@@ -166,8 +164,8 @@ public class MainEditorScreen extends Table implements Disposable {
                                     FileHandle selectedFolder = file.get(0);
                                     try {
                                         entityEditorProject = initializer.createNewProject(selectedFolder);
-                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin(), entityEditorProject);
-                                        entityEditorProject.initialize(getSkin(), entityEditorScreen);
+                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject);
+                                        entityEditorProject.initialize(entityEditorScreen);
                                         setEditedFile(entityEditorScreen, selectedFolder, true);
                                         entityEditorScreenContainer.setActor(entityEditorScreen);
                                     } catch (Exception exp) {
@@ -193,8 +191,8 @@ public class MainEditorScreen extends Table implements Disposable {
                 FileHandle selectedFile = file.get(0);
                 try {
                     entityEditorProject = loadProjectFromFolder(selectedFile);
-                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(getSkin(), entityEditorProject);
-                    entityEditorProject.initialize(getSkin(), entityEditorScreen);
+                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject);
+                    entityEditorProject.initialize(entityEditorScreen);
                     setEditedFile(entityEditorScreen, selectedFile, true);
                     entityEditorScreenContainer.setActor(entityEditorScreen);
                 } catch (Exception exp) {

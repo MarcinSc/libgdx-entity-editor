@@ -1,8 +1,6 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
@@ -13,22 +11,23 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.Gr
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringArrayEditorWidget;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteComponentEditorFactory implements ComponentEditorFactory<SpriteComponent> {
     @Override
-    public ComponentEditor createComponentEditor(Skin skin, SpriteComponent component) {
-        return new SpriteComponentEditor(skin, component);
+    public ComponentEditor createComponentEditor(SpriteComponent component) {
+        return new SpriteComponentEditor(component);
     }
 
     private class SpriteComponentEditor implements ComponentEditor<SpriteComponent> {
         private Actor actor;
         private SpriteComponent component;
 
-        public SpriteComponentEditor(Skin skin, SpriteComponent component) {
+        public SpriteComponentEditor(SpriteComponent component) {
             this.component = component;
 
             PairOfFloatsEditorWidget position = new PairOfFloatsEditorWidget(
-                    skin, EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH,
                     "Anchor X", component.getAnchorX(), "Anchor Y", component.getAnchorY(),
                     new PairOfFloatsEditorWidget.Callback() {
                         @Override
@@ -38,7 +37,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                     }
             );
 
-            StringArrayEditorWidget tags = new StringArrayEditorWidget(skin, "Tags", component.getTags(),
+            StringArrayEditorWidget tags = new StringArrayEditorWidget("Tags", component.getTags(),
                     new StringArrayEditorWidget.Callback() {
                         @Override
                         public void setValue(Array<String> value) {
@@ -46,7 +45,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            FloatEditorWidget layer = new FloatEditorWidget(skin, EditorConfig.LABEL_WIDTH, "Layer", component.getLayer(),
+            FloatEditorWidget layer = new FloatEditorWidget(EditorConfig.LABEL_WIDTH, "Layer", component.getLayer(),
                     new FloatEditorWidget.Callback() {
                         @Override
                         public void update(float value) {
@@ -54,7 +53,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            GraphShaderPropertiesEditorWidget properties = new GraphShaderPropertiesEditorWidget(skin, "Shader properties", component.getProperties(),
+            GraphShaderPropertiesEditorWidget properties = new GraphShaderPropertiesEditorWidget("Shader properties", component.getProperties(),
                     new GraphShaderPropertiesEditorWidget.Callback() {
                         @Override
                         public void setValue(ObjectMap<String, Object> value) {
@@ -62,7 +61,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            Table tbl = new Table(skin);
+            VisTable tbl = new VisTable();
             tbl.add(new Separator()).growX().row();
             tbl.add("Sprite component").growX().pad(3).row();
             tbl.add(position).growX().pad(3).row();

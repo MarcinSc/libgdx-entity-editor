@@ -1,23 +1,20 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
+import com.kotcrab.vis.ui.widget.VisTable;
+import com.kotcrab.vis.ui.widget.VisTextField;
 
-public class PairOfStringsEditorWidget extends Table {
-    private final TextField field1;
-    private final TextField field2;
+public class PairOfStringsEditorWidget extends VisTable {
+    private final VisTextField field1;
+    private final VisTextField field2;
 
     public PairOfStringsEditorWidget(
-            Skin skin, float width,
+            float width,
             String label1, String value1,
             String label2, String value2,
             Callback callback) {
-        super(skin);
-
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -25,11 +22,11 @@ public class PairOfStringsEditorWidget extends Table {
             }
         };
 
-        field1 = new TextField(value1, skin);
+        field1 = new VisTextField(value1);
         field1.setAlignment(Align.right);
         field1.addListener(changeListener);
 
-        field2 = new TextField(value2, skin);
+        field2 = new VisTextField(value2);
         field2.setAlignment(Align.right);
         field2.addListener(changeListener);
 
