@@ -198,7 +198,8 @@ public class GraphShaderPropertiesEditorWidget extends Table {
             }
 
             checkBox = new CheckBox(propertyName, skin);
-            add(checkBox).width(EditorConfig.LABEL_WIDTH);
+            checkBox.align(Align.topLeft);
+            add(checkBox).width(EditorConfig.LABEL_WIDTH).fill();
             add((Actor) shaderPropertyValue).growX().row();
         }
 

@@ -6,14 +6,14 @@ import com.badlogic.gdx.utils.Disposable;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 
-public interface EntityEditorProject extends Disposable {
+public interface EntityEditorProject<T> extends Disposable {
     void initialize(Skin skin, EntityEditorScreen entityEditorScreen);
 
     void save(FileHandle folder, ObjectTreeData objectTreeData);
 
     void update(float delta);
 
-    boolean supportsComponent(Class<?> componentClass);
+    boolean supportsComponent(Class<? extends T> componentClass);
 
-    Object createCoreComponent(Class<?> coreComponent);
+    T createCoreComponent(Class<? extends T> coreComponent);
 }

@@ -32,7 +32,7 @@ import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 import java.io.InputStream;
 
-public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedback {
+public class AshleyGraphProject implements EntityEditorProject<Component>, ObjectTreeFeedback {
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
 
     private EntityEditorScreen editorScreen;
@@ -234,13 +234,13 @@ public class AshleyGraphProject implements EntityEditorProject, ObjectTreeFeedba
     }
 
     @Override
-    public boolean supportsComponent(Class<?> componentClass) {
+    public boolean supportsComponent(Class<? extends Component> componentClass) {
         return ClassReflection.isAssignableFrom(Component.class, componentClass);
     }
 
     @Override
-    public Object createCoreComponent(Class<?> coreComponent) {
-        return ashleyEngine.createComponent((Class<Component>) coreComponent);
+    public Component createCoreComponent(Class<? extends Component> coreComponent) {
+        return ashleyEngine.createComponent(coreComponent);
     }
 
     @Override

@@ -18,10 +18,11 @@ import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.Separator;
 
-public class EntityInspector extends Table {
-    private Table entityDetails;
-    private EntityDefinition editedEntity;
-    private ObjectMap<String, ComponentEditor> componentEditors = new ObjectMap<>();
+public class EntityInspector<T> extends Table {
+    private final Table entityDetails;
+    private final ObjectMap<String, ComponentEditor<T>> componentEditors;
+
+    private EntityDefinition<T> editedEntity;
 
     public EntityInspector(Skin skin) {
         super(skin);
@@ -29,12 +30,14 @@ public class EntityInspector extends Table {
         entityDetails = new Table(skin);
         entityDetails.top();
 
+        componentEditors = new ObjectMap<>();
+
         add("Entity inspector").growX().row();
         add(new Separator()).growX().row();
         add(entityDetails).grow().row();
     }
 
-    public void setEditedEntity(EntityDefinition editedEntity, EntityEditorProject project) {
+    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project) {
         this.editedEntity = editedEntity;
 
         entityDetails.clearChildren();
@@ -53,14 +56,15 @@ public class EntityInspector extends Table {
                         public void clicked(InputEvent event, float x, float y) {
                             PopupMenu menu = new PopupMenu();
 
-                            for (Class<?> coreComponent : EntityComponentRegistry.getCoreComponents()) {
+                            for (Class coreComponent : EntityComponentRegistry.getCoreComponents()) {
                                 if (project.supportsComponent(coreComponent) && !editedEntity.hasCoreComponent(coreComponent)) {
+                                    Class<? extends T> coreComponentClass = (Class<? extends T>) coreComponent;
                                     MenuItem menuItem = new MenuItem(coreComponent.getSimpleName());
                                     menuItem.addListener(
                                             new ChangeListener() {
                                                 @Override
                                                 public void changed(ChangeEvent event, Actor actor) {
-                                                    Object component = project.createCoreComponent(coreComponent);
+                                                    T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
                                                     addCoreComponentEditor(skin, tbl, component);
                                                 }
@@ -80,7 +84,7 @@ public class EntityInspector extends Table {
                         public void clicked(InputEvent event, float x, float y) {
                             PopupMenu menu = new PopupMenu();
 
-                            for (Class coreComponent : (Iterable<Class>) editedEntity.getCoreComponents()) {
+                            for (Class<? extends T> coreComponent : editedEntity.getCoreComponents()) {
                                 MenuItem menuItem = new MenuItem(coreComponent.getSimpleName());
                                 menuItem.addListener(
                                         new ChangeListener() {
@@ -101,8 +105,8 @@ public class EntityInspector extends Table {
             entityDetails.add(addComponent);
             entityDetails.add(removeComponent).row();
 
-            for (Class coreComponentClass : (Iterable<Class>) editedEntity.getCoreComponents()) {
-                Object coreComponent = editedEntity.getCoreComponent(coreComponentClass);
+            for (Class<? extends T> coreComponentClass : editedEntity.getCoreComponents()) {
+                T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
                 addCoreComponentEditor(skin, tbl, coreComponent);
             }
 
@@ -114,16 +118,16 @@ public class EntityInspector extends Table {
         }
     }
 
-    private void addCoreComponentEditor(Skin skin, Table table, Object coreComponent) {
+    private void addCoreComponentEditor(Skin skin, Table table, T coreComponent) {
         Class<?> clazz = coreComponent.getClass();
-        ComponentEditorFactory componentEditorFactory = EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentEditor componentEditor = componentEditorFactory.createComponentEditor(skin, coreComponent);
+        ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
+        ComponentEditor<T> componentEditor = componentEditorFactory.createComponentEditor(skin, coreComponent);
         table.add(componentEditor.getActor()).growX().row();
         componentEditors.put(clazz.getSimpleName(), componentEditor);
     }
 
-    private void removeCoreComponentEditor(Table table, Class clazz) {
-        ComponentEditor componentEditor = componentEditors.remove(clazz.getSimpleName());
+    private void removeCoreComponentEditor(Table table, Class<? extends T> clazz) {
+        ComponentEditor<T> componentEditor = componentEditors.remove(clazz.getSimpleName());
         table.removeActor(componentEditor.getActor());
     }
 }
