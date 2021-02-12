@@ -1,9 +1,9 @@
 package com.gempukku.libgdx.entity.editor.data.component;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 public interface ComponentEditor<T> {
-    Actor getActor();
+    Table getActor();
 
     void refresh();
 

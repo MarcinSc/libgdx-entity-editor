@@ -1,11 +1,10 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
-import com.kotcrab.vis.ui.widget.Separator;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class ScaleComponentEditorFactory implements ComponentEditorFactory<ScaleComponent> {
@@ -15,7 +14,7 @@ public class ScaleComponentEditorFactory implements ComponentEditorFactory<Scale
     }
 
     private class ScaleComponentEditor implements ComponentEditor<ScaleComponent> {
-        private Actor actor;
+        private Table actor;
         private ScaleComponent component;
 
         public ScaleComponentEditor(ScaleComponent component) {
@@ -32,15 +31,13 @@ public class ScaleComponentEditorFactory implements ComponentEditorFactory<Scale
                     });
 
             VisTable tbl = new VisTable();
-            tbl.add(new Separator()).growX().row();
-            tbl.add("Scale component").growX().pad(3).row();
             tbl.add(widget).growX().pad(3).row();
 
             this.actor = tbl;
         }
 
         @Override
-        public Actor getActor() {
+        public Table getActor() {
             return actor;
         }
 

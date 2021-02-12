@@ -1,6 +1,6 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
-import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
@@ -8,7 +8,6 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteSta
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.SpriteStateEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringEditorWidget;
-import com.kotcrab.vis.ui.widget.Separator;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteStateComponentEditorFactory implements ComponentEditorFactory<SpriteStateComponent> {
@@ -18,7 +17,7 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
     }
 
     private class SpriteStateComponentEditor implements ComponentEditor<SpriteStateComponent> {
-        private Actor actor;
+        private Table actor;
         private SpriteStateComponent component;
 
         public SpriteStateComponentEditor(SpriteStateComponent component) {
@@ -44,8 +43,6 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
                     });
 
             VisTable tbl = new VisTable();
-            tbl.add(new Separator()).growX().row();
-            tbl.add("Sprite state component").growX().pad(3).row();
             tbl.add(state).growX().pad(3).row();
             tbl.add(spriteStateEditorWidget).growX().pad(3).row();
 
@@ -53,7 +50,7 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
         }
 
         @Override
-        public Actor getActor() {
+        public Table getActor() {
             return actor;
         }
 

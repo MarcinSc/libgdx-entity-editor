@@ -2,48 +2,56 @@ package com.gempukku.libgdx.entity.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.data.component.EntityComponentRegistry;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.kotcrab.vis.ui.widget.CollapsibleWidget;
 import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
 public class EntityInspector<T> extends VisTable {
-    private final VisTable entityDetails;
-    private final ObjectMap<String, ComponentEditor<T>> componentEditors;
+    private final VerticalGroup entityDetails;
+    private final VerticalGroup entityComponents;
 
     private EntityDefinition<T> editedEntity;
 
     public EntityInspector() {
-        entityDetails = new VisTable();
+        entityDetails = new VerticalGroup();
         entityDetails.top();
+        entityDetails.fill();
 
-        componentEditors = new ObjectMap<>();
+        entityComponents = new VerticalGroup();
+        entityComponents.top();
+        entityComponents.grow();
 
         add("Entity inspector").growX().row();
         add(new Separator()).growX().row();
-        add(entityDetails).grow().row();
+        add(entityDetails).growX().row();
+
+        VisScrollPane scrollPane = new VisScrollPane(entityComponents);
+        scrollPane.setFadeScrollBars(false);
+        scrollPane.setForceScroll(false, true);
+        add(scrollPane).grow().row();
     }
 
     public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project) {
         this.editedEntity = editedEntity;
 
         entityDetails.clearChildren();
-        componentEditors.clear();
+        entityComponents.clearChildren();
 
         if (editedEntity != null) {
-            VisTable tbl = new VisTable();
-            tbl.top();
-
             VisTextButton addComponent = new VisTextButton("Add component");
             addComponent.addListener(
                     new ClickListener() {
@@ -61,7 +69,7 @@ public class EntityInspector<T> extends VisTable {
                                                 public void changed(ChangeEvent event, Actor actor) {
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
-                                                    addCoreComponentEditor(tbl, component);
+                                                    addCoreComponentEditor(component);
                                                 }
                                             });
                                     menu.addItem(menuItem);
@@ -86,7 +94,7 @@ public class EntityInspector<T> extends VisTable {
                                             @Override
                                             public void changed(ChangeEvent event, Actor actor) {
                                                 editedEntity.removeCoreComponent(coreComponent);
-                                                removeCoreComponentEditor(tbl, coreComponent);
+                                                removeCoreComponentEditor(coreComponent);
                                             }
                                         });
                                 menu.addItem(menuItem);
@@ -96,33 +104,78 @@ public class EntityInspector<T> extends VisTable {
                         }
                     });
 
-            entityDetails.add("Name: " + editedEntity.getName()).colspan(2).row();
-            entityDetails.add(addComponent);
-            entityDetails.add(removeComponent).row();
+            entityDetails.addActor(new VisLabel("Name: " + editedEntity.getName()));
+            VisTable buttonTable = new VisTable();
+
+            buttonTable.add(addComponent);
+            buttonTable.add(removeComponent).row();
+            entityDetails.addActor(buttonTable);
 
             for (Class<? extends T> coreComponentClass : editedEntity.getCoreComponents()) {
                 T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
-                addCoreComponentEditor(tbl, coreComponent);
+                addCoreComponentEditor(coreComponent);
             }
-
-            VisScrollPane scrollPane = new VisScrollPane(tbl);
-            scrollPane.setFadeScrollBars(false);
-            scrollPane.setForceScroll(false, true);
-
-            entityDetails.add(scrollPane).colspan(2).grow().row();
         }
     }
 
-    private void addCoreComponentEditor(VisTable table, T coreComponent) {
-        Class<?> clazz = coreComponent.getClass();
+    private void addCoreComponentEditor(T coreComponent) {
+        Class<? extends T> clazz = (Class<? extends T>) coreComponent.getClass();
         ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentEditor<T> componentEditor = componentEditorFactory.createComponentEditor(coreComponent);
-        table.add(componentEditor.getActor()).growX().row();
-        componentEditors.put(clazz.getSimpleName(), componentEditor);
+        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent));
+        entityComponents.addActor(container);
     }
 
-    private void removeCoreComponentEditor(VisTable table, Class<? extends T> clazz) {
-        ComponentEditor<T> componentEditor = componentEditors.remove(clazz.getSimpleName());
-        table.removeActor(componentEditor.getActor());
+    private void removeCoreComponentEditor(Class<? extends T> clazz) {
+        ComponentContainer componentContainer = findComponentContainer(clazz);
+        entityComponents.removeActor(componentContainer);
+    }
+
+    private ComponentContainer findComponentContainer(Class<? extends T> clazz) {
+        for (Actor child : entityComponents.getChildren()) {
+            ComponentContainer container = (ComponentContainer) child;
+            if (container.getComponentClass() == clazz)
+                return container;
+        }
+        return null;
+    }
+
+    private class ComponentContainer extends VisTable {
+        private Class<? extends T> componentClass;
+
+        public ComponentContainer(Class<? extends T> componentClass, ComponentEditor<T> componentEditor) {
+            this.componentClass = componentClass;
+
+            Table actor = componentEditor.getActor();
+            actor.setFillParent(true);
+            CollapsibleWidget collapsibleWidget = new CollapsibleWidget(actor);
+
+            VisTextButton collapseButton = new VisTextButton("-");
+            collapseButton.addListener(
+                    new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            if (collapsibleWidget.isCollapsed()) {
+                                collapsibleWidget.setCollapsed(false);
+                                collapseButton.setText("-");
+                            } else {
+                                collapsibleWidget.setCollapsed(true);
+                                collapseButton.setText("+");
+                            }
+                        }
+                    });
+
+            VisLabel componentNameLabel = new VisLabel(componentClass.getSimpleName());
+            componentNameLabel.setEllipsis(true);
+
+            add(new Separator()).colspan(2).growX().row();
+            add(collapseButton);
+            add(componentNameLabel).growX().row();
+
+            add(collapsibleWidget).colspan(2).growX().row();
+        }
+
+        public Class<? extends T> getComponentClass() {
+            return componentClass;
+        }
     }
 }
