@@ -168,7 +168,7 @@ public class EntityInspector<T> extends VisTable {
             componentNameLabel.setEllipsis(true);
 
             add(new Separator()).colspan(2).growX().row();
-            add(collapseButton);
+            add(collapseButton).width(20);
             add(componentNameLabel).growX().row();
 
             add(collapsibleWidget).colspan(2).growX().row();

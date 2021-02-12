@@ -109,6 +109,7 @@ public class SpriteStateEditorWidget extends VisTable {
             this.name = name;
             this.dataDef = dataDef;
             checkBox = new VisCheckBox(name);
+            checkBox.align(Align.left);
             VisTextButton textButton = new VisTextButton("Edit data");
             textButton.addListener(
                     new ChangeListener() {
@@ -147,7 +148,7 @@ public class SpriteStateEditorWidget extends VisTable {
                     });
 
             add(checkBox).width(EditorConfig.LABEL_WIDTH);
-            add(textButton).growX().row();
+            add(textButton).expandX().row();
         }
 
         @Override
