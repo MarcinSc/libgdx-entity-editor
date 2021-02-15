@@ -9,6 +9,8 @@ public interface ObjectTreeData {
 
     void addTemplate(String parentPath, String name, EntityDefinition template);
 
+    LocatedEntityDefinition getTemplateById(String id);
+
     Iterable<String> getEntityGroups();
 
     Iterable<LocatedEntityDefinition> getEntities(String entityGroup);

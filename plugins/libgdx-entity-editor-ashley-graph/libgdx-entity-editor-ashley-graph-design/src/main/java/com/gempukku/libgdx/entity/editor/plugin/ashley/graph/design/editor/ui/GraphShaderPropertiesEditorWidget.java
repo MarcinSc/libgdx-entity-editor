@@ -34,8 +34,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
     private final Callback callback;
 
     public GraphShaderPropertiesEditorWidget(
-
-            String label, ObjectMap<String, Object> pipelineProperties, Callback callback) {
+            String label, boolean editable, ObjectMap<String, Object> pipelineProperties, Callback callback) {
         this.callback = callback;
 
         verticalGroup = new VerticalGroup();
@@ -50,7 +49,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         };
 
         for (ObjectMap.Entry<String, Object> entry : pipelineProperties.entries()) {
-            addProperty(verticalGroup, entry.key, entry.value);
+            addProperty(verticalGroup, entry.key, editable, entry.value);
         }
 
         VisScrollPane scrollPane = new VisScrollPane(verticalGroup);
@@ -94,6 +93,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
                         popupMenu.showMenu(getStage(), addButton);
                     }
                 });
+        addButton.setDisabled(!editable);
         VisTextButton removeButton = new VisTextButton("Remove selected");
         removeButton.addListener(
                 new ChangeListener() {
@@ -108,6 +108,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
                         updateValue();
                     }
                 });
+        removeButton.setDisabled(!editable);
 
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
@@ -117,8 +118,8 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         add(buttonTable).growX().row();
     }
 
-    private void addProperty(VerticalGroup verticalGroup, String name, Object value) {
-        ShaderProperty shaderProperty = new ShaderProperty(name, value, updateValue);
+    private void addProperty(VerticalGroup verticalGroup, String name, boolean editable, Object value) {
+        ShaderProperty shaderProperty = new ShaderProperty(name, editable, value, updateValue);
         verticalGroup.addActor(shaderProperty);
     }
 
@@ -148,7 +149,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
                     new InputDialogListener() {
                         @Override
                         public void finished(String input) {
-                            addProperty(verticalGroup, input, value);
+                            addProperty(verticalGroup, input, true, value);
                             updateValue();
                         }
 
@@ -166,27 +167,27 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         private ShaderPropertyValue shaderPropertyValue;
         private VisCheckBox checkBox;
 
-        public ShaderProperty(String propertyName, Object value, Runnable callback) {
+        public ShaderProperty(String propertyName, boolean editable, Object value, Runnable callback) {
             this.propertyName = propertyName;
             if (value instanceof Number) {
                 fieldType = ShaderFieldType.Float;
-                shaderPropertyValue = new FloatShaderPropertyValue(((Number) value).floatValue(), callback);
+                shaderPropertyValue = new FloatShaderPropertyValue(((Number) value).floatValue(), editable, callback);
             } else if (value instanceof Vector2) {
                 fieldType = ShaderFieldType.Vector2;
                 Vector2 v2 = (Vector2) value;
-                shaderPropertyValue = new Vector2PropertyValue(v2.x, v2.y, callback);
+                shaderPropertyValue = new Vector2PropertyValue(v2.x, v2.y, editable, callback);
             } else if (value instanceof Vector3) {
                 fieldType = ShaderFieldType.Vector3;
                 Vector3 v3 = (Vector3) value;
-                shaderPropertyValue = new Vector3PropertyValue(v3.x, v3.y, v3.z, callback);
+                shaderPropertyValue = new Vector3PropertyValue(v3.x, v3.y, v3.z, editable, callback);
             } else if (value instanceof Color) {
                 fieldType = ShaderFieldType.Vector4;
                 Color color = (Color) value;
-                shaderPropertyValue = new ColorPropertyValue(color, callback);
+                shaderPropertyValue = new ColorPropertyValue(color, editable, callback);
             } else if (value instanceof TextureValue) {
                 fieldType = ShaderFieldType.TextureRegion;
                 TextureValue texture = (TextureValue) value;
-                shaderPropertyValue = new TextureRegionPropertyValue(texture, callback);
+                shaderPropertyValue = new TextureRegionPropertyValue(editable, texture, callback);
             } else if (value instanceof CurrentTimeValue) {
                 fieldType = ShaderFieldType.Float;
                 shaderPropertyValue = new CurrentTimePropertyValue();
@@ -233,12 +234,12 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         private String atlas;
         private String texture;
 
-        public TextureRegionPropertyValue(TextureValue textureValue, Runnable callback) {
+        public TextureRegionPropertyValue(boolean editable, TextureValue textureValue, Runnable callback) {
             this.atlas = textureValue.getAtlas();
             this.texture = textureValue.getTexture();
 
             PairOfStringsEditorWidget widget = new PairOfStringsEditorWidget(
-                    EditorConfig.LABEL_WIDTH, "Atlas", textureValue.getAtlas(),
+                    EditorConfig.LABEL_WIDTH, editable, "Atlas", textureValue.getAtlas(),
                     "Texture", textureValue.getTexture(), new PairOfStringsEditorWidget.Callback() {
                 @Override
                 public void update(String value1, String value2) {
@@ -265,7 +266,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
     private static class ColorPropertyValue extends VisTable implements ShaderPropertyValue {
         private VisLabel colorLabel;
 
-        public ColorPropertyValue(Color color, Runnable callback) {
+        public ColorPropertyValue(Color color, boolean editable, Runnable callback) {
             colorLabel = new VisLabel(color.toString());
 
             VisTextButton modifyColor = new VisTextButton("Change");
@@ -286,6 +287,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
                             getStage().addActor(picker.fadeIn());
                         }
                     });
+            modifyColor.setDisabled(!editable);
 
             add(colorLabel).growX();
             add(modifyColor).row();
@@ -307,7 +309,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         private VisValidatableTextField yField;
         private VisValidatableTextField zField;
 
-        public Vector3PropertyValue(float x, float y, float z, Runnable callback) {
+        public Vector3PropertyValue(float x, float y, float z, boolean editable, Runnable callback) {
             ChangeListener listener = new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -318,12 +320,15 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
             xField = new VisValidatableTextField(Validators.FLOATS);
             xField.setText(SimpleNumberFormatter.format(x));
             xField.addListener(listener);
+            xField.setDisabled(!editable);
             yField = new VisValidatableTextField(Validators.FLOATS);
             yField.setText(SimpleNumberFormatter.format(y));
             yField.addListener(listener);
+            yField.setDisabled(!editable);
             zField = new VisValidatableTextField(Validators.FLOATS);
             zField.setText(SimpleNumberFormatter.format(z));
             zField.addListener(listener);
+            zField.setDisabled(!editable);
 
             add("X: ");
             add(xField).growX().row();
@@ -351,7 +356,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         private VisValidatableTextField xField;
         private VisValidatableTextField yField;
 
-        public Vector2PropertyValue(float x, float y, Runnable callback) {
+        public Vector2PropertyValue(float x, float y, boolean editable, Runnable callback) {
             ChangeListener listener = new ChangeListener() {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
@@ -362,9 +367,11 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
             xField = new VisValidatableTextField(Validators.FLOATS);
             xField.setText(SimpleNumberFormatter.format(x));
             xField.addListener(listener);
+            xField.setDisabled(!editable);
             yField = new VisValidatableTextField(Validators.FLOATS);
             yField.setText(SimpleNumberFormatter.format(y));
             yField.addListener(listener);
+            yField.setDisabled(!editable);
 
             add("X: ");
             add(xField).growX().row();
@@ -386,9 +393,10 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
     }
 
     private static class FloatShaderPropertyValue extends VisValidatableTextField implements ShaderPropertyValue {
-        public FloatShaderPropertyValue(float value, Runnable callback) {
+        public FloatShaderPropertyValue(float value, boolean editable, Runnable callback) {
             super(Validators.FLOATS);
             setText(SimpleNumberFormatter.format(value));
+            setDisabled(!editable);
             addListener(
                     new ChangeListener() {
                         @Override

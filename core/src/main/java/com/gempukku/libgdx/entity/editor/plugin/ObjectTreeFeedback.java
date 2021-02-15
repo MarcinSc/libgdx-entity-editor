@@ -10,9 +10,9 @@ public interface ObjectTreeFeedback {
 
     EntityGroupFolder createEntityFolder(String name);
 
-    EntityDefinition createEntity(String name);
+    EntityDefinition createEntity(String id, String name);
 
     EntityTemplatesFolder createTemplatesFolder(String name);
 
-    EntityDefinition createTemplate(String name);
+    EntityDefinition createTemplate(String id, String name);
 }

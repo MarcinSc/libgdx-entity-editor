@@ -12,7 +12,7 @@ public class FloatEditorWidget extends VisTable {
     private final VisValidatableTextField field;
 
     public FloatEditorWidget(
-            float width,
+            float width, boolean editable,
             String label, float value,
             FloatEditorWidget.Callback callback) {
         ChangeListener changeListener = new ChangeListener() {
@@ -29,6 +29,7 @@ public class FloatEditorWidget extends VisTable {
         field.setAlignment(Align.right);
         field.setText(SimpleNumberFormatter.format(value));
         field.addListener(changeListener);
+        field.setDisabled(!editable);
 
         add(label + ": ").width(width);
         add(field).growX().row();

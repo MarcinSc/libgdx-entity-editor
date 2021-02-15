@@ -14,19 +14,19 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteComponentEditorFactory implements ComponentEditorFactory<SpriteComponent> {
     @Override
-    public ComponentEditor createComponentEditor(SpriteComponent component) {
-        return new SpriteComponentEditor(component);
+    public ComponentEditor createComponentEditor(SpriteComponent component, boolean editable) {
+        return new SpriteComponentEditor(component, editable);
     }
 
     private class SpriteComponentEditor implements ComponentEditor<SpriteComponent> {
         private Table actor;
         private SpriteComponent component;
 
-        public SpriteComponentEditor(SpriteComponent component) {
+        public SpriteComponentEditor(SpriteComponent component, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget position = new PairOfFloatsEditorWidget(
-                    EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH, editable,
                     "Anchor X", component.getAnchorX(), "Anchor Y", component.getAnchorY(),
                     new PairOfFloatsEditorWidget.Callback() {
                         @Override
@@ -36,7 +36,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                     }
             );
 
-            StringArrayEditorWidget tags = new StringArrayEditorWidget("Tags", component.getTags(),
+            StringArrayEditorWidget tags = new StringArrayEditorWidget("Tags", editable, component.getTags(),
                     new StringArrayEditorWidget.Callback() {
                         @Override
                         public void setValue(Array<String> value) {
@@ -44,7 +44,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            FloatEditorWidget layer = new FloatEditorWidget(EditorConfig.LABEL_WIDTH, "Layer", component.getLayer(),
+            FloatEditorWidget layer = new FloatEditorWidget(EditorConfig.LABEL_WIDTH, editable, "Layer", component.getLayer(),
                     new FloatEditorWidget.Callback() {
                         @Override
                         public void update(float value) {
@@ -52,7 +52,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         }
                     });
 
-            GraphShaderPropertiesEditorWidget properties = new GraphShaderPropertiesEditorWidget("Shader properties", component.getProperties(),
+            GraphShaderPropertiesEditorWidget properties = new GraphShaderPropertiesEditorWidget("Shader properties", editable, component.getProperties(),
                     new GraphShaderPropertiesEditorWidget.Callback() {
                         @Override
                         public void setValue(ObjectMap<String, Object> value) {

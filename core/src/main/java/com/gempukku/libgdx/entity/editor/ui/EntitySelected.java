@@ -5,9 +5,15 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 
 public class EntitySelected extends Event {
     private EntityDefinition entity;
+    private boolean isEntity;
 
-    public EntitySelected(EntityDefinition entity) {
+    public EntitySelected(EntityDefinition entity, boolean isEntity) {
         this.entity = entity;
+        this.isEntity = isEntity;
+    }
+
+    public boolean isEntity() {
+        return isEntity;
     }
 
     public EntityDefinition getEntity() {

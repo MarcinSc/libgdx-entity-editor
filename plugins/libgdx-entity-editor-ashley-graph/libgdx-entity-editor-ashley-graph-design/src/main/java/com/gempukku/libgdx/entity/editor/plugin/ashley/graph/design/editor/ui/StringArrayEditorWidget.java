@@ -15,7 +15,7 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 
 public class StringArrayEditorWidget extends VisTable {
     public StringArrayEditorWidget(
-            String label, Iterable<String> values, Callback callback) {
+            String label, boolean editable, Iterable<String> values, Callback callback) {
         final VerticalGroup verticalGroup = new VerticalGroup();
         verticalGroup.grow();
         verticalGroup.align(Align.topLeft);
@@ -50,6 +50,8 @@ public class StringArrayEditorWidget extends VisTable {
                                 });
                     }
                 });
+        addButton.setDisabled(!editable);
+
         VisTextButton removeButton = new VisTextButton("Remove selected");
         removeButton.addListener(
                 new ChangeListener() {
@@ -64,6 +66,7 @@ public class StringArrayEditorWidget extends VisTable {
                         updateValues(verticalGroup, callback);
                     }
                 });
+        removeButton.setDisabled(!editable);
 
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);

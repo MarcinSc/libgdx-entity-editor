@@ -13,7 +13,7 @@ public class PairOfFloatsEditorWidget extends VisTable {
     private final VisValidatableTextField field2;
 
     public PairOfFloatsEditorWidget(
-            float width,
+            float width, boolean editable,
             String label1, float value1,
             String label2, float value2,
             Callback callback) {
@@ -31,12 +31,14 @@ public class PairOfFloatsEditorWidget extends VisTable {
         field1.setAlignment(Align.right);
         field1.setText(SimpleNumberFormatter.format(value1));
         field1.addListener(changeListener);
+        field1.setDisabled(!editable);
 
         field2 = new VisValidatableTextField(Validators.FLOATS);
         field2.setRestoreLastValid(true);
         field2.setAlignment(Align.right);
         field2.setText(SimpleNumberFormatter.format(value2));
         field2.addListener(changeListener);
+        field2.setDisabled(!editable);
 
         add(label1 + ": ").width(width);
         add(field1).growX().row();

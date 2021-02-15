@@ -10,19 +10,19 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class FacingComponentEditorFactory implements ComponentEditorFactory<FacingComponent> {
     @Override
-    public ComponentEditor<FacingComponent> createComponentEditor(FacingComponent component) {
-        return new FacingComponentEditor(component);
+    public ComponentEditor<FacingComponent> createComponentEditor(FacingComponent component, boolean editable) {
+        return new FacingComponentEditor(component, editable);
     }
 
     private class FacingComponentEditor implements ComponentEditor<FacingComponent> {
         private Table actor;
         private FacingComponent component;
 
-        public FacingComponentEditor(FacingComponent component) {
+        public FacingComponentEditor(FacingComponent component, boolean editable) {
             this.component = component;
 
             EnumEditorWidget<FaceDirection> widget = new EnumEditorWidget<FaceDirection>(
-                    EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH, editable,
                     FaceDirection.class, false,
                     "Facing", component.getFaceDirection(),
                     new EnumEditorWidget.Callback<FaceDirection>() {

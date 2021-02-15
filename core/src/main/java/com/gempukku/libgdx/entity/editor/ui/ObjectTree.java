@@ -30,6 +30,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTree;
 
 import java.util.Comparator;
+import java.util.UUID;
 
 public class ObjectTree extends VisTable implements ObjectTreeData {
     private VisTree<Tree.Node, Object> tree;
@@ -72,11 +73,11 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     public void changed(ChangeEvent event, Actor actor) {
                         Tree.Node selectedNode = tree.getSelectedNode();
                         if (selectedNode instanceof EntityDefinitionNode) {
-                            fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue()));
+                            fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue(), true));
                         } else if (selectedNode instanceof EntityTemplateNode) {
-                            fire(new EntitySelected(((EntityTemplateNode) selectedNode).getValue()));
+                            fire(new EntitySelected(((EntityTemplateNode) selectedNode).getValue(), false));
                         } else {
-                            fire(new EntitySelected(null));
+                            fire(new EntitySelected(null, false));
                         }
                     }
                 });
@@ -124,7 +125,8 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(input));
+
+                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(createId(), input));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -219,7 +221,8 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityDefinition entity = objectTreeFeedback.createEntity(input);
+
+                                        EntityDefinition entity = objectTreeFeedback.createEntity(createId(), input);
                                         EntityDefinitionNode node = new EntityDefinitionNode(entity);
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -237,6 +240,10 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         popupMenu.addItem(createFolder);
         popupMenu.addItem(createEntity);
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
+    }
+
+    private String createId() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     private void mergeInNode(Tree.Node parent, Tree.Node child) {
@@ -272,6 +279,31 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath);
         EntityTemplateNode node = new EntityTemplateNode(template);
         mergeInNode(entityGroupFolderNode, node);
+    }
+
+    @Override
+    public LocatedEntityDefinition getTemplateById(String id) {
+        return findTemplateById(templatesNode, id, null);
+    }
+
+    private LocatedEntityDefinition findTemplateById(Tree.Node node, String id, String parentPath) {
+        for (Object child : node.getChildren()) {
+            if (child instanceof EntityTemplatesFolderNode) {
+                EntityTemplatesFolderNode folder = (EntityTemplatesFolderNode) child;
+                String folderName = folder.getValue().getName();
+                LocatedEntityDefinition result = findTemplateById((Tree.Node) child, id, getFullPath(parentPath, folderName));
+                if (result != null)
+                    return result;
+            }
+            if (child instanceof EntityTemplateNode) {
+                EntityTemplateNode template = (EntityTemplateNode) child;
+                EntityDefinition templateDefinition = template.getValue();
+                if (templateDefinition.getId().equals(id)) {
+                    return new LocatedEntityDefinition(templateDefinition, getFullPath(parentPath, templateDefinition.getName()));
+                }
+            }
+        }
+        return null;
     }
 
     @Override
@@ -378,6 +410,13 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         }
 
         return findEntityGroupFolderNode(createEntityTemplatesFolderNode(node, name), path, index + 1);
+    }
+
+    public static String getFullPath(String parentPath, String name) {
+        if (parentPath == null)
+            return name;
+        else
+            return parentPath + "/" + name;
     }
 
     private static class ObjectTreeNodeComparator implements Comparator<Tree.Node> {

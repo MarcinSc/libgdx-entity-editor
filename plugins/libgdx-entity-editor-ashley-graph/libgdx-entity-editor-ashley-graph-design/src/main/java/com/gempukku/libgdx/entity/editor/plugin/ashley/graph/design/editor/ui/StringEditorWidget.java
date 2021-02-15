@@ -10,7 +10,7 @@ public class StringEditorWidget extends VisTable {
     private final VisTextField field;
 
     public StringEditorWidget(
-            float width,
+            float width, boolean editable,
             String label, String value,
             StringEditorWidget.Callback callback) {
         ChangeListener changeListener = new ChangeListener() {
@@ -23,6 +23,7 @@ public class StringEditorWidget extends VisTable {
         field = new VisTextField(value);
         field.setAlignment(Align.right);
         field.addListener(changeListener);
+        field.setDisabled(!editable);
 
         add(label + ": ").width(width);
         add(field).growX().row();

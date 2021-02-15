@@ -10,7 +10,7 @@ public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
     private Class<T> clazz;
 
     public EnumEditorWidget(
-            float width,
+            float width, boolean editable,
             Class<T> clazz, boolean allowsNull,
             String label, T value, Callback<T> callback) {
         this.clazz = clazz;
@@ -32,6 +32,7 @@ public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
             }
         };
         selectBox.addListener(changeListener);
+        selectBox.setDisabled(!editable);
 
         add(label + ": ").width(width);
         add(selectBox).growX().row();

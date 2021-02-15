@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
+import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.data.component.EntityComponentRegistry;
@@ -24,6 +25,7 @@ public class EntityInspector<T> extends VisTable {
     private final VerticalGroup entityDetails;
     private final VerticalGroup entityComponents;
 
+    private ObjectTreeData objectTreeData;
     private EntityDefinition<T> editedEntity;
 
     public EntityInspector() {
@@ -45,7 +47,11 @@ public class EntityInspector<T> extends VisTable {
         add(scrollPane).grow().row();
     }
 
-    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project) {
+    public void setObjectTreeData(ObjectTreeData objectTreeData) {
+        this.objectTreeData = objectTreeData;
+    }
+
+    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
         this.editedEntity = editedEntity;
 
         entityDetails.clearChildren();
@@ -69,7 +75,7 @@ public class EntityInspector<T> extends VisTable {
                                                 public void changed(ChangeEvent event, Actor actor) {
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
-                                                    addCoreComponentEditor(component);
+                                                    addCoreComponentEditor(component, true);
                                                 }
                                             });
                                     menu.addItem(menuItem);
@@ -111,17 +117,24 @@ public class EntityInspector<T> extends VisTable {
             buttonTable.add(removeComponent).row();
             entityDetails.addActor(buttonTable);
 
+            for (Class<? extends T> inheritedCoreComponentClass : editedEntity.getInheritedCoreComponents(objectTreeData)) {
+                if (!editedEntity.hasCoreComponent(inheritedCoreComponentClass)) {
+                    T inheritedCoreComponent = editedEntity.getInheritedCoreComponent(objectTreeData, inheritedCoreComponentClass);
+                    addCoreComponentEditor(inheritedCoreComponent, false);
+                }
+            }
+
             for (Class<? extends T> coreComponentClass : editedEntity.getCoreComponents()) {
                 T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
-                addCoreComponentEditor(coreComponent);
+                addCoreComponentEditor(coreComponent, true);
             }
         }
     }
 
-    private void addCoreComponentEditor(T coreComponent) {
+    private void addCoreComponentEditor(T coreComponent, boolean editable) {
         Class<? extends T> clazz = (Class<? extends T>) coreComponent.getClass();
         ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent));
+        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent, editable));
         entityComponents.addActor(container);
     }
 

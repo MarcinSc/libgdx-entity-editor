@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
@@ -37,6 +36,7 @@ public class EntityEditorScreen extends VisTable {
         entityEditorPreview = new EntityEditorPreview(camera);
         utilityPanel = new UtilityPanel();
         entityInspector = new EntityInspector();
+        entityInspector.setObjectTreeData(objectTree);
 
         VisSplitPane leftSplitPane = new VisSplitPane(objectTree, pluginSettings, true);
 
@@ -53,8 +53,8 @@ public class EntityEditorScreen extends VisTable {
                     @Override
                     public boolean handle(Event event) {
                         if (event instanceof EntitySelected) {
-                            EntityDefinition entity = ((EntitySelected) event).getEntity();
-                            entityInspector.setEditedEntity(entity, project);
+                            EntitySelected entityEvent = (EntitySelected) event;
+                            entityInspector.setEditedEntity(entityEvent.getEntity(), project, entityEvent.isEntity());
                             return true;
                         }
                         return false;

@@ -9,19 +9,19 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
     @Override
-    public ComponentEditor<PositionComponent> createComponentEditor(PositionComponent component) {
-        return new PositionComponentEditor(component);
+    public ComponentEditor<PositionComponent> createComponentEditor(PositionComponent component, boolean editable) {
+        return new PositionComponentEditor(component, editable);
     }
 
     private class PositionComponentEditor implements ComponentEditor<PositionComponent> {
         private Table actor;
         private PositionComponent component;
 
-        public PositionComponentEditor(PositionComponent component) {
+        public PositionComponentEditor(PositionComponent component, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
-                    EditorConfig.LABEL_WIDTH,
+                    EditorConfig.LABEL_WIDTH, editable,
                     "X", component.getX(), "Y", component.getY(),
                     new PairOfFloatsEditorWidget.Callback() {
                         @Override

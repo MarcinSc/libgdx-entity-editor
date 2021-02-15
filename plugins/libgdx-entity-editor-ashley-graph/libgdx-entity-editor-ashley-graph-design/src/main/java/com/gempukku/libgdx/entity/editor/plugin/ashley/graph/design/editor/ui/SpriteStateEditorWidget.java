@@ -15,17 +15,17 @@ import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
-import com.kotcrab.vis.ui.widget.VisTextField;
 
 public class SpriteStateEditorWidget extends VisTable {
     public SpriteStateEditorWidget(
-            String label, ObjectMap<String, SpriteStateDataDef> states, Callback callback) {
+            String label, boolean editable,
+            ObjectMap<String, SpriteStateDataDef> states, Callback callback) {
         final VerticalGroup verticalGroup = new VerticalGroup();
         verticalGroup.grow();
         verticalGroup.align(Align.topLeft);
 
         for (ObjectMap.Entry<String, SpriteStateDataDef> stateEntry : states.entries()) {
-            addEntry(verticalGroup, stateEntry.key, stateEntry.value, callback);
+            addEntry(verticalGroup, stateEntry.key, editable, stateEntry.value, callback);
         }
 
         VisScrollPane scrollPane = new VisScrollPane(verticalGroup);
@@ -34,7 +34,7 @@ public class SpriteStateEditorWidget extends VisTable {
 
         VisTable buttonTable = new VisTable();
 
-        VisTextField addButton = new VisTextField("Add state");
+        VisTextButton addButton = new VisTextButton("Add state");
         addButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -43,7 +43,7 @@ public class SpriteStateEditorWidget extends VisTable {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        addEntry(verticalGroup, input, new SpriteStateDataDef(), callback);
+                                        addEntry(verticalGroup, input, true, new SpriteStateDataDef(), callback);
                                         updateValues(verticalGroup, callback);
                                     }
 
@@ -54,7 +54,8 @@ public class SpriteStateEditorWidget extends VisTable {
                                 });
                     }
                 });
-        VisTextField removeButton = new VisTextField("Remove selected");
+        addButton.setDisabled(!editable);
+        VisTextButton removeButton = new VisTextButton("Remove selected");
         removeButton.addListener(
                 new ChangeListener() {
                     @Override
@@ -68,6 +69,7 @@ public class SpriteStateEditorWidget extends VisTable {
                         updateValues(verticalGroup, callback);
                     }
                 });
+        removeButton.setDisabled(!editable);
 
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
@@ -86,8 +88,8 @@ public class SpriteStateEditorWidget extends VisTable {
         callback.setValue(result);
     }
 
-    private void addEntry(VerticalGroup verticalGroup, String name, SpriteStateDataDef spriteStateData, Callback callback) {
-        StateWidget stateWidget = new StateWidget(name, spriteStateData, new Runnable() {
+    private void addEntry(VerticalGroup verticalGroup, String name, boolean editable, SpriteStateDataDef spriteStateData, Callback callback) {
+        StateWidget stateWidget = new StateWidget(name, editable, spriteStateData, new Runnable() {
             @Override
             public void run() {
                 updateValues(verticalGroup, callback);
@@ -105,7 +107,7 @@ public class SpriteStateEditorWidget extends VisTable {
         private String name;
         private SpriteStateDataDef dataDef;
 
-        private StateWidget(String name, SpriteStateDataDef dataDef, Runnable callback) {
+        private StateWidget(String name, boolean editable, SpriteStateDataDef dataDef, Runnable callback) {
             this.name = name;
             this.dataDef = dataDef;
             checkBox = new VisCheckBox(name);
@@ -119,7 +121,7 @@ public class SpriteStateEditorWidget extends VisTable {
                             dialog.setResizable(true);
                             dialog.getContentTable().add(
                                     new GraphShaderPropertiesEditorWidget(
-                                            "Sprite state data",
+                                            "Sprite state data", true,
                                             dataDef.getProperties(), new GraphShaderPropertiesEditorWidget.Callback() {
                                         @Override
                                         public void setValue(ObjectMap<String, Object> value) {
@@ -146,6 +148,7 @@ public class SpriteStateEditorWidget extends VisTable {
                             });
                         }
                     });
+            textButton.setDisabled(!editable);
 
             add(checkBox).width(EditorConfig.LABEL_WIDTH);
             add(textButton).expandX().row();

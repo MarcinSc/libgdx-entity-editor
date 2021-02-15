@@ -3,7 +3,11 @@ package com.gempukku.libgdx.entity.editor.data;
 import com.badlogic.gdx.utils.JsonValue;
 
 public interface EntityDefinition<T> {
+    String getId();
+
     String getName();
+
+    Iterable<Class<? extends T>> getInheritedCoreComponents(ObjectTreeData treeData);
 
     void addCoreComponent(T coreComponent);
 
@@ -16,4 +20,6 @@ public interface EntityDefinition<T> {
     T getCoreComponent(Class<? extends T> clazz);
 
     JsonValue toJson();
+
+    T getInheritedCoreComponent(ObjectTreeData treeData, Class<? extends T> inheritedCoreComponentClass);
 }

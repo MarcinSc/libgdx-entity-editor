@@ -11,7 +11,7 @@ public class PairOfStringsEditorWidget extends VisTable {
     private final VisTextField field2;
 
     public PairOfStringsEditorWidget(
-            float width,
+            float width, boolean editable,
             String label1, String value1,
             String label2, String value2,
             Callback callback) {
@@ -25,10 +25,12 @@ public class PairOfStringsEditorWidget extends VisTable {
         field1 = new VisTextField(value1);
         field1.setAlignment(Align.right);
         field1.addListener(changeListener);
+        field1.setDisabled(!editable);
 
         field2 = new VisTextField(value2);
         field2.setAlignment(Align.right);
         field2.addListener(changeListener);
+        field2.setDisabled(!editable);
 
         add(label1 + ": ").width(width);
         add(field1).growX().row();
