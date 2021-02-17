@@ -1,5 +1,6 @@
 package com.gempukku.libgdx.entity.editor.ui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
@@ -269,9 +270,9 @@ public class EntityInspector<T> extends VisTable {
 
             Table actor = componentEditor.getActor();
             actor.setFillParent(true);
-            CollapsibleWidget collapsibleWidget = new CollapsibleWidget(actor);
+            CollapsibleWidget collapsibleWidget = new CollapsibleWidget(actor, inherited);
 
-            VisTextButton collapseButton = new VisTextButton("-");
+            VisTextButton collapseButton = new VisTextButton(inherited ? "+" : "-");
             collapseButton.addListener(
                     new ChangeListener() {
                         @Override
@@ -287,6 +288,8 @@ public class EntityInspector<T> extends VisTable {
                     });
 
             VisLabel componentNameLabel = new VisLabel(componentClass.getSimpleName() + (inherited ? " (inherited)" : ""));
+            if (inherited)
+                componentNameLabel.setColor(Color.LIGHT_GRAY);
             componentNameLabel.setEllipsis(true);
 
             add(new Separator()).colspan(2).growX().row();

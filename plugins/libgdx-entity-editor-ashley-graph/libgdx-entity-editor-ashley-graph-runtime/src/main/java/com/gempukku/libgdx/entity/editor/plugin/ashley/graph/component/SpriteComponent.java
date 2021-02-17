@@ -2,7 +2,6 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gempukku.libgdx.graph.plugin.sprites.GraphSprite;
 
 public class SpriteComponent extends DirtyComponent {
     private float layer;
@@ -10,16 +9,6 @@ public class SpriteComponent extends DirtyComponent {
     private float anchorY = 0.5f;
     private Array<String> tags = new Array<>();
     private ObjectMap<String, Object> properties = new ObjectMap<>();
-
-    private transient GraphSprite graphSprite;
-
-    public GraphSprite getGraphSprite() {
-        return graphSprite;
-    }
-
-    public void setGraphSprite(GraphSprite graphSprite) {
-        this.graphSprite = graphSprite;
-    }
 
     public float getLayer() {
         return layer;

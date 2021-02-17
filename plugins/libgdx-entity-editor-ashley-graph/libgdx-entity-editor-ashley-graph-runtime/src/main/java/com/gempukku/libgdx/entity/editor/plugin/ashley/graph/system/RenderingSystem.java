@@ -15,6 +15,7 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FacingCom
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteDataComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.CurrentTimeValue;
@@ -58,7 +59,10 @@ public class RenderingSystem extends EntitySystem {
 
                         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
                         GraphSprite graphSprite = graphSprites.createSprite(spriteComponent.getLayer());
-                        spriteComponent.setGraphSprite(graphSprite);
+
+                        SpriteDataComponent spriteData = engine.createComponent(SpriteDataComponent.class);
+                        spriteData.setGraphSprite(graphSprite);
+                        entity.add(spriteData);
 
                         setSpriteProperties(entity, true);
 
@@ -69,8 +73,8 @@ public class RenderingSystem extends EntitySystem {
 
                     @Override
                     public void entityRemoved(Entity entity) {
-                        SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
-                        GraphSprite graphSprite = spriteComponent.getGraphSprite();
+                        SpriteDataComponent spriteData = entity.remove(SpriteDataComponent.class);
+                        GraphSprite graphSprite = spriteData.getGraphSprite();
                         pipelineRenderer.getPluginData(GraphSprites.class).destroySprite(graphSprite);
                     }
                 });
@@ -98,12 +102,13 @@ public class RenderingSystem extends EntitySystem {
 
     private void setSpriteProperties(Entity entity, boolean force) {
         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
+        final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         final PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
         final ScaleComponent scaleComponent = entity.getComponent(ScaleComponent.class);
         final FacingComponent facingComponent = entity.getComponent(FacingComponent.class);
 
-        GraphSprite graphSprite = spriteComponent.getGraphSprite();
+        GraphSprite graphSprite = spriteDataComponent.getGraphSprite();
 
         if (force || spriteComponent.isDirty() || positionComponent.isDirty() || (scaleComponent != null && scaleComponent.isDirty())
                 || (facingComponent != null && facingComponent.isDirty())) {
