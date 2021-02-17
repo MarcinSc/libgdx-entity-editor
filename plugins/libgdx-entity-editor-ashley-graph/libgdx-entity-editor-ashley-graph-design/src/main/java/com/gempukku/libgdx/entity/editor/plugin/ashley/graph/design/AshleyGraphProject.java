@@ -125,11 +125,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     public void update(float delta) {
         timeKeeper.updateTime(delta);
         ashleyEngine.update(delta);
-
-        int previewWidth = editorScreen.getPreviewWidth();
-        int previewHeight = editorScreen.getPreviewHeight();
-
-        graphPreviewRenderer.prepare(previewWidth, previewHeight);
     }
 
     @Override

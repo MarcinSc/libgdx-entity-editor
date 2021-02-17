@@ -2,6 +2,7 @@ package com.gempukku.libgdx.entity.editor.ui;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 
@@ -80,6 +81,8 @@ public class EntityEditorPreview extends Actor {
         camera.viewportWidth = getWidth();
         camera.viewportHeight = getHeight();
         camera.update();
+
+        previewRenderer.prepare(MathUtils.round(getWidth()), MathUtils.round(getHeight()));
     }
 
     public void setPreviewRenderer(PreviewRenderer previewRenderer) {

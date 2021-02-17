@@ -18,6 +18,7 @@ public class GraphPreviewRenderer implements PreviewRenderer, Disposable {
         renderOutput = new RenderOutputs.RenderToTexture(null);
     }
 
+    @Override
     public void prepare(int width, int height) {
         if (width > 0 && height > 0) {
             if (renderToTexture == null ||
