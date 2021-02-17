@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.gempukku.libgdx.entity.editor.TextureSource;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent;
@@ -26,6 +27,8 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private TextureSource textureSource;
     private Vector3 tmpVector = new Vector3();
     private WhitePixel whitePixel;
+    private EntityEditorPreview preview;
+    private long lastScrolled;
 
     public AshleyGraphPreviewHandler(Engine engine, Camera camera, TextureSource textureSource) {
         this.engine = engine;
@@ -37,6 +40,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
 
     @Override
     public void initialize(EntityEditorPreview preview) {
+        this.preview = preview;
         whitePixel = new WhitePixel();
         preview.addListener(this);
     }
@@ -74,5 +78,25 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
             Vector3 secondCorner = camera.project(tmpVector, x, y, width, height);
             shapeDrawer.rectangle(cornerX, cornerY, secondCorner.x - cornerX, secondCorner.y - cornerY);
         }
+    }
+
+    @Override
+    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+        preview.getStage().setScrollFocus(preview);
+        return true;
+    }
+
+    @Override
+    public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
+        long currentTime = System.currentTimeMillis();
+        if (lastScrolled + 30 < currentTime) {
+            if (amountY > 0) {
+                preview.zoomIn();
+            } else if (amountY < 1) {
+                preview.zoomOut();
+            }
+            lastScrolled = currentTime;
+        }
+        return true;
     }
 }
