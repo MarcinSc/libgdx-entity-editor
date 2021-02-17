@@ -17,6 +17,10 @@ public interface ObjectTreeData {
 
     Iterable<LocatedEntityDefinition> getTemplates();
 
+    boolean canCreateTemplate(String parentPath, String name);
+
+    void convertToTemplate(String name, EntityDefinition entity);
+
     class LocatedEntityDefinition {
         private EntityDefinition entityDefinition;
         private String path;

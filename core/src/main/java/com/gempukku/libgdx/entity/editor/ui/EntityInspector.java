@@ -1,21 +1,24 @@
 package com.gempukku.libgdx.entity.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.data.component.EntityComponentRegistry;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.kotcrab.vis.ui.util.InputValidator;
+import com.kotcrab.vis.ui.util.dialog.Dialogs;
+import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.CollapsibleWidget;
 import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.Separator;
+import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisLabel;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -27,11 +30,13 @@ public class EntityInspector<T> extends VisTable {
 
     private ObjectTreeData objectTreeData;
     private EntityDefinition<T> editedEntity;
+    private EntityEditorProject<T> project;
+    private boolean entity;
 
     public EntityInspector() {
         entityDetails = new VerticalGroup();
         entityDetails.top();
-        entityDetails.fill();
+        entityDetails.grow();
 
         entityComponents = new VerticalGroup();
         entityComponents.top();
@@ -45,6 +50,17 @@ public class EntityInspector<T> extends VisTable {
         scrollPane.setFadeScrollBars(false);
         scrollPane.setForceScroll(false, true);
         add(scrollPane).grow().row();
+
+        addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        if (!entity && editedEntity != null) {
+                            fire(new TemplateChanged());
+                        }
+                        event.stop();
+                    }
+                });
     }
 
     public void setObjectTreeData(ObjectTreeData objectTreeData) {
@@ -53,16 +69,24 @@ public class EntityInspector<T> extends VisTable {
 
     public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
         this.editedEntity = editedEntity;
+        this.project = project;
+        this.entity = entity;
 
+        rebuildUi();
+    }
+
+    private void rebuildUi() {
         entityDetails.clearChildren();
         entityComponents.clearChildren();
 
         if (editedEntity != null) {
+            HorizontalGroup templatesGroup = new HorizontalGroup().wrap();
+
             VisTextButton addComponent = new VisTextButton("Add component");
             addComponent.addListener(
-                    new ClickListener() {
+                    new ChangeListener() {
                         @Override
-                        public void clicked(InputEvent event, float x, float y) {
+                        public void changed(ChangeEvent event, Actor actor) {
                             PopupMenu menu = new PopupMenu();
 
                             for (Class coreComponent : EntityComponentRegistry.getCoreComponents()) {
@@ -75,7 +99,8 @@ public class EntityInspector<T> extends VisTable {
                                                 public void changed(ChangeEvent event, Actor actor) {
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
-                                                    addCoreComponentEditor(component, true);
+                                                    editedEntity.rebuildEntity();
+                                                    rebuildUi();
                                                 }
                                             });
                                     menu.addItem(menuItem);
@@ -88,9 +113,9 @@ public class EntityInspector<T> extends VisTable {
 
             VisTextButton removeComponent = new VisTextButton("Remove component");
             removeComponent.addListener(
-                    new ClickListener() {
+                    new ChangeListener() {
                         @Override
-                        public void clicked(InputEvent event, float x, float y) {
+                        public void changed(ChangeEvent event, Actor actor) {
                             PopupMenu menu = new PopupMenu();
 
                             for (Class<? extends T> coreComponent : editedEntity.getCoreComponents()) {
@@ -100,7 +125,8 @@ public class EntityInspector<T> extends VisTable {
                                             @Override
                                             public void changed(ChangeEvent event, Actor actor) {
                                                 editedEntity.removeCoreComponent(coreComponent);
-                                                removeCoreComponentEditor(coreComponent);
+                                                editedEntity.rebuildEntity();
+                                                rebuildUi();
                                             }
                                         });
                                 menu.addItem(menuItem);
@@ -110,31 +136,101 @@ public class EntityInspector<T> extends VisTable {
                         }
                     });
 
+            VisTextButton addTemplate = new VisTextButton("Add template");
+            addTemplate.addListener(
+                    new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            // TODO
+                        }
+                    });
+
+            VisTextButton removeTemplates = new VisTextButton("Remove templates");
+            removeTemplates.addListener(
+                    new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            boolean changed = false;
+                            for (Actor child : templatesGroup.getChildren()) {
+                                TemplateContainer container = (TemplateContainer) child;
+                                if (container.isChecked()) {
+                                    editedEntity.removeTemplate(container.getId());
+                                    changed = true;
+                                }
+                            }
+                            if (changed) {
+                                editedEntity.rebuildEntity();
+                                rebuildUi();
+                            }
+                        }
+                    });
+
             entityDetails.addActor(new VisLabel("Name: " + editedEntity.getName()));
-            VisTable buttonTable = new VisTable();
+            VisTable componentsButtonTable = new VisTable();
+            componentsButtonTable.add(addComponent);
+            componentsButtonTable.add(removeComponent).row();
+            entityDetails.addActor(componentsButtonTable);
+            entityDetails.addActor(new Separator());
+            entityDetails.addActor(new VisLabel("Inherited templates"));
 
-            buttonTable.add(addComponent);
-            buttonTable.add(removeComponent).row();
-            entityDetails.addActor(buttonTable);
+            for (String template : editedEntity.getTemplates()) {
+                String path = objectTreeData.getTemplateById(template).getPath();
+                templatesGroup.addActor(new TemplateContainer(template, path));
+            }
+            entityDetails.addActor(templatesGroup);
+            VisTable templatesButtonTable = new VisTable();
+            templatesButtonTable.add(addTemplate);
+            templatesButtonTable.add(removeTemplates);
+            if (entity) {
+                VisTextButton convertToTemplate = new VisTextButton("Convert to template");
+                convertToTemplate.addListener(
+                        new ChangeListener() {
+                            @Override
+                            public void changed(ChangeEvent event, Actor actor) {
+                                Dialogs.showInputDialog(getStage(), "Convert to template", "Template name",
+                                        new InputValidator() {
+                                            @Override
+                                            public boolean validateInput(String input) {
+                                                return objectTreeData.canCreateTemplate(null, input);
+                                            }
+                                        },
+                                        new InputDialogListener() {
+                                            @Override
+                                            public void finished(String input) {
+                                                objectTreeData.convertToTemplate(input, editedEntity);
+                                                rebuildUi();
+                                            }
 
-            for (Class<? extends T> inheritedCoreComponentClass : editedEntity.getInheritedCoreComponents(objectTreeData)) {
+                                            @Override
+                                            public void canceled() {
+
+                                            }
+                                        });
+                            }
+                        });
+                templatesButtonTable.add(convertToTemplate);
+            }
+            templatesButtonTable.row();
+            entityDetails.addActor(templatesButtonTable);
+
+            for (Class<? extends T> inheritedCoreComponentClass : editedEntity.getInheritedCoreComponents()) {
                 if (!editedEntity.hasCoreComponent(inheritedCoreComponentClass)) {
-                    T inheritedCoreComponent = editedEntity.getInheritedCoreComponent(objectTreeData, inheritedCoreComponentClass);
-                    addCoreComponentEditor(inheritedCoreComponent, false);
+                    T inheritedCoreComponent = editedEntity.getInheritedCoreComponent(inheritedCoreComponentClass);
+                    addCoreComponentEditor(inheritedCoreComponent, false, true);
                 }
             }
 
             for (Class<? extends T> coreComponentClass : editedEntity.getCoreComponents()) {
                 T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
-                addCoreComponentEditor(coreComponent, true);
+                addCoreComponentEditor(coreComponent, true, false);
             }
         }
     }
 
-    private void addCoreComponentEditor(T coreComponent, boolean editable) {
+    private void addCoreComponentEditor(T coreComponent, boolean editable, boolean inherited) {
         Class<? extends T> clazz = (Class<? extends T>) coreComponent.getClass();
         ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent, editable));
+        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent, editable), inherited);
         entityComponents.addActor(container);
     }
 
@@ -152,10 +248,23 @@ public class EntityInspector<T> extends VisTable {
         return null;
     }
 
+    private class TemplateContainer extends VisCheckBox {
+        private String id;
+
+        public TemplateContainer(String id, String path) {
+            super(path);
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
     private class ComponentContainer extends VisTable {
         private Class<? extends T> componentClass;
 
-        public ComponentContainer(Class<? extends T> componentClass, ComponentEditor<T> componentEditor) {
+        public ComponentContainer(Class<? extends T> componentClass, ComponentEditor<T> componentEditor, boolean inherited) {
             this.componentClass = componentClass;
 
             Table actor = componentEditor.getActor();
@@ -177,7 +286,7 @@ public class EntityInspector<T> extends VisTable {
                         }
                     });
 
-            VisLabel componentNameLabel = new VisLabel(componentClass.getSimpleName());
+            VisLabel componentNameLabel = new VisLabel(componentClass.getSimpleName() + (inherited ? " (inherited)" : ""));
             componentNameLabel.setEllipsis(true);
 
             add(new Separator()).colspan(2).growX().row();

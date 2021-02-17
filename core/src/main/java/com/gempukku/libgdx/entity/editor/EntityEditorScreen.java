@@ -14,6 +14,7 @@ import com.gempukku.libgdx.entity.editor.ui.EntityInspector;
 import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.entity.editor.ui.PluginSettings;
+import com.gempukku.libgdx.entity.editor.ui.TemplateChanged;
 import com.gempukku.libgdx.entity.editor.ui.UtilityPanel;
 import com.kotcrab.vis.ui.widget.VisSplitPane;
 import com.kotcrab.vis.ui.widget.VisTable;
@@ -55,6 +56,17 @@ public class EntityEditorScreen extends VisTable {
                         if (event instanceof EntitySelected) {
                             EntitySelected entityEvent = (EntitySelected) event;
                             entityInspector.setEditedEntity(entityEvent.getEntity(), project, entityEvent.isEntity());
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+        addListener(
+                new EventListener() {
+                    @Override
+                    public boolean handle(Event event) {
+                        if (event instanceof TemplateChanged) {
+                            objectTree.rebuildAllEntities();
                             return true;
                         }
                         return false;

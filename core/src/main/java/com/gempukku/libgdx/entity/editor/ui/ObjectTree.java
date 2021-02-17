@@ -21,6 +21,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
+import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.MenuItem;
@@ -31,8 +32,10 @@ import com.kotcrab.vis.ui.widget.VisTree;
 
 import java.util.Comparator;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 public class ObjectTree extends VisTable implements ObjectTreeData {
+    private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]*$");
     private VisTree<Tree.Node, Object> tree;
     private ObjectTreeFeedback objectTreeFeedback;
 
@@ -101,6 +104,12 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         Dialogs.showInputDialog(getStage(), "Create folder", "Folder name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateTemplatesFolder(treeNode, input);
+                                    }
+                                },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
@@ -122,10 +131,15 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         Dialogs.showInputDialog(getStage(), "Create entity", "Entity name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateTemplate(treeNode, input);
+                                    }
+                                },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-
                                         EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(createId(), input));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -165,6 +179,12 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         Dialogs.showInputDialog(getStage(), "Create entity group", "Group name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateEntityGroup(input);
+                                    }
+                                },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
@@ -197,6 +217,12 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         Dialogs.showInputDialog(getStage(), "Create folder", "Folder name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateEntityFolder(treeNode, input);
+                                    }
+                                },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
@@ -218,6 +244,12 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         Dialogs.showInputDialog(getStage(), "Create entity", "Entity name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateEntity(treeNode, input);
+                                    }
+                                },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
@@ -268,15 +300,15 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
 
     @Override
     public void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity) {
-        EntityGroupNode group = getEntityGroupNode(entityGroup);
-        Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath);
+        EntityGroupNode group = getEntityGroupNode(entityGroup, true);
+        Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath, true);
         EntityDefinitionNode node = new EntityDefinitionNode(entity);
         mergeInNode(entityGroupFolderNode, node);
     }
 
     @Override
     public void addTemplate(String parentPath, String name, EntityDefinition template) {
-        Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath);
+        Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath, true);
         EntityTemplateNode node = new EntityTemplateNode(template);
         mergeInNode(entityGroupFolderNode, node);
     }
@@ -318,7 +350,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
 
     @Override
     public Iterable<LocatedEntityDefinition> getEntities(String entityGroup) {
-        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup);
+        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
         Array<LocatedEntityDefinition> result = new Array<>();
         appendEntities(entityGroupNode, result, null);
         return result;
@@ -329,6 +361,141 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         Array<LocatedEntityDefinition> result = new Array<>();
         appendTemplates(templatesNode, result, null);
         return result;
+    }
+
+    private boolean canCreateEntity(String entityGroup, String parentPath, String name) {
+        if (!validEntityGroup(entityGroup) || !validParentPath(parentPath) || !validName(name))
+            return false;
+
+        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
+        if (entityGroupNode == null)
+            return true;
+        Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(entityGroupNode, parentPath, false);
+        if (entityGroupFolderNode == null)
+            return true;
+        for (Object child : entityGroupFolderNode.getChildren()) {
+            if (child instanceof EntityDefinitionNode) {
+                EntityDefinitionNode entity = (EntityDefinitionNode) child;
+                if (entity.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canCreateEntityFolder(Tree.Node parent, String name) {
+        if (!validName(name))
+            return false;
+
+        for (Object child : parent.getChildren()) {
+            if (child instanceof EntityGroupFolderNode) {
+                EntityGroupFolderNode folder = (EntityGroupFolderNode) child;
+                if (folder.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canCreateEntityGroup(String name) {
+        if (!validEntityGroup(name))
+            return false;
+
+        for (EntityGroupNode child : entityGroupsNode.getChildren()) {
+            if (child.getValue().getName().equals(name))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean canCreateTemplatesFolder(Tree.Node parent, String name) {
+        if (!validName(name))
+            return false;
+
+        for (Object child : parent.getChildren()) {
+            if (child instanceof EntityTemplatesFolderNode) {
+                EntityTemplatesFolderNode folder = (EntityTemplatesFolderNode) child;
+                if (folder.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canCreateEntity(Tree.Node parent, String name) {
+        if (!validName(name))
+            return false;
+
+        for (Object child : parent.getChildren()) {
+            if (child instanceof EntityDefinitionNode) {
+                EntityDefinitionNode entity = (EntityDefinitionNode) child;
+                if (entity.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean canCreateTemplate(Tree.Node parent, String name) {
+        if (!validName(name))
+            return false;
+
+        for (Object child : parent.getChildren()) {
+            if (child instanceof EntityTemplateNode) {
+                EntityTemplateNode template = (EntityTemplateNode) child;
+                if (template.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean canCreateTemplate(String parentPath, String name) {
+        if (!validParentPath(parentPath) || !validName(name))
+            return false;
+
+        Tree.Node entityTemplatesFolderNode = getEntityTemplateFolderNode(parentPath, false);
+        if (entityTemplatesFolderNode == null)
+            return true;
+        for (Object child : entityTemplatesFolderNode.getChildren()) {
+            if (child instanceof EntityTemplateNode) {
+                EntityTemplateNode template = (EntityTemplateNode) child;
+                if (template.getValue().getName().equals(name))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean validEntityGroup(String groupName) {
+        return validName(groupName);
+    }
+
+    private boolean validParentPath(String parentPath) {
+        if (parentPath == null)
+            return true;
+        String[] pathSplit = parentPath.split("/");
+        for (String value : pathSplit) {
+            if (!validName(value))
+                return false;
+        }
+        return true;
+    }
+
+    private boolean validName(String value) {
+        if (namePattern.matcher(value).matches())
+            return true;
+        return false;
+    }
+
+    @Override
+    public void convertToTemplate(String name, EntityDefinition entity) {
+        String id = createId();
+        EntityDefinition template = objectTreeFeedback.convertToTemplate(id, name, entity);
+        EntityTemplateNode node = new EntityTemplateNode(template);
+        mergeInNode(templatesNode, node);
+        entity.rebuildEntity();
     }
 
     private void appendEntities(Tree.Node<Tree.Node, ? extends Object, Label> entityGroupNode, Array<LocatedEntityDefinition> result, String path) {
@@ -353,34 +520,28 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         }
     }
 
-    private EntityGroupNode getEntityGroupNode(String name) {
+    private EntityGroupNode getEntityGroupNode(String name, boolean create) {
         for (EntityGroupNode child : entityGroupsNode.getChildren()) {
             if (child.getValue().getName().equals(name))
                 return child;
         }
 
-        return createEntityGroupNode(name);
+        if (create)
+            return createEntityGroupNode(name);
+        else
+            return null;
     }
 
-    private Tree.Node getEntityGroupFolderNode(EntityGroupNode groupNode, String path) {
+    private Tree.Node getEntityGroupFolderNode(EntityGroupNode groupNode, String path, boolean create) {
         if (path == null)
             return groupNode;
 
         String[] pathElements = path.split("/");
 
-        return findEntityGroupFolderNode(groupNode, pathElements, 0);
+        return findEntityGroupFolderNode(groupNode, create, pathElements, 0);
     }
 
-    private Tree.Node getEntityTemplateFolderNode(String path) {
-        if (path == null)
-            return templatesNode;
-
-        String[] pathElements = path.split("/");
-
-        return findEntityGroupFolderNode(templatesNode, pathElements, 0);
-    }
-
-    private Tree.Node findEntityGroupFolderNode(Tree.Node<? extends Tree.Node, ? extends Object, ? extends Actor> node, String[] path, int index) {
+    private Tree.Node findEntityGroupFolderNode(Tree.Node<? extends Tree.Node, ? extends Object, ? extends Actor> node, boolean create, String[] path, int index) {
         if (path.length == index)
             return node;
 
@@ -389,14 +550,26 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             if (child instanceof EntityGroupFolderNode) {
                 EntityGroupFolder folder = ((EntityGroupFolderNode) child).getValue();
                 if (folder.getName().equals(name))
-                    return findEntityGroupFolderNode(child, path, index + 1);
+                    return findEntityGroupFolderNode(child, create, path, index + 1);
             }
         }
 
-        return findEntityGroupFolderNode(createEntityGroupFolderNode(node, name), path, index + 1);
+        if (create)
+            return findEntityGroupFolderNode(createEntityGroupFolderNode(node, name), create, path, index + 1);
+        else
+            return null;
     }
 
-    private Tree.Node findEntityTemplatesFolderNode(Tree.Node<? extends Tree.Node, ? extends Object, ? extends Actor> node, String[] path, int index) {
+    private Tree.Node getEntityTemplateFolderNode(String path, boolean create) {
+        if (path == null)
+            return templatesNode;
+
+        String[] pathElements = path.split("/");
+
+        return findEntityTemplatesFolderNode(templatesNode, create, pathElements, 0);
+    }
+
+    private Tree.Node findEntityTemplatesFolderNode(Tree.Node<? extends Tree.Node, ? extends Object, ? extends Actor> node, boolean create, String[] path, int index) {
         if (path.length == index)
             return node;
 
@@ -405,11 +578,14 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             if (child instanceof EntityTemplatesFolderNode) {
                 EntityTemplatesFolder folder = ((EntityTemplatesFolderNode) child).getValue();
                 if (folder.getName().equals(name))
-                    return findEntityTemplatesFolderNode(child, path, index + 1);
+                    return findEntityTemplatesFolderNode(child, create, path, index + 1);
             }
         }
 
-        return findEntityGroupFolderNode(createEntityTemplatesFolderNode(node, name), path, index + 1);
+        if (create)
+            return findEntityGroupFolderNode(createEntityTemplatesFolderNode(node, name), create, path, index + 1);
+        else
+            return null;
     }
 
     public static String getFullPath(String parentPath, String name) {
@@ -417,6 +593,23 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             return name;
         else
             return parentPath + "/" + name;
+    }
+
+    public void rebuildAllEntities() {
+        rebuildAllEntities(entityGroupsNode);
+    }
+
+    private void rebuildAllEntities(Tree.Node node) {
+        for (Object child : node.getChildren()) {
+            if (child instanceof EntityGroupNode) {
+                rebuildAllEntities((EntityGroupNode) child);
+            } else if (child instanceof EntityGroupFolderNode) {
+                rebuildAllEntities((EntityGroupFolderNode) child);
+            } else if (child instanceof EntityDefinitionNode) {
+                EntityDefinitionNode entityDefinitionNode = (EntityDefinitionNode) child;
+                entityDefinitionNode.getValue().rebuildEntity();
+            }
+        }
     }
 
     private static class ObjectTreeNodeComparator implements Comparator<Tree.Node> {

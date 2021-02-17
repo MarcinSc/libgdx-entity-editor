@@ -7,7 +7,15 @@ public interface EntityDefinition<T> {
 
     String getName();
 
-    Iterable<Class<? extends T>> getInheritedCoreComponents(ObjectTreeData treeData);
+    Iterable<String> getTemplates();
+
+    void addTemplate(String id);
+
+    void removeTemplate(String id);
+
+    Iterable<Class<? extends T>> getInheritedCoreComponents();
+
+    T getInheritedCoreComponent(Class<? extends T> inheritedCoreComponentClass);
 
     void addCoreComponent(T coreComponent);
 
@@ -19,7 +27,7 @@ public interface EntityDefinition<T> {
 
     T getCoreComponent(Class<? extends T> clazz);
 
-    JsonValue toJson();
+    void rebuildEntity();
 
-    T getInheritedCoreComponent(ObjectTreeData treeData, Class<? extends T> inheritedCoreComponentClass);
+    JsonValue toJson();
 }

@@ -9,7 +9,6 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
-import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
@@ -31,7 +30,7 @@ import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 import java.io.InputStream;
 
-public class AshleyGraphProject implements EntityEditorProject<Component>, ObjectTreeFeedback {
+public class AshleyGraphProject implements EntityEditorProject<Component>, ObjectTreeFeedback<AshleyEntityDefinition> {
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
 
     private EntityEditorScreen editorScreen;
@@ -44,6 +43,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
 
     private FileHandle folder;
     private AshleyGraphSettings settings;
+    private ObjectTreeData objectTreeData;
+    private AshleyEngineJson engineJson;
 
     public AshleyGraphProject(FileHandle folder) {
         this.folder = folder;
@@ -60,12 +61,20 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         createSettings(project);
         entityEditorScreen.setPluginSettings(settings);
 
-        ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
+        objectTreeData = entityEditorScreen.getObjectTreeData();
         objectTreeData.setObjectTreeFeedback(this);
 
         setupProject(entityEditorScreen);
 
-        AshleyEngineJson engineJson = new AshleyEngineJson(ashleyEngine);
+        engineJson = new AshleyEngineJson(ashleyEngine);
+
+        for (JsonValue template : project.get("templates")) {
+            String path = template.getString("path", null);
+            Entity ashleyEntity = ashleyEngine.createEntity();
+            JsonValue data = template.get("data");
+            AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, data);
+            objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
+        }
 
         for (JsonValue entityGroup : project.get("entityGroups")) {
             String name = entityGroup.getString("name");
@@ -73,18 +82,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
                 String path = entity.getString("path", null);
                 Entity ashleyEntity = ashleyEngine.createEntity();
                 JsonValue data = entity.get("data");
-                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, ashleyEntity, data);
+                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, data);
                 objectTreeData.addEntity(name, path, entityDefinition.getName(), entityDefinition);
                 ashleyEngine.addEntity(ashleyEntity);
             }
-        }
-
-        for (JsonValue template : project.get("templates")) {
-            String path = template.getString("path", null);
-            Entity ashleyEntity = ashleyEngine.createEntity();
-            JsonValue data = template.get("data");
-            AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, ashleyEntity, data);
-            objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
         }
     }
 
@@ -214,7 +215,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
-    public EntityDefinition createEntity(String id, String name) {
+    public AshleyEntityDefinition createEntity(String id, String name) {
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
 
@@ -227,9 +228,28 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
-    public EntityDefinition createTemplate(String id, String name) {
+    public AshleyEntityDefinition createTemplate(String id, String name) {
         Entity entity = ashleyEngine.createEntity();
         return new AshleyEntityDefinition(id, name, entity);
+    }
+
+    @Override
+    public AshleyEntityDefinition convertToTemplate(String id, String name, AshleyEntityDefinition entity) {
+        Entity ashleyEntity = ashleyEngine.createEntity();
+
+        AshleyEntityDefinition template = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, entity.toJson());
+        template.setId(id);
+        template.setName(name);
+
+        for (Class<? extends Component> coreComponent : entity.getCoreComponents()) {
+            entity.removeCoreComponent(coreComponent);
+        }
+        for (String entityTemplate : entity.getTemplates()) {
+            entity.removeTemplate(entityTemplate);
+        }
+        entity.addTemplate(id);
+
+        return template;
     }
 
     @Override

@@ -5,14 +5,16 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 
-public interface ObjectTreeFeedback {
+public interface ObjectTreeFeedback<T extends EntityDefinition> {
     EntityGroup createEntityGroup(String entityGroupName);
 
     EntityGroupFolder createEntityFolder(String name);
 
-    EntityDefinition createEntity(String id, String name);
+    T createEntity(String id, String name);
 
     EntityTemplatesFolder createTemplatesFolder(String name);
 
-    EntityDefinition createTemplate(String id, String name);
+    T createTemplate(String id, String name);
+
+    T convertToTemplate(String id, String name, T entity);
 }
