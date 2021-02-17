@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FacingComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
@@ -34,17 +35,11 @@ public class RenderingSystem extends EntitySystem {
     private TextureLoader textureLoader;
     private ImmutableArray<Entity> spriteEntities;
 
-    private TextureRegion defaultTextureRegion;
-
     public RenderingSystem(int priority, TimeProvider timeProvider, PipelineRenderer pipelineRenderer, TextureLoader textureLoader) {
         super(priority);
         this.timeProvider = timeProvider;
         this.pipelineRenderer = pipelineRenderer;
         this.textureLoader = textureLoader;
-    }
-
-    public void setDefaultTextureRegion(TextureRegion defaultTextureRegion) {
-        this.defaultTextureRegion = defaultTextureRegion;
     }
 
     @Override
@@ -105,6 +100,7 @@ public class RenderingSystem extends EntitySystem {
         final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
         final PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
+        final AnchorComponent anchorComponent = entity.getComponent(AnchorComponent.class);
         final ScaleComponent scaleComponent = entity.getComponent(ScaleComponent.class);
         final FacingComponent facingComponent = entity.getComponent(FacingComponent.class);
 
@@ -130,7 +126,11 @@ public class RenderingSystem extends EntitySystem {
                                 size.scl(faceDirection.getDirection(), 1);
                             }
 
-                            anchor.set(spriteComponent.getAnchorX(), spriteComponent.getAnchorY());
+                            if (anchorComponent != null) {
+                                anchor.set(anchorComponent.getX(), anchorComponent.getY());
+                            } else {
+                                anchor.set(0.5f, 0.5f);
+                            }
                         }
                     });
         }

@@ -4,4 +4,5 @@ eclipse.project.name = 'libgdx-entity-editor-ashley-graph-design'
 dependencies {
 	api project(':core')
 	api project(':libgdx-entity-editor-ashley-graph-runtime')
+	implementation "space.earlygrey:shapedrawer:$shapedrawerVersion"
 }

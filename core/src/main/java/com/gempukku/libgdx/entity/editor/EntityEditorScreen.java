@@ -10,6 +10,7 @@ import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreview;
+import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewHandler;
 import com.gempukku.libgdx.entity.editor.ui.EntityInspector;
 import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
@@ -26,8 +27,10 @@ public class EntityEditorScreen extends VisTable {
     private UtilityPanel utilityPanel;
     private EntityInspector entityInspector;
     private OrthographicCamera camera;
+    private TextureSource textureSource;
 
     public EntityEditorScreen(EntityEditorProject project, TextureSource textureSource) {
+        this.textureSource = textureSource;
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
         camera.update();
@@ -86,6 +89,10 @@ public class EntityEditorScreen extends VisTable {
         entityEditorPreview.setPreviewRenderer(previewRenderer);
     }
 
+    public void setDefaultPreviewHandler(EntityEditorPreviewHandler previewHandler) {
+        entityEditorPreview.setDefaultPreviewHandler(previewHandler);
+    }
+
     public void setUtilityPanel(Actor actor) {
         utilityPanel.setActor(actor);
     }
@@ -100,5 +107,9 @@ public class EntityEditorScreen extends VisTable {
 
     public Camera getCamera() {
         return camera;
+    }
+
+    public TextureSource getTextureSource() {
+        return textureSource;
     }
 }

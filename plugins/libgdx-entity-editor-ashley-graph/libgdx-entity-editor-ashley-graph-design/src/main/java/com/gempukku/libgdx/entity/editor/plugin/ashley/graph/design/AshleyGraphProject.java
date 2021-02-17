@@ -64,6 +64,13 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         objectTreeData = entityEditorScreen.getObjectTreeData();
         objectTreeData.setObjectTreeFeedback(this);
 
+        ashleyEngine = new Engine();
+        ashleyEngine.addSystem(new CleaningSystem(100));
+        timeKeeper = new DefaultTimeKeeper();
+        directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
+
+        entityEditorScreen.setDefaultPreviewHandler(new AshleyGraphPreviewHandler(ashleyEngine, entityEditorScreen.getCamera(), entityEditorScreen.getTextureSource()));
+
         setupProject(entityEditorScreen);
 
         engineJson = new AshleyEngineJson(ashleyEngine);
@@ -90,16 +97,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     private void setupProject(EntityEditorScreen entityEditorScreen) {
-        ashleyEngine = new Engine();
-        ashleyEngine.addSystem(new CleaningSystem(100));
-        timeKeeper = new DefaultTimeKeeper();
-        directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
-
-        Entity entity = ashleyEngine.createEntity();
-        ashleyEngine.addEntity(entity);
-        //ObjectTreeData objectTreeData = entityEditorScreen.getObjectTreeData();
-        //objectTreeData.addEntity("level-1", null, "entity-1", new AshleyEntityDefinition("entity-1", entity));
-
         FileHandle child = folder.child(settings.getRendererPipeline());
         try {
             InputStream inputStream = child.read();
@@ -109,7 +106,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
                 pipelineRenderer.setPipelineProperty("Camera", entityEditorScreen.getCamera());
 
                 RenderingSystem renderingSystem = new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
-                renderingSystem.setDefaultTextureRegion(whitePixel.textureRegion);
                 ashleyEngine.addSystem(renderingSystem);
                 graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
                 entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);

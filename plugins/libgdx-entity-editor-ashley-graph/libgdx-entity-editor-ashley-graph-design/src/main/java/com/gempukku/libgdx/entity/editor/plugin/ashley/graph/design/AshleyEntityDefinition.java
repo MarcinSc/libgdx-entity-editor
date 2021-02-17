@@ -17,6 +17,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     private ObjectTreeData objectTreeData;
     private Entity entity;
     private ObjectMap<Class<? extends Component>, Component> coreComponents = new ObjectMap<>();
+    private ObjectMap<Class<? extends Component>, Component> inheritedCoreComponents = new ObjectMap<>();
     private Array<String> templates = new Array<>();
 
     public AshleyEntityDefinition(Json json, ObjectTreeData objectTreeData, Entity entity, JsonValue value) {
@@ -33,11 +34,15 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
     @Override
     public void rebuildEntity() {
-        entity.removeAll();
+        clearInheritedCoreComponents();
+        for (Class<? extends Component> coreComponent : coreComponents.keys()) {
+            entity.remove(coreComponent);
+        }
 
         for (Class<? extends Component> inheritedCoreComponentClass : getInheritedCoreComponents()) {
             if (!hasCoreComponent(inheritedCoreComponentClass)) {
                 Component inheritedCoreComponent = getInheritedCoreComponent(inheritedCoreComponentClass);
+                inheritedCoreComponents.put(inheritedCoreComponentClass, inheritedCoreComponent);
                 entity.add(inheritedCoreComponent);
             }
         }
@@ -45,6 +50,13 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponentEntry : coreComponents) {
             entity.add(coreComponentEntry.value);
         }
+    }
+
+    private void clearInheritedCoreComponents() {
+        for (Class<? extends Component> inheritedCoreComponentClass : inheritedCoreComponents.keys()) {
+            entity.remove(inheritedCoreComponentClass);
+        }
+        inheritedCoreComponents.clear();
     }
 
     public AshleyEntityDefinition(String id, String name, Entity entity) {
@@ -85,14 +97,14 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
     @Override
     public void addCoreComponent(Component coreComponent) {
-        entity.add(coreComponent);
         coreComponents.put(coreComponent.getClass(), coreComponent);
+        entity.add(coreComponent);
     }
 
     @Override
     public void removeCoreComponent(Class<? extends Component> coreComponent) {
-        coreComponents.remove(coreComponent);
         entity.remove(coreComponent);
+        coreComponents.remove(coreComponent);
     }
 
     @Override

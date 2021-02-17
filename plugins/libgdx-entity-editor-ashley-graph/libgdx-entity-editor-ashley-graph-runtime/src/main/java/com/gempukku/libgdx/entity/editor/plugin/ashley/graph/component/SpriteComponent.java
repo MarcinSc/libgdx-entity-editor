@@ -5,8 +5,6 @@ import com.badlogic.gdx.utils.ObjectMap;
 
 public class SpriteComponent extends DirtyComponent {
     private float layer;
-    private float anchorX = 0.5f;
-    private float anchorY = 0.5f;
     private Array<String> tags = new Array<>();
     private ObjectMap<String, Object> properties = new ObjectMap<>();
 
@@ -17,22 +15,6 @@ public class SpriteComponent extends DirtyComponent {
     public void setLayer(float layer) {
         if (this.layer != layer) {
             this.layer = layer;
-            setDirty();
-        }
-    }
-
-    public float getAnchorX() {
-        return anchorX;
-    }
-
-    public float getAnchorY() {
-        return anchorY;
-    }
-
-    public void setAnchor(float x, float y) {
-        if (anchorX != x || anchorY != y) {
-            anchorX = x;
-            anchorY = y;
             setDirty();
         }
     }
