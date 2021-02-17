@@ -27,12 +27,12 @@ public class EntityEditorScreen extends VisTable {
     private EntityInspector entityInspector;
     private OrthographicCamera camera;
 
-    public EntityEditorScreen(EntityEditorProject project) {
+    public EntityEditorScreen(EntityEditorProject project, TextureSource textureSource) {
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
         camera.update();
 
-        objectTree = new ObjectTree();
+        objectTree = new ObjectTree(textureSource);
         pluginSettings = new PluginSettings();
         entityEditorPreview = new EntityEditorPreview(camera);
         utilityPanel = new UtilityPanel();

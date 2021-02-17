@@ -36,12 +36,15 @@ public class MainEditorScreen extends VisTable implements Disposable {
     private MenuItem close;
     private Container<EntityEditorScreen> entityEditorScreenContainer;
     private EntityEditorScreen editorScreen;
+    private DirectTextureSource directTextureSource;
 
     public MainEditorScreen() {
         initialize();
     }
 
     private void initialize() {
+        directTextureSource = new DirectTextureSource();
+
         entityEditorScreenContainer = new Container<>();
         entityEditorScreenContainer.fill();
 
@@ -164,7 +167,7 @@ public class MainEditorScreen extends VisTable implements Disposable {
                                     FileHandle selectedFolder = file.get(0);
                                     try {
                                         entityEditorProject = initializer.createNewProject(selectedFolder);
-                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject);
+                                        EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject, directTextureSource);
                                         entityEditorProject.initialize(entityEditorScreen);
                                         setEditedFile(entityEditorScreen, selectedFolder, true);
                                         entityEditorScreenContainer.setActor(entityEditorScreen);
@@ -191,7 +194,7 @@ public class MainEditorScreen extends VisTable implements Disposable {
                 FileHandle selectedFile = file.get(0);
                 try {
                     entityEditorProject = loadProjectFromFolder(selectedFile);
-                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject);
+                    EntityEditorScreen entityEditorScreen = new EntityEditorScreen(entityEditorProject, directTextureSource);
                     entityEditorProject.initialize(entityEditorScreen);
                     setEditedFile(entityEditorScreen, selectedFile, true);
                     entityEditorScreenContainer.setActor(entityEditorScreen);
@@ -263,5 +266,6 @@ public class MainEditorScreen extends VisTable implements Disposable {
         if (entityEditorProject != null) {
             entityEditorProject.dispose();
         }
+        directTextureSource.dispose();
     }
 }

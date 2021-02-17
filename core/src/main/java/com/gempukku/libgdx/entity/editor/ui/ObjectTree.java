@@ -7,7 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Tree;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.gempukku.libgdx.entity.editor.TextureSource;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinitionNode;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
@@ -43,8 +45,10 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     private EntityTemplatesNode templatesNode;
 
     private Comparator<Tree.Node> comparator = new ObjectTreeNodeComparator();
+    private TextureSource textureSource;
 
-    public ObjectTree() {
+    public ObjectTree(TextureSource textureSource) {
+        this.textureSource = textureSource;
         initialize();
     }
 
@@ -140,7 +144,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(createId(), input));
+                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(createId(), input), new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -160,13 +164,13 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private Tree.Node createEntityGroupFolderNode(Tree.Node treeNode, String input) {
-        EntityGroupFolderNode node = new EntityGroupFolderNode(objectTreeFeedback.createEntityGroup(input));
+        EntityGroupFolderNode node = new EntityGroupFolderNode(objectTreeFeedback.createEntityGroup(input), new TextureRegionDrawable(textureSource.getTexture("images/entity-folder.png")));
         mergeInNode(treeNode, node);
         return node;
     }
 
     private Tree.Node createEntityTemplatesFolderNode(Tree.Node treeNode, String input) {
-        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(objectTreeFeedback.createTemplatesFolder(input));
+        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(objectTreeFeedback.createTemplatesFolder(input), new TextureRegionDrawable(textureSource.getTexture("images/template-folder.png")));
         mergeInNode(treeNode, node);
         return node;
     }
@@ -205,7 +209,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
 
     private EntityGroupNode createEntityGroupNode(String input) {
         EntityGroup entityGroup = objectTreeFeedback.createEntityGroup(input);
-        EntityGroupNode node = new EntityGroupNode(entityGroup);
+        EntityGroupNode node = new EntityGroupNode(entityGroup, new TextureRegionDrawable(textureSource.getTexture("images/entity-group.png")));
         mergeInNode(entityGroupsNode, node);
         return node;
     }
@@ -253,9 +257,8 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-
                                         EntityDefinition entity = objectTreeFeedback.createEntity(createId(), input);
-                                        EntityDefinitionNode node = new EntityDefinitionNode(entity);
+                                        EntityDefinitionNode node = new EntityDefinitionNode(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -302,14 +305,14 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     public void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity) {
         EntityGroupNode group = getEntityGroupNode(entityGroup, true);
         Tree.Node entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath, true);
-        EntityDefinitionNode node = new EntityDefinitionNode(entity);
+        EntityDefinitionNode node = new EntityDefinitionNode(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
         mergeInNode(entityGroupFolderNode, node);
     }
 
     @Override
     public void addTemplate(String parentPath, String name, EntityDefinition template) {
         Tree.Node entityGroupFolderNode = getEntityTemplateFolderNode(parentPath, true);
-        EntityTemplateNode node = new EntityTemplateNode(template);
+        EntityTemplateNode node = new EntityTemplateNode(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
         mergeInNode(entityGroupFolderNode, node);
     }
 
@@ -493,7 +496,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     public void convertToTemplate(String name, EntityDefinition entity) {
         String id = createId();
         EntityDefinition template = objectTreeFeedback.convertToTemplate(id, name, entity);
-        EntityTemplateNode node = new EntityTemplateNode(template);
+        EntityTemplateNode node = new EntityTemplateNode(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
         mergeInNode(templatesNode, node);
         entity.rebuildEntity();
     }
