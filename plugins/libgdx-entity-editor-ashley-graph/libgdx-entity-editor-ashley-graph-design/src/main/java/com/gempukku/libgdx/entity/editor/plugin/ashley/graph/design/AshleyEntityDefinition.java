@@ -166,4 +166,28 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
         return result;
     }
+
+    public JsonValue exportJson(String templateFolder) {
+        Json json = new Json(JsonWriter.OutputType.json);
+        json.setUsePrototypes(false);
+
+        JsonReader jsonReader = new JsonReader();
+
+        JsonValue result = new JsonValue(JsonValue.ValueType.object);
+        JsonValue templateArray = new JsonValue(JsonValue.ValueType.array);
+        for (String templateId : this.templates) {
+            ObjectTreeData.LocatedEntityDefinition template = objectTreeData.getTemplateById(templateId);
+            String path = templateFolder + "/" + template.getPath() + ".json";
+            templateArray.addChild(new JsonValue(path));
+        }
+        result.addChild("tpl:extends", templateArray);
+
+        for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponent : coreComponents) {
+            String className = coreComponent.key.getName();
+            JsonValue componentJson = jsonReader.parse(json.toJson(coreComponent.value, coreComponent.key));
+            result.addChild(className, componentJson);
+        }
+
+        return result;
+    }
 }

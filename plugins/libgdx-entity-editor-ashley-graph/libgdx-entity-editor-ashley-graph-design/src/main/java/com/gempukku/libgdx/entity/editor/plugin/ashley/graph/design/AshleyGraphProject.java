@@ -20,6 +20,7 @@ import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.CleaningSystem;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.RenderingSystem;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
 import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
 import com.gempukku.libgdx.graph.pipeline.PipelineRenderer;
@@ -133,9 +134,11 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
 
         JsonValue settingsValue = new JsonValue(JsonValue.ValueType.object);
         settingsValue.addChild("rendererPipeline", new JsonValue(settings.getRendererPipeline()));
-        settingsValue.addChild("templatesFolder", new JsonValue(settings.getTemplatesFolder()));
-        settingsValue.addChild("entityGroupsFolder", new JsonValue(settings.getEntityGroupsFolder()));
         settingsValue.addChild("assetsFolder", new JsonValue(settings.getAssetsFolder()));
+        settingsValue.addChild("exportFolder", new JsonValue(settings.getExportFolder()));
+        settingsValue.addChild("templatesSubfolder", new JsonValue(settings.getTemplatesSubfolder()));
+        settingsValue.addChild("entitiesSubfolder", new JsonValue(settings.getEntitiesSubfolder()));
+
         project.addChild("settings", settingsValue);
 
         JsonValue entityGroups = new JsonValue(JsonValue.ValueType.array);
@@ -180,18 +183,58 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
 
     private void createSettings(JsonValue project) {
         JsonValue settings = project.get("settings");
+        Runnable exportRunnable = () -> exportProject();
+
         if (settings != null) {
             String rendererPipeline = settings.getString("rendererPipeline", null);
-            String templatesFolder = settings.getString("templatesFolder", null);
-            String entityGroupsFolder = settings.getString("entityGroupsFolder", null);
             String assetsFolder = settings.getString("assetsFolder", null);
+            String exportFolder = settings.getString("exportFolder", null);
+            String templatesSubfolder = settings.getString("templatesSubfolder", null);
+            String entitiesSubfolder = settings.getString("entitiesSubfolder", null);
 
             this.settings = new AshleyGraphSettings(
-                    rendererPipeline, templatesFolder, entityGroupsFolder, assetsFolder);
+                    rendererPipeline, assetsFolder, exportFolder, templatesSubfolder, entitiesSubfolder, exportRunnable);
         } else {
             this.settings = new AshleyGraphSettings(
-                    "assets/pipeline.json", "assets/templates",
-                    "assets/entities", "assets");
+                    "assets/pipeline.json", "assets",
+                    "assets",
+                    "templates", "entities",
+                    exportRunnable);
+        }
+    }
+
+    private void exportProject() {
+        FileHandle exportFolder = folder.child(settings.getExportFolder());
+        String templatesSubfolder = settings.getTemplatesSubfolder();
+        FileHandle templatesFolder = exportFolder.child(templatesSubfolder);
+        FileHandle entitiesFolder = exportFolder.child(settings.getEntitiesSubfolder());
+
+        templatesFolder.emptyDirectory();
+        entitiesFolder.emptyDirectory();
+
+        for (ObjectTreeData.LocatedEntityDefinition template : objectTreeData.getTemplates()) {
+            String path = template.getPath();
+            AshleyEntityDefinition entityDefinition = (AshleyEntityDefinition) template.getEntityDefinition();
+            String fullPath = ObjectTree.getFullPath(path, entityDefinition.getName() + ".json");
+
+            FileHandle templateFile = templatesFolder.child(fullPath);
+            JsonValue jsonValue = entityDefinition.exportJson(templatesSubfolder);
+            templateFile.writeString(jsonValue.toJson(JsonWriter.OutputType.json), false);
+        }
+
+        for (String entityGroup : objectTreeData.getEntityGroups()) {
+            FileHandle entityGroupFile = entitiesFolder.child(entityGroup + ".json");
+
+            JsonValue json = new JsonValue(JsonValue.ValueType.object);
+            JsonValue entityArray = new JsonValue(JsonValue.ValueType.array);
+            for (ObjectTreeData.LocatedEntityDefinition entity : objectTreeData.getEntities(entityGroup)) {
+                AshleyEntityDefinition entityDefinition = (AshleyEntityDefinition) entity.getEntityDefinition();
+                entityArray.addChild(entityDefinition.exportJson(templatesSubfolder));
+            }
+
+            json.addChild("entities", entityArray);
+
+            entityGroupFile.writeString(json.toJson(JsonWriter.OutputType.json), false);
         }
     }
 

@@ -1,9 +1,10 @@
 {
   "settings": {
     "rendererPipeline": "assets/pipeline.json",
-    "templatesFolder": "assets/templates",
-    "entityGroupsFolder": "assets/entities",
-    "assetsFolder": "assets"
+    "assetsFolder": "assets",
+    "exportFolder": "assets",
+    "templatesSubfolder": "templates",
+    "entitiesSubfolder": "entities"
   },
   "entityGroups": [
     {
@@ -79,14 +80,14 @@
             }
           },
           {
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent",
+            "x": 150,
+            "y": 64
+          },
+          {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
             "x": 0,
             "y": 0
-          },
-          {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent",
-            "x": 0.5,
-            "y": 0.5
           },
           {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent",
@@ -104,9 +105,9 @@
             }
           },
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent",
-            "x": 150,
-            "y": 64
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent",
+            "x": 0.5,
+            "y": 0.5
           }
         ]
       }
