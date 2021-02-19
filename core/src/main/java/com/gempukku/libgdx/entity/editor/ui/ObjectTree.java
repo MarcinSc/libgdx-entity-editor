@@ -105,6 +105,31 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private void entityDefinitionClicked(EntityDefinitionNode treeNode, float x, float y) {
+        MenuItem renameEntity = new MenuItem("Rename");
+        renameEntity.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Dialogs.showInputDialog(getStage(), "Rename entity", "Entity name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateEntity(treeNode.getParent(), input);
+                                    }
+                                },
+                                new InputDialogListener() {
+                                    @Override
+                                    public void finished(String input) {
+                                        treeNode.setName(input);
+                                    }
+
+                                    @Override
+                                    public void canceled() {
+
+                                    }
+                                });
+                    }
+                });
         MenuItem deleteEntity = new MenuItem("Delete entity");
         deleteEntity.addListener(
                 new ChangeListener() {
@@ -132,11 +157,37 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                 });
 
         PopupMenu popupMenu = new PopupMenu();
+        popupMenu.addItem(renameEntity);
         popupMenu.addItem(deleteEntity);
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
     private void entityTemplateClicked(EntityTemplateNode treeNode, float x, float y) {
+        MenuItem renameTemplate = new MenuItem("Rename");
+        renameTemplate.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Dialogs.showInputDialog(getStage(), "Rename template", "Template name",
+                                new InputValidator() {
+                                    @Override
+                                    public boolean validateInput(String input) {
+                                        return canCreateTemplate(treeNode.getParent(), input);
+                                    }
+                                },
+                                new InputDialogListener() {
+                                    @Override
+                                    public void finished(String input) {
+                                        treeNode.setName(input);
+                                    }
+
+                                    @Override
+                                    public void canceled() {
+
+                                    }
+                                });
+                    }
+                });
         MenuItem deleteTemplate = new MenuItem("Delete template");
         deleteTemplate.addListener(
                 new ChangeListener() {
@@ -164,6 +215,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                 });
 
         PopupMenu popupMenu = new PopupMenu();
+        popupMenu.addItem(renameTemplate);
         popupMenu.addItem(deleteTemplate);
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }

@@ -7,6 +7,8 @@ public interface EntityDefinition<T> {
 
     String getName();
 
+    void setName(String name);
+
     Iterable<String> getTemplates();
 
     void addTemplate(String id);

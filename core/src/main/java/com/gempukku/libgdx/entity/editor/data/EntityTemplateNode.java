@@ -10,4 +10,9 @@ public class EntityTemplateNode extends ObjectTreeNode<ObjectTreeNode, EntityDef
         setValue(entity);
         setIcon(icon);
     }
+
+    public void setName(String name) {
+        getActor().setText(name);
+        getValue().setName(name);
+    }
 }
