@@ -11,15 +11,6 @@
       "name": "level-1",
       "entities": [
         {
-          "path": "folder",
-          "data": {
-            "id": "01d231b35f324ed6853e15e9745b9284",
-            "name": "entity",
-            "templates": [],
-            "coreComponents": []
-          }
-        },
-        {
           "path": null,
           "data": {
             "id": "a1234567890",
@@ -27,15 +18,6 @@
             "templates": [
               "86bca5521330480c988898fa12e3c539"
             ],
-            "coreComponents": []
-          }
-        },
-        {
-          "path": null,
-          "data": {
-            "id": "b1234567890",
-            "name": "entity-2",
-            "templates": [],
             "coreComponents": []
           }
         }
@@ -46,43 +28,14 @@
     {
       "path": null,
       "data": {
-        "id": "c1234567890",
-        "name": "template-1",
-        "templates": [],
-        "coreComponents": [
-          {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-            "x": 150,
-            "y": 0
-          }
-        ]
-      }
-    },
-    {
-      "path": null,
-      "data": {
         "id": "86bca5521330480c988898fa12e3c539",
         "name": "template-2",
         "templates": [],
         "coreComponents": [
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
-            "layer": 0,
-            "tags": [
-              "Animated"
-            ],
-            "properties": {
-              "Texture": {
-                "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
-                "atlas": "",
-                "texture": "images/MossyHill.png"
-              }
-            }
-          },
-          {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent",
-            "x": 150,
-            "y": 64
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent",
+            "x": 0.5,
+            "y": 0.5
           },
           {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
@@ -105,9 +58,23 @@
             }
           },
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent",
-            "x": 0.5,
-            "y": 0.5
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
+            "layer": 0,
+            "tags": [
+              "Animated"
+            ],
+            "properties": {
+              "Texture": {
+                "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
+                "atlas": "",
+                "texture": "images/MossyHill.png"
+              }
+            }
+          },
+          {
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent",
+            "x": 150,
+            "y": 64
           }
         ]
       }

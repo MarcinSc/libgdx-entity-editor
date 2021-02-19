@@ -17,4 +17,8 @@ public interface ObjectTreeFeedback<T extends EntityDefinition> {
     T createTemplate(String id, String name);
 
     T convertToTemplate(String id, String name, T entity);
+
+    void removeTemplate(T value);
+
+    void removeEntity(T value);
 }

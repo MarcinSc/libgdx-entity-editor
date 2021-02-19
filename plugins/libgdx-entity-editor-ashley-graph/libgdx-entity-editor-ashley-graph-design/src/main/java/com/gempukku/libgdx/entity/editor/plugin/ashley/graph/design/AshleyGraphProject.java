@@ -287,6 +287,16 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
+    public void removeTemplate(AshleyEntityDefinition value) {
+        // Don't have to do anything
+    }
+
+    @Override
+    public void removeEntity(AshleyEntityDefinition value) {
+        ashleyEngine.removeEntity(value.getEntity());
+    }
+
+    @Override
     public boolean supportsComponent(Class<? extends Component> componentClass) {
         return ClassReflection.isAssignableFrom(Component.class, componentClass);
     }

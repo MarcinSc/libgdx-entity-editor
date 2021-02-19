@@ -32,6 +32,10 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         rebuildEntity();
     }
 
+    public Entity getEntity() {
+        return entity;
+    }
+
     @Override
     public void rebuildEntity() {
         clearInheritedCoreComponents();

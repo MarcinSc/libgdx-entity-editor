@@ -1,10 +1,9 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Tree;
+import com.gempukku.libgdx.entity.editor.ui.ObjectTreeNode;
 import com.kotcrab.vis.ui.widget.VisLabel;
 
-public class EntityGroupsNode extends Tree.Node<EntityGroupNode, Object, Label> {
+public class EntityGroupsNode extends ObjectTreeNode<EntityGroupNode, Object> {
     public EntityGroupsNode(String text) {
         super(new VisLabel(text));
     }
