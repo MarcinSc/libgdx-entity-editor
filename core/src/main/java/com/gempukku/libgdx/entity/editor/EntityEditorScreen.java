@@ -11,6 +11,7 @@ import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreview;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewHandler;
+import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewToolbar;
 import com.gempukku.libgdx.entity.editor.ui.EntityInspector;
 import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
@@ -23,6 +24,7 @@ import com.kotcrab.vis.ui.widget.VisTable;
 public class EntityEditorScreen extends VisTable {
     private ObjectTree objectTree;
     private PluginSettings pluginSettings;
+    private EntityEditorPreviewToolbar entityEditorPreviewToolbar;
     private EntityEditorPreview entityEditorPreview;
     private UtilityPanel utilityPanel;
     private EntityInspector entityInspector;
@@ -37,14 +39,19 @@ public class EntityEditorScreen extends VisTable {
 
         objectTree = new ObjectTree(textureSource);
         pluginSettings = new PluginSettings();
-        entityEditorPreview = new EntityEditorPreview(camera);
+        entityEditorPreviewToolbar = new EntityEditorPreviewToolbar();
+        entityEditorPreview = new EntityEditorPreview(entityEditorPreviewToolbar, camera);
         utilityPanel = new UtilityPanel();
         entityInspector = new EntityInspector();
         entityInspector.setObjectTreeData(objectTree);
 
         VisSplitPane leftSplitPane = new VisSplitPane(objectTree, pluginSettings, true);
 
-        VisSplitPane centerSplitPane = new VisSplitPane(entityEditorPreview, utilityPanel, true);
+        VisTable previewTable = new VisTable();
+        previewTable.add(entityEditorPreviewToolbar).growX().row();
+        previewTable.add(entityEditorPreview).grow().row();
+
+        VisSplitPane centerSplitPane = new VisSplitPane(previewTable, utilityPanel, true);
 
         VisSplitPane leftCenterSplitPane = new VisSplitPane(leftSplitPane, centerSplitPane, false);
 
@@ -90,7 +97,15 @@ public class EntityEditorScreen extends VisTable {
     }
 
     public void setDefaultPreviewHandler(EntityEditorPreviewHandler previewHandler) {
-        entityEditorPreview.setDefaultPreviewHandler(previewHandler);
+        entityEditorPreview.setDefaultPreviewHandler(this, previewHandler);
+    }
+
+    public EntityEditorPreview getEntityEditorPreview() {
+        return entityEditorPreview;
+    }
+
+    public EntityEditorPreviewToolbar getEntityEditorPreviewToolbar() {
+        return entityEditorPreviewToolbar;
     }
 
     public void setUtilityPanel(Actor actor) {

@@ -9,11 +9,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.TextureSource;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
-import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreview;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewHandler;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 import space.earlygrey.shapedrawer.ShapeDrawer;
@@ -27,8 +27,8 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private TextureSource textureSource;
     private Vector3 tmpVector = new Vector3();
     private WhitePixel whitePixel;
-    private EntityEditorPreview preview;
     private long lastScrolled;
+    private EntityEditorScreen screen;
 
     public AshleyGraphPreviewHandler(Engine engine, Camera camera, TextureSource textureSource) {
         this.engine = engine;
@@ -39,15 +39,15 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     }
 
     @Override
-    public void initialize(EntityEditorPreview preview) {
-        this.preview = preview;
+    public void initialize(EntityEditorScreen screen) {
+        this.screen = screen;
         whitePixel = new WhitePixel();
-        preview.addListener(this);
+        screen.getEntityEditorPreview().addListener(this);
     }
 
     @Override
-    public void destroy(EntityEditorPreview preview) {
-        preview.removeListener(this);
+    public void destroy(EntityEditorScreen screen) {
+        screen.getEntityEditorPreview().removeListener(this);
         whitePixel.dispose();
     }
 
@@ -82,7 +82,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
 
     @Override
     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-        preview.getStage().setScrollFocus(preview);
+        screen.getStage().setScrollFocus(screen.getEntityEditorPreview());
         return true;
     }
 
@@ -91,9 +91,9 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
         long currentTime = System.currentTimeMillis();
         if (lastScrolled + 30 < currentTime) {
             if (amountY > 0) {
-                preview.zoomIn();
+                screen.getEntityEditorPreviewToolbar().zoomIn();
             } else if (amountY < 1) {
-                preview.zoomOut();
+                screen.getEntityEditorPreviewToolbar().zoomOut();
             }
             lastScrolled = currentTime;
         }
