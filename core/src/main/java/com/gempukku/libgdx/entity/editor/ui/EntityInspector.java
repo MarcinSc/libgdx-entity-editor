@@ -44,7 +44,7 @@ public class EntityInspector<T> extends VisTable {
         entityComponents.grow();
 
         add("Entity inspector").growX().row();
-        add(new Separator()).growX().row();
+        addSeparator().growX().row();
         add(entityDetails).growX().row();
 
         VisScrollPane scrollPane = new VisScrollPane(entityComponents);
@@ -292,7 +292,7 @@ public class EntityInspector<T> extends VisTable {
                 componentNameLabel.setColor(Color.LIGHT_GRAY);
             componentNameLabel.setEllipsis(true);
 
-            add(new Separator()).colspan(2).growX().row();
+            addSeparator().colspan(2).growX().row();
             add(collapseButton).width(20);
             add(componentNameLabel).growX().row();
 
