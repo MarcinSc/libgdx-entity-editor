@@ -3,10 +3,15 @@ package com.gempukku.libgdx.entity.editor.ui;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Widget;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.utils.Pool;
+import com.badlogic.gdx.utils.Pools;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
+import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
+import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 
 public class EntityEditorPreview extends Widget {
@@ -77,5 +82,16 @@ public class EntityEditorPreview extends Widget {
     private void applyZoom() {
         camera.zoom = 1f / toolbar.getZoom().getValue();
         camera.update();
+    }
+
+    public <T> void centerOnEntity(EntityDefinition<T> entity, EntityEditorProject<T> project) {
+        Pool<Vector2> vector2Pool = Pools.get(Vector2.class);
+        Vector2 borrowedPosition = vector2Pool.obtain();
+        Vector2 position = project.getEntityPosition(entity, borrowedPosition);
+        if (position != null) {
+            camera.position.set(position, 0);
+            camera.update();
+        }
+        vector2Pool.free(borrowedPosition);
     }
 }

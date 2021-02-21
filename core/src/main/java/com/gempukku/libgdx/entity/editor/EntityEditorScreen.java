@@ -66,6 +66,8 @@ public class EntityEditorScreen extends VisTable {
                         if (event instanceof EntitySelected) {
                             EntitySelected entityEvent = (EntitySelected) event;
                             entityInspector.setEditedEntity(entityEvent.getEntity(), project, entityEvent.isEntity());
+                            if (entityEvent.isEntity())
+                                entityEditorPreview.centerOnEntity(entityEvent.getEntity(), project);
                             return true;
                         }
                         return false;
