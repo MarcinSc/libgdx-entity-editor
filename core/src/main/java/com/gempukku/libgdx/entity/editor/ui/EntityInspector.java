@@ -142,7 +142,8 @@ public class EntityInspector<T> extends VisTable {
                     new ChangeListener() {
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
-                            // TODO
+                            PopupMenu popupMenu = createAddTemplatePopup();
+                            popupMenu.showMenu(getStage(), addTemplate);
                         }
                     });
 
@@ -225,6 +226,61 @@ public class EntityInspector<T> extends VisTable {
                 T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
                 addCoreComponentEditor(coreComponent, true, false);
             }
+        }
+    }
+
+    private PopupMenu createAddTemplatePopup() {
+        PopupMenu popupMenu = new PopupMenu();
+        for (ObjectTreeData.LocatedEntityDefinition template : objectTreeData.getTemplates()) {
+            String templateId = template.getEntityDefinition().getId();
+            if (!editedEntity.hasTemplate(templateId)) {
+                String menuLocation = template.getPath();
+                PopupMenu targetMenu;
+                if (menuLocation != null) {
+                    String[] locationSplit = menuLocation.split("/");
+                    targetMenu = findOrCreatePopupMenu(popupMenu, locationSplit, 0);
+                } else {
+                    targetMenu = popupMenu;
+                }
+                final String title = template.getEntityDefinition().getName();
+                MenuItem valueMenuItem = new MenuItem(title);
+                valueMenuItem.addListener(
+                        new ChangeListener() {
+                            @Override
+                            public void changed(ChangeEvent event, Actor actor) {
+                                editedEntity.addTemplate(templateId);
+                                editedEntity.rebuildEntity();
+                                rebuildUi();
+                            }
+                        });
+                targetMenu.addItem(valueMenuItem);
+            }
+        }
+        return popupMenu;
+    }
+
+    private PopupMenu findOrCreatePopupMenu(PopupMenu popupMenu, String[] menuSplit, int startIndex) {
+        for (Actor child : popupMenu.getChildren()) {
+            if (child instanceof MenuItem) {
+                MenuItem childMenuItem = (MenuItem) child;
+                if (childMenuItem.getLabel().getText().toString().equals(menuSplit[startIndex]) && childMenuItem.getSubMenu() != null) {
+                    if (startIndex + 1 < menuSplit.length) {
+                        return findOrCreatePopupMenu(childMenuItem.getSubMenu(), menuSplit, startIndex + 1);
+                    } else {
+                        return childMenuItem.getSubMenu();
+                    }
+                }
+            }
+        }
+
+        PopupMenu createdPopup = new PopupMenu();
+        MenuItem createdMenuItem = new MenuItem(menuSplit[startIndex]);
+        createdMenuItem.setSubMenu(createdPopup);
+        popupMenu.addItem(createdMenuItem);
+        if (startIndex + 1 < menuSplit.length) {
+            return findOrCreatePopupMenu(createdPopup, menuSplit, startIndex + 1);
+        } else {
+            return createdPopup;
         }
     }
 

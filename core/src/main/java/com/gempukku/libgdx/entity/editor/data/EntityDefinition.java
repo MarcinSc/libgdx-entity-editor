@@ -11,6 +11,8 @@ public interface EntityDefinition<T> {
 
     Iterable<String> getTemplates();
 
+    boolean hasTemplate(String id);
+
     void addTemplate(String id);
 
     void removeTemplate(String id);

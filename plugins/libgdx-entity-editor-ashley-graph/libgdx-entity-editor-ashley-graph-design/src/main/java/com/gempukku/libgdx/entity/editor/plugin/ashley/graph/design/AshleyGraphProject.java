@@ -253,7 +253,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
 
-        return new AshleyEntityDefinition(id, name, entity);
+        return new AshleyEntityDefinition(id, name, objectTreeData, entity);
     }
 
     @Override
@@ -264,7 +264,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     @Override
     public AshleyEntityDefinition createTemplate(String id, String name) {
         Entity entity = ashleyEngine.createEntity();
-        return new AshleyEntityDefinition(id, name, entity);
+        return new AshleyEntityDefinition(id, name, objectTreeData, entity);
     }
 
     @Override

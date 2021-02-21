@@ -68,7 +68,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 || clickedNode instanceof EntityGroupFolderNode) {
                             entityGroupClicked(clickedNode, x, y);
                         } else if (clickedNode instanceof EntityTemplatesNode
-                                || clickedNode instanceof EntityTemplatesFolder) {
+                                || clickedNode instanceof EntityTemplatesFolderNode) {
                             entityTemplatesClicked(clickedNode, x, y);
                         } else if (clickedNode instanceof EntityTemplateNode) {
                             entityTemplateClicked((EntityTemplateNode) clickedNode, x, y);
