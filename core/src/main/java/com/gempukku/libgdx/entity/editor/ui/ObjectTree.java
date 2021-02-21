@@ -36,7 +36,7 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class ObjectTree extends VisTable implements ObjectTreeData {
-    private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]*$");
+    private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]{0,14}$");
     private VisTree<ObjectTreeNode, Object> tree;
     private ObjectTreeFeedback objectTreeFeedback;
 
