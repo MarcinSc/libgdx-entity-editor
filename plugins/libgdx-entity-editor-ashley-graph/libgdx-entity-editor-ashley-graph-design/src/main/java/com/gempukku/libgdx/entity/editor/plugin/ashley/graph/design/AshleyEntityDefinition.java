@@ -199,7 +199,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         JsonValue result = new JsonValue(JsonValue.ValueType.object);
         JsonValue templateArray = new JsonValue(JsonValue.ValueType.array);
         for (String templateId : this.templates) {
-            ObjectTreeData.LocatedEntityDefinition template = objectTreeData.getTemplateById(templateId);
+            ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> template = objectTreeData.getTemplateById(templateId);
             String path = templateFolder + "/" + template.getPath() + ".json";
             templateArray.addChild(new JsonValue(path));
         }
