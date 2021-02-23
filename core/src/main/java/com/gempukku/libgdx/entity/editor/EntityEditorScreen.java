@@ -37,7 +37,7 @@ public class EntityEditorScreen extends VisTable {
         camera.position.set(0, 0, 0);
         camera.update();
 
-        objectTree = new ObjectTree(textureSource);
+        objectTree = new ObjectTree(project, textureSource);
         pluginSettings = new PluginSettings();
         entityEditorPreviewToolbar = new EntityEditorPreviewToolbar();
         entityEditorPreview = new EntityEditorPreview(entityEditorPreviewToolbar, camera);

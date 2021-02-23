@@ -20,7 +20,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
+import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
 public class ObjectTree extends VisTable implements ObjectTreeData {
     private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]{0,14}$");
     private VisTree<ObjectTreeNode, Object> tree;
-    private ObjectTreeFeedback objectTreeFeedback;
+    private EntityEditorProject project;
 
     private EntityGroupsNode entityGroupsNode;
     private EntityTemplatesNode templatesNode;
@@ -46,7 +46,8 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     private Comparator<ObjectTreeNode> comparator = new ObjectTreeNodeComparator();
     private TextureSource textureSource;
 
-    public ObjectTree(TextureSource textureSource) {
+    public ObjectTree(EntityEditorProject project, TextureSource textureSource) {
+        this.project = project;
         this.textureSource = textureSource;
         initialize();
     }
@@ -221,7 +222,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private void deleteEntity(EntityDefinitionNode entity) {
-        objectTreeFeedback.removeEntity(entity.getValue());
+        project.removeEntity(entity.getValue());
         entity.remove();
     }
 
@@ -236,7 +237,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             }
         }
 
-        objectTreeFeedback.removeTemplate(template.getValue());
+        project.removeTemplate(template.getValue());
         template.remove();
         rebuildAllEntities();
     }
@@ -284,7 +285,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityTemplateNode node = new EntityTemplateNode(objectTreeFeedback.createTemplate(createId(), input), new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
+                                        EntityTemplateNode node = new EntityTemplateNode(project.createTemplate(createId(), input), new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -304,13 +305,13 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private EntityGroupFolderNode createEntityGroupFolderNode(ObjectTreeNode treeNode, String input) {
-        EntityGroupFolderNode node = new EntityGroupFolderNode(objectTreeFeedback.createEntityGroup(input), new TextureRegionDrawable(textureSource.getTexture("images/entity-folder.png")));
+        EntityGroupFolderNode node = new EntityGroupFolderNode(project.createEntityGroup(input), new TextureRegionDrawable(textureSource.getTexture("images/entity-folder.png")));
         mergeInNode(treeNode, node);
         return node;
     }
 
     private EntityTemplatesFolderNode createEntityTemplatesFolderNode(ObjectTreeNode treeNode, String input) {
-        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(objectTreeFeedback.createTemplatesFolder(input), new TextureRegionDrawable(textureSource.getTexture("images/template-folder.png")));
+        EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(project.createTemplatesFolder(input), new TextureRegionDrawable(textureSource.getTexture("images/template-folder.png")));
         mergeInNode(treeNode, node);
         return node;
     }
@@ -348,7 +349,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private EntityGroupNode createEntityGroupNode(String input) {
-        EntityGroup entityGroup = objectTreeFeedback.createEntityGroup(input);
+        EntityGroup entityGroup = project.createEntityGroup(input);
         EntityGroupNode node = new EntityGroupNode(entityGroup, new TextureRegionDrawable(textureSource.getTexture("images/entity-group.png")));
         mergeInNode(entityGroupsNode, node);
         return node;
@@ -397,7 +398,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityDefinition entity = objectTreeFeedback.createEntity(createId(), input);
+                                        EntityDefinition entity = project.createEntity(createId(), input);
                                         EntityDefinitionNode node = new EntityDefinitionNode(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -434,11 +435,6 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             index++;
         }
         return index;
-    }
-
-    @Override
-    public void setObjectTreeFeedback(ObjectTreeFeedback objectTreeFeedback) {
-        this.objectTreeFeedback = objectTreeFeedback;
     }
 
     @Override
@@ -635,10 +631,11 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     @Override
     public void convertToTemplate(String name, EntityDefinition entity) {
         String id = createId();
-        EntityDefinition template = objectTreeFeedback.convertToTemplate(id, name, entity);
+        EntityDefinition template = project.convertToTemplate(id, name, entity);
         EntityTemplateNode node = new EntityTemplateNode(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
         mergeInNode(templatesNode, node);
-        entity.rebuildEntity();
+
+        project.entityChanged(entity);
     }
 
     private void appendEntities(ObjectTreeNode<ObjectTreeNode, ? extends Object> entityGroupNode, Array<LocatedEntityDefinition> result, String path) {
@@ -750,7 +747,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                 rebuildAllEntities((EntityGroupFolderNode) child);
             } else if (child instanceof EntityDefinitionNode) {
                 EntityDefinitionNode entityDefinitionNode = (EntityDefinitionNode) child;
-                entityDefinitionNode.getValue().rebuildEntity();
+                project.entityChanged(entityDefinitionNode.getValue());
             }
         }
     }

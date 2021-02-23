@@ -12,5 +12,5 @@ public interface EntityEditorPreviewHandler {
 
     void render(Batch batch, float x, float y, float width, float height);
 
-    <T> void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity);
+    <T, U extends EntityDefinition<T>> void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity);
 }

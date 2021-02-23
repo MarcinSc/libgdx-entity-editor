@@ -41,7 +41,6 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         return entity;
     }
 
-    @Override
     public void rebuildEntity() {
         clearInheritedCoreComponents();
         for (Class<? extends Component> coreComponent : coreComponents.keys()) {

@@ -1,10 +1,6 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
-
 public interface ObjectTreeData {
-    void setObjectTreeFeedback(ObjectTreeFeedback objectTreeFeedback);
-
     void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity);
 
     void addTemplate(String parentPath, String name, EntityDefinition template);

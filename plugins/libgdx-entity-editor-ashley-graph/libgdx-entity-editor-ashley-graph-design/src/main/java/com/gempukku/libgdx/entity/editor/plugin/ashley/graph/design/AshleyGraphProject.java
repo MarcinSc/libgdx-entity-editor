@@ -4,13 +4,11 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.files.FileHandle;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
-import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
@@ -18,8 +16,6 @@ import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
-import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
@@ -32,7 +28,7 @@ import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
 import java.io.InputStream;
 
-public class AshleyGraphProject implements EntityEditorProject<Component>, ObjectTreeFeedback<AshleyEntityDefinition> {
+public class AshleyGraphProject implements EntityEditorProject<Component, AshleyEntityDefinition> {
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
 
     private WhitePixel whitePixel;
@@ -61,7 +57,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         entityEditorScreen.setPluginSettings(settings);
 
         objectTreeData = entityEditorScreen.getObjectTreeData();
-        objectTreeData.setObjectTreeFeedback(this);
 
         ashleyEngine = new Engine();
         ashleyEngine.addSystem(new CleaningSystem(100));
@@ -312,23 +307,12 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
-    public Vector2 getEntityPosition(EntityDefinition<Component> entityDefinition, Vector2 position) {
-        AshleyEntityDefinition ashleyEntityDefinition = (AshleyEntityDefinition) entityDefinition;
-        Entity entity = ashleyEntityDefinition.getEntity();
-        PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
-        if (positionComponent != null)
-            return position.set(positionComponent.getX(), positionComponent.getY());
-        return null;
-    }
-
-    @Override
-    public void entityChanged(EntityDefinition<Component> entityDefinition) {
-        AshleyEntityDefinition ashleyEntityDefinition = (AshleyEntityDefinition) entityDefinition;
-        Entity entity = ashleyEntityDefinition.getEntity();
+    public void entityChanged(AshleyEntityDefinition entityDefinition) {
+        Entity entity = entityDefinition.getEntity();
         AshleyEntityComponent ashleyEntityComponent = entity.getComponent(AshleyEntityComponent.class);
         ashleyEntityComponent.setDirty(true);
 
-        ashleyEntityDefinition.rebuildEntity();
+        entityDefinition.rebuildEntity();
     }
 
     @Override

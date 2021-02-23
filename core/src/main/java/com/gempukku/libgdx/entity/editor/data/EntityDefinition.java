@@ -31,7 +31,5 @@ public interface EntityDefinition<T> {
 
     T getCoreComponent(Class<? extends T> clazz);
 
-    void rebuildEntity();
-
     JsonValue toJson();
 }

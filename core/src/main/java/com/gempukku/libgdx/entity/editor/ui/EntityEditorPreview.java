@@ -11,7 +11,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 
-public class EntityEditorPreview<T> extends Widget {
+public class EntityEditorPreview<T, U extends EntityDefinition<T>> extends Widget {
     private PreviewRenderer previewRenderer;
     private EntityEditorPreviewToolbar toolbar;
     private OrthographicCamera camera;
@@ -81,7 +81,7 @@ public class EntityEditorPreview<T> extends Widget {
         camera.update();
     }
 
-    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
+    public void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
         previewHandler.setEditedEntity(editedEntity, project, entity);
     }
 

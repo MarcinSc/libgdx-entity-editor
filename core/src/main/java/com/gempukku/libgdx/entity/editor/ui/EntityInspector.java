@@ -25,13 +25,13 @@ import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
-public class EntityInspector<T> extends VisTable {
+public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable {
     private final VerticalGroup entityDetails;
     private final VerticalGroup entityComponents;
 
     private ObjectTreeData objectTreeData;
-    private EntityDefinition<T> editedEntity;
-    private EntityEditorProject<T> project;
+    private U editedEntity;
+    private EntityEditorProject<T, U> project;
     private boolean entity;
     private Runnable changeCallback;
 
@@ -76,7 +76,7 @@ public class EntityInspector<T> extends VisTable {
         this.objectTreeData = objectTreeData;
     }
 
-    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
+    public void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
         this.editedEntity = editedEntity;
         this.project = project;
         this.entity = entity;
@@ -257,7 +257,6 @@ public class EntityInspector<T> extends VisTable {
                             @Override
                             public void changed(ChangeEvent event, Actor actor) {
                                 editedEntity.addTemplate(templateId);
-                                editedEntity.rebuildEntity();
                                 project.entityChanged(editedEntity);
                                 rebuildUi();
                             }

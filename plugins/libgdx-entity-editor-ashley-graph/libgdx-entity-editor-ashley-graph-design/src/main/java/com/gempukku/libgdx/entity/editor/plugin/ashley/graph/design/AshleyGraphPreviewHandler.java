@@ -62,7 +62,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     }
 
     @Override
-    public <T> void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
+    public <T, U extends EntityDefinition<T>> void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
         this.editedEntity = (AshleyEntityDefinition) editedEntity;
     }
 
@@ -98,19 +98,21 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
             panX = x;
             panY = y;
         } else {
-            EntityEditorPreviewToolbar toolbar = screen.getEntityEditorPreviewToolbar();
+            if (editedEntity.hasCoreComponent(PositionComponent.class)) {
+                EntityEditorPreviewToolbar toolbar = screen.getEntityEditorPreviewToolbar();
 
-            PositionComponent position = editedEntity.getEntity().getComponent(PositionComponent.class);
-            float zoom = toolbar.getZoom().getValue();
-            float newX = entityX + (x - moveX) / zoom;
-            float newY = entityY + (y - moveY) / zoom;
+                PositionComponent position = editedEntity.getEntity().getComponent(PositionComponent.class);
+                float zoom = toolbar.getZoom().getValue();
+                float newX = entityX + (x - moveX) / zoom;
+                float newY = entityY + (y - moveY) / zoom;
 
-            float snap = toolbar.getSnap();
-            if (snap > 0) {
-                newX = snap * MathUtils.round(newX / snap);
-                newY = snap * MathUtils.round(newY / snap);
+                float snap = toolbar.getSnap();
+                if (snap > 0) {
+                    newX = snap * MathUtils.round(newX / snap);
+                    newY = snap * MathUtils.round(newY / snap);
+                }
+                position.setPosition(newX, newY);
             }
-            position.setPosition(newX, newY);
         }
     }
 
