@@ -36,8 +36,9 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
     private Runnable changeCallback;
     private boolean mutating;
 
-    public EntityInspector(EntityEditorProject<T, U> project) {
+    public EntityInspector(EntityEditorProject<T, U> project, ObjectTreeData<U> objectTreeData) {
         this.project = project;
+        this.objectTreeData = objectTreeData;
 
         entityDetails = new VerticalGroup();
         entityDetails.top();
@@ -75,10 +76,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                 mutating = false;
             }
         };
-    }
-
-    public void setObjectTreeData(ObjectTreeData objectTreeData) {
-        this.objectTreeData = objectTreeData;
     }
 
     public void setEditedEntity(U editedEntity, boolean entity) {

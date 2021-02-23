@@ -35,18 +35,18 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class ObjectTree extends VisTable implements ObjectTreeData {
+public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable implements ObjectTreeData<U> {
     private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]{0,14}$");
     private VisTree<ObjectTreeNode, Object> tree;
-    private EntityEditorProject project;
+    private EntityEditorProject<T, U> project;
 
     private EntityGroupsNode entityGroupsNode;
     private EntityTemplatesNode templatesNode;
 
-    private Comparator<ObjectTreeNode> comparator = new ObjectTreeNodeComparator();
+    private Comparator<ObjectTreeNode> comparator = new ObjectTreeNodeComparator<T, U>();
     private TextureSource textureSource;
 
-    public ObjectTree(EntityEditorProject project, TextureSource textureSource) {
+    public ObjectTree(EntityEditorProject<T, U> project, TextureSource textureSource) {
         this.project = project;
         this.textureSource = textureSource;
         initialize();
@@ -84,9 +84,9 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                     public void changed(ChangeEvent event, Actor actor) {
                         ObjectTreeNode selectedNode = tree.getSelectedNode();
                         if (selectedNode instanceof EntityDefinitionNode) {
-                            fire(new EntitySelected(((EntityDefinitionNode) selectedNode).getValue(), true));
+                            fire(new EntitySelected(((EntityDefinitionNode<T, U>) selectedNode).getValue(), true));
                         } else if (selectedNode instanceof EntityTemplateNode) {
-                            fire(new EntitySelected(((EntityTemplateNode) selectedNode).getValue(), false));
+                            fire(new EntitySelected(((EntityTemplateNode<T, U>) selectedNode).getValue(), false));
                         } else {
                             fire(new EntitySelected(null, false));
                         }
@@ -105,7 +105,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         add(scrollPane).grow();
     }
 
-    private void entityDefinitionClicked(EntityDefinitionNode treeNode, float x, float y) {
+    private void entityDefinitionClicked(EntityDefinitionNode<T, U> treeNode, float x, float y) {
         MenuItem renameEntity = new MenuItem("Rename");
         renameEntity.addListener(
                 new ChangeListener() {
@@ -163,7 +163,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private void entityTemplateClicked(EntityTemplateNode treeNode, float x, float y) {
+    private void entityTemplateClicked(EntityTemplateNode<T, U> treeNode, float x, float y) {
         MenuItem renameTemplate = new MenuItem("Rename");
         renameTemplate.addListener(
                 new ChangeListener() {
@@ -221,18 +221,18 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private void deleteEntity(EntityDefinitionNode entity) {
+    private void deleteEntity(EntityDefinitionNode<T, U> entity) {
         project.removeEntity(entity.getValue());
         entity.remove();
     }
 
-    private void deleteTemplate(EntityTemplateNode template) {
+    private void deleteTemplate(EntityTemplateNode<T, U> template) {
         String templateId = template.getValue().getId();
-        for (LocatedEntityDefinition templateDefinition : getTemplates()) {
+        for (LocatedEntityDefinition<U> templateDefinition : getTemplates()) {
             templateDefinition.getEntityDefinition().removeTemplate(templateId);
         }
         for (String entityGroup : getEntityGroups()) {
-            for (LocatedEntityDefinition entity : getEntities(entityGroup)) {
+            for (LocatedEntityDefinition<U> entity : getEntities(entityGroup)) {
                 entity.getEntityDefinition().removeTemplate(templateId);
             }
         }
@@ -285,7 +285,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityTemplateNode node = new EntityTemplateNode(project.createTemplate(createId(), input), new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
+                                        EntityTemplateNode<T, U> node = new EntityTemplateNode<>(project.createTemplate(createId(), input), new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -398,8 +398,8 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        EntityDefinition entity = project.createEntity(createId(), input);
-                                        EntityDefinitionNode node = new EntityDefinitionNode(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
+                                        U entity = project.createEntity(createId(), input);
+                                        EntityDefinitionNode<T, U> node = new EntityDefinitionNode<>(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
                                     }
@@ -438,39 +438,39 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     @Override
-    public void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity) {
+    public void addEntity(String entityGroup, String parentPath, String name, U entity) {
         EntityGroupNode group = getEntityGroupNode(entityGroup, true);
         ObjectTreeNode entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath, true);
-        EntityDefinitionNode node = new EntityDefinitionNode(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
+        EntityDefinitionNode<T, U> node = new EntityDefinitionNode<>(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
         mergeInNode(entityGroupFolderNode, node);
     }
 
     @Override
-    public void addTemplate(String parentPath, String name, EntityDefinition template) {
+    public void addTemplate(String parentPath, String name, U template) {
         ObjectTreeNode entityGroupFolderNode = getEntityTemplateFolderNode(parentPath, true);
-        EntityTemplateNode node = new EntityTemplateNode(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
+        EntityTemplateNode<T, U> node = new EntityTemplateNode<>(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
         mergeInNode(entityGroupFolderNode, node);
     }
 
     @Override
-    public LocatedEntityDefinition getTemplateById(String id) {
+    public LocatedEntityDefinition<U> getTemplateById(String id) {
         return findTemplateById(templatesNode, id, null);
     }
 
-    private LocatedEntityDefinition findTemplateById(ObjectTreeNode node, String id, String parentPath) {
+    private LocatedEntityDefinition<U> findTemplateById(ObjectTreeNode node, String id, String parentPath) {
         for (Object child : node.getChildren()) {
             if (child instanceof EntityTemplatesFolderNode) {
                 EntityTemplatesFolderNode folder = (EntityTemplatesFolderNode) child;
                 String folderName = folder.getValue().getName();
-                LocatedEntityDefinition result = findTemplateById((ObjectTreeNode) child, id, getFullPath(parentPath, folderName));
+                LocatedEntityDefinition<U> result = findTemplateById((ObjectTreeNode) child, id, getFullPath(parentPath, folderName));
                 if (result != null)
                     return result;
             }
             if (child instanceof EntityTemplateNode) {
-                EntityTemplateNode template = (EntityTemplateNode) child;
-                EntityDefinition templateDefinition = template.getValue();
+                EntityTemplateNode<T, U> template = (EntityTemplateNode<T, U>) child;
+                U templateDefinition = template.getValue();
                 if (templateDefinition.getId().equals(id)) {
-                    return new LocatedEntityDefinition(templateDefinition, getFullPath(parentPath, templateDefinition.getName()));
+                    return new LocatedEntityDefinition<>(templateDefinition, getFullPath(parentPath, templateDefinition.getName()));
                 }
             }
         }
@@ -488,39 +488,39 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     @Override
-    public Iterable<LocatedEntityDefinition> getEntities(String entityGroup) {
+    public Iterable<LocatedEntityDefinition<U>> getEntities(String entityGroup) {
         EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
-        Array<LocatedEntityDefinition> result = new Array<>();
+        Array<LocatedEntityDefinition<U>> result = new Array<>();
         appendEntities(entityGroupNode, result, null);
         return result;
     }
 
     @Override
-    public Iterable<LocatedEntityDefinition> getTemplates() {
-        Array<LocatedEntityDefinition> result = new Array<>();
+    public Iterable<LocatedEntityDefinition<U>> getTemplates() {
+        Array<LocatedEntityDefinition<U>> result = new Array<>();
         appendTemplates(templatesNode, result, null);
         return result;
     }
-
-    private boolean canCreateEntity(String entityGroup, String parentPath, String name) {
-        if (!validEntityGroup(entityGroup) || !validParentPath(parentPath) || !validName(name))
-            return false;
-
-        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
-        if (entityGroupNode == null)
-            return true;
-        ObjectTreeNode entityGroupFolderNode = getEntityGroupFolderNode(entityGroupNode, parentPath, false);
-        if (entityGroupFolderNode == null)
-            return true;
-        for (Object child : entityGroupFolderNode.getChildren()) {
-            if (child instanceof EntityDefinitionNode) {
-                EntityDefinitionNode entity = (EntityDefinitionNode) child;
-                if (entity.getValue().getName().equals(name))
-                    return false;
-            }
-        }
-        return true;
-    }
+//
+//    private boolean canCreateEntity(String entityGroup, String parentPath, String name) {
+//        if (!validEntityGroup(entityGroup) || !validParentPath(parentPath) || !validName(name))
+//            return false;
+//
+//        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
+//        if (entityGroupNode == null)
+//            return true;
+//        ObjectTreeNode entityGroupFolderNode = getEntityGroupFolderNode(entityGroupNode, parentPath, false);
+//        if (entityGroupFolderNode == null)
+//            return true;
+//        for (Object child : entityGroupFolderNode.getChildren()) {
+//            if (child instanceof EntityDefinitionNode) {
+//                EntityDefinitionNode<T, U> entity = (EntityDefinitionNode<T, U>) child;
+//                if (entity.getValue().getName().equals(name))
+//                    return false;
+//            }
+//        }
+//        return true;
+//    }
 
     private boolean canCreateEntityFolder(ObjectTreeNode parent, String name) {
         if (!validName(name))
@@ -567,7 +567,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
 
         for (Object child : parent.getChildren()) {
             if (child instanceof EntityDefinitionNode) {
-                EntityDefinitionNode entity = (EntityDefinitionNode) child;
+                EntityDefinitionNode<T, U> entity = (EntityDefinitionNode<T, U>) child;
                 if (entity.getValue().getName().equals(name))
                     return false;
             }
@@ -581,7 +581,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
 
         for (Object child : parent.getChildren()) {
             if (child instanceof EntityTemplateNode) {
-                EntityTemplateNode template = (EntityTemplateNode) child;
+                EntityTemplateNode<T, U> template = (EntityTemplateNode<T, U>) child;
                 if (template.getValue().getName().equals(name))
                     return false;
             }
@@ -599,7 +599,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             return true;
         for (Object child : entityTemplatesFolderNode.getChildren()) {
             if (child instanceof EntityTemplateNode) {
-                EntityTemplateNode template = (EntityTemplateNode) child;
+                EntityTemplateNode<T, U> template = (EntityTemplateNode<T, U>) child;
                 if (template.getValue().getName().equals(name))
                     return false;
             }
@@ -629,33 +629,33 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     @Override
-    public void convertToTemplate(String name, EntityDefinition entity) {
+    public void convertToTemplate(String name, U entity) {
         String id = createId();
-        EntityDefinition template = project.convertToTemplate(id, name, entity);
-        EntityTemplateNode node = new EntityTemplateNode(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
+        U template = project.convertToTemplate(id, name, entity);
+        EntityTemplateNode<T, U> node = new EntityTemplateNode<>(template, new TextureRegionDrawable(textureSource.getTexture("images/template.png")));
         mergeInNode(templatesNode, node);
 
         project.entityChanged(entity);
     }
 
-    private void appendEntities(ObjectTreeNode<ObjectTreeNode, ? extends Object> entityGroupNode, Array<LocatedEntityDefinition> result, String path) {
+    private void appendEntities(ObjectTreeNode<ObjectTreeNode, ? extends Object> entityGroupNode, Array<LocatedEntityDefinition<U>> result, String path) {
         for (ObjectTreeNode child : entityGroupNode.getChildren()) {
             if (child instanceof EntityGroupFolderNode) {
                 EntityGroupFolder folder = ((EntityGroupFolderNode) child).getValue();
                 appendEntities(child, result, (path == null) ? folder.getName() : path + "/" + folder.getName());
             } else if (child instanceof EntityDefinitionNode) {
-                result.add(new LocatedEntityDefinition(((EntityDefinitionNode) child).getValue(), path));
+                result.add(new LocatedEntityDefinition<>(((EntityDefinitionNode<T, U>) child).getValue(), path));
             }
         }
     }
 
-    private void appendTemplates(ObjectTreeNode<ObjectTreeNode, ? extends Object> entityGroupNode, Array<LocatedEntityDefinition> result, String path) {
+    private void appendTemplates(ObjectTreeNode<ObjectTreeNode, ? extends Object> entityGroupNode, Array<LocatedEntityDefinition<U>> result, String path) {
         for (ObjectTreeNode child : entityGroupNode.getChildren()) {
             if (child instanceof EntityTemplatesFolderNode) {
                 EntityTemplatesFolder folder = ((EntityTemplatesFolderNode) child).getValue();
                 appendTemplates(child, result, (path == null) ? folder.getName() : path + "/" + folder.getName());
             } else if (child instanceof EntityTemplateNode) {
-                result.add(new LocatedEntityDefinition(((EntityTemplateNode) child).getValue(), path));
+                result.add(new LocatedEntityDefinition<>(((EntityTemplateNode<T, U>) child).getValue(), path));
             }
         }
     }
@@ -746,13 +746,13 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             } else if (child instanceof EntityGroupFolderNode) {
                 rebuildAllEntities((EntityGroupFolderNode) child);
             } else if (child instanceof EntityDefinitionNode) {
-                EntityDefinitionNode entityDefinitionNode = (EntityDefinitionNode) child;
+                EntityDefinitionNode<T, U> entityDefinitionNode = (EntityDefinitionNode<T, U>) child;
                 project.entityChanged(entityDefinitionNode.getValue());
             }
         }
     }
 
-    private static class ObjectTreeNodeComparator implements Comparator<ObjectTreeNode> {
+    private static class ObjectTreeNodeComparator<T, U extends EntityDefinition<T>> implements Comparator<ObjectTreeNode> {
         @Override
         public int compare(ObjectTreeNode o1, ObjectTreeNode o2) {
             int type1 = getTypeValue(o1);
@@ -783,11 +783,11 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
             if (node instanceof EntityGroupFolderNode)
                 return ((EntityGroupFolderNode) node).getValue().getName();
             if (node instanceof EntityDefinitionNode)
-                return ((EntityDefinitionNode) node).getValue().getName();
+                return ((EntityDefinitionNode<T, U>) node).getValue().getName();
             if (node instanceof EntityTemplatesFolderNode)
                 return ((EntityTemplatesFolderNode) node).getValue().getName();
             if (node instanceof EntityTemplateNode)
-                return ((EntityTemplateNode) node).getValue().getName();
+                return ((EntityTemplateNode<T, U>) node).getValue().getName();
             throw new IllegalArgumentException("Unknown type of node");
         }
     }

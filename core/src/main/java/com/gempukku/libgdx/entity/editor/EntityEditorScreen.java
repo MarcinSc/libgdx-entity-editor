@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
@@ -20,17 +21,17 @@ import com.gempukku.libgdx.entity.editor.ui.UtilityPanel;
 import com.kotcrab.vis.ui.widget.VisSplitPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 
-public class EntityEditorScreen extends VisTable {
-    private ObjectTree objectTree;
-    private PluginSettings pluginSettings;
-    private EntityEditorPreviewToolbar entityEditorPreviewToolbar;
-    private EntityEditorPreview entityEditorPreview;
-    private UtilityPanel utilityPanel;
-    private EntityInspector entityInspector;
-    private OrthographicCamera camera;
-    private TextureSource textureSource;
+public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTable {
+    private final ObjectTree objectTree;
+    private final PluginSettings pluginSettings;
+    private final EntityEditorPreviewToolbar entityEditorPreviewToolbar;
+    private final EntityEditorPreview<T, U> entityEditorPreview;
+    private final UtilityPanel utilityPanel;
+    private final EntityInspector<T, U> entityInspector;
+    private final OrthographicCamera camera;
+    private final TextureSource textureSource;
 
-    public EntityEditorScreen(EntityEditorProject project, TextureSource textureSource) {
+    public EntityEditorScreen(EntityEditorProject<T, U> project, TextureSource textureSource) {
         this.textureSource = textureSource;
         camera = new OrthographicCamera();
         camera.position.set(0, 0, 0);
@@ -39,10 +40,9 @@ public class EntityEditorScreen extends VisTable {
         objectTree = new ObjectTree(project, textureSource);
         pluginSettings = new PluginSettings();
         entityEditorPreviewToolbar = new EntityEditorPreviewToolbar();
-        entityEditorPreview = new EntityEditorPreview(project, entityEditorPreviewToolbar, camera);
+        entityEditorPreview = new EntityEditorPreview<>(project, entityEditorPreviewToolbar, camera);
         utilityPanel = new UtilityPanel();
-        entityInspector = new EntityInspector(project);
-        entityInspector.setObjectTreeData(objectTree);
+        entityInspector = new EntityInspector<>(project, objectTree);
 
         VisSplitPane leftSplitPane = new VisSplitPane(objectTree, pluginSettings, true);
 
@@ -63,7 +63,7 @@ public class EntityEditorScreen extends VisTable {
                     @Override
                     public boolean handle(Event event) {
                         if (event instanceof EntitySelected) {
-                            EntitySelected entityEvent = (EntitySelected) event;
+                            EntitySelected<T, U> entityEvent = (EntitySelected<T, U>) event;
                             entityInspector.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
                             entityEditorPreview.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
                             return true;

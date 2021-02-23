@@ -21,7 +21,7 @@
             "coreComponents": [
               {
                 "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-                "x": 100,
+                "x": 80,
                 "y": 0
               }
             ]
@@ -38,8 +38,8 @@
             "coreComponents": [
               {
                 "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-                "x": -100,
-                "y": 100
+                "x": -80,
+                "y": 0
               }
             ]
           }
