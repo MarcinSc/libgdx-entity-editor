@@ -4,11 +4,14 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Ellipse;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Shape2D;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -18,7 +21,10 @@ import com.gempukku.libgdx.entity.editor.TextureSource;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreview;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewHandler;
+import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewToolbar;
+import com.gempukku.libgdx.entity.editor.ui.EntitySelected;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 
 public class AshleyGraphPreviewHandler extends InputListener implements EntityEditorPreviewHandler {
@@ -32,6 +38,14 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private EntityEditorScreen screen;
     private ObjectMap<Shape2D, Entity> entityCenters = new ObjectMap<>();
     private AshleyEntityDefinition editedEntity;
+
+    private boolean panning;
+    private float panX;
+    private float panY;
+    private float moveX;
+    private float moveY;
+    private float entityX;
+    private float entityY;
 
     public AshleyGraphPreviewHandler(Engine engine, Camera camera, TextureSource textureSource) {
         this.camera = camera;
@@ -77,8 +91,63 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     }
 
     @Override
+    public void touchDragged(InputEvent event, float x, float y, int pointer) {
+        if (panning) {
+            EntityEditorPreview preview = screen.getEntityEditorPreview();
+            preview.panBy(panX - x, panY - y);
+            panX = x;
+            panY = y;
+        } else {
+            EntityEditorPreviewToolbar toolbar = screen.getEntityEditorPreviewToolbar();
+            float snap = toolbar.getSnap();
+
+            PositionComponent position = editedEntity.getEntity().getComponent(PositionComponent.class);
+            float zoom = toolbar.getZoom().getValue();
+            float newX = entityX + (x - moveX) / zoom;
+            float newY = entityY + (y - moveY) / zoom;
+
+            if (snap > 0) {
+                newX = snap * MathUtils.round(newX / snap);
+                newY = snap * MathUtils.round(newY / snap);
+            }
+            position.setPosition(newX, newY);
+        }
+    }
+
+    @Override
     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
         screen.getStage().setScrollFocus(screen.getEntityEditorPreview());
+
+        boolean handled = false;
+        if (button == Input.Buttons.LEFT) {
+            EntityEditorPreview preview = screen.getEntityEditorPreview();
+
+            for (Entity positionEntity : positionEntities) {
+                PositionComponent position = positionEntity.getComponent(PositionComponent.class);
+                tmpVector.set(position.getX(), position.getY(), 0);
+                Vector3 location = camera.project(tmpVector, preview.getX(), preview.getY(), preview.getWidth(), preview.getHeight());
+                float dst = Vector2.dst(location.x, location.y, x, y);
+                if (dst < 11) {
+                    AshleyEntityComponent entityComponent = positionEntity.getComponent(AshleyEntityComponent.class);
+                    preview.fire(new EntitySelected(entityComponent.getEntityDefinition(), true));
+                    handled = true;
+                    break;
+                }
+            }
+        }
+
+        if (!handled) {
+            panning = true;
+            panX = x;
+            panY = y;
+        } else {
+            panning = false;
+            PositionComponent position = editedEntity.getEntity().getComponent(PositionComponent.class);
+            entityX = position.getX();
+            entityY = position.getY();
+            moveX = x;
+            moveY = y;
+        }
 
         return true;
     }

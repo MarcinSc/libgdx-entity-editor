@@ -37,7 +37,6 @@ import java.io.InputStream;
 public class AshleyGraphProject implements EntityEditorProject<Component>, ObjectTreeFeedback<AshleyEntityDefinition> {
     private static final String PROJECT_FILE_NAME = "ashley-graph-entities.project.json";
 
-    private EntityEditorScreen editorScreen;
     private WhitePixel whitePixel;
 
     private Engine ashleyEngine;
@@ -58,8 +57,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     public void initialize(EntityEditorScreen entityEditorScreen) {
         this.whitePixel = new WhitePixel();
         CommonShaderConfiguration.setDefaultTextureRegionProperty(whitePixel.textureRegion);
-
-        this.editorScreen = entityEditorScreen;
 
         JsonValue project = readProject(folder);
         createSettings(project);
@@ -94,6 +91,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
                 Entity ashleyEntity = ashleyEngine.createEntity();
                 JsonValue data = entity.get("data");
                 AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, data);
+                initializeAshleyEntity(ashleyEntity, entityDefinition);
                 objectTreeData.addEntity(name, path, entityDefinition.getName(), entityDefinition);
                 ashleyEngine.addEntity(ashleyEntity);
             }
@@ -256,7 +254,13 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         Entity entity = ashleyEngine.createEntity();
         ashleyEngine.addEntity(entity);
 
-        return new AshleyEntityDefinition(id, name, objectTreeData, entity);
+        AshleyEntityDefinition ashleyEntityDefinition = new AshleyEntityDefinition(id, name, objectTreeData, entity);
+        initializeAshleyEntity(entity, ashleyEntityDefinition);
+        return ashleyEntityDefinition;
+    }
+
+    private void initializeAshleyEntity(Entity entity, AshleyEntityDefinition ashleyEntityDefinition) {
+        entity.add(new AshleyEntityComponent(ashleyEntityDefinition));
     }
 
     @Override
