@@ -22,7 +22,7 @@ import com.kotcrab.vis.ui.widget.VisSplitPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTable {
-    private final ObjectTree objectTree;
+    private final ObjectTree<T, U> objectTree;
     private final PluginSettings pluginSettings;
     private final EntityEditorPreviewToolbar entityEditorPreviewToolbar;
     private final EntityEditorPreview<T, U> entityEditorPreview;
@@ -37,7 +37,7 @@ public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTab
         camera.position.set(0, 0, 0);
         camera.update();
 
-        objectTree = new ObjectTree(project, textureSource);
+        objectTree = new ObjectTree<>(project, textureSource);
         pluginSettings = new PluginSettings();
         entityEditorPreviewToolbar = new EntityEditorPreviewToolbar();
         entityEditorPreview = new EntityEditorPreview<>(project, entityEditorPreviewToolbar, camera);
@@ -84,7 +84,7 @@ public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTab
                 });
     }
 
-    public ObjectTreeData getObjectTreeData() {
+    public ObjectTreeData<U> getObjectTreeData() {
         return objectTree;
     }
 
@@ -100,11 +100,11 @@ public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTab
         entityEditorPreview.setDefaultPreviewHandler(this, previewHandler);
     }
 
-    public EntityInspector getEntityInspector() {
+    public EntityInspector<T, U> getEntityInspector() {
         return entityInspector;
     }
 
-    public EntityEditorPreview getEntityEditorPreview() {
+    public EntityEditorPreview<T, U> getEntityEditorPreview() {
         return entityEditorPreview;
     }
 
