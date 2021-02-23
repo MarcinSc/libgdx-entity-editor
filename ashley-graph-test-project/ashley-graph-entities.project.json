@@ -56,23 +56,10 @@
         "templates": [],
         "coreComponents": [
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent",
-            "state": "Idle",
-            "states": {
-              "Idle": {
-                "properties": {
-                  "Texture": {
-                    "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
-                    "atlas": "",
-                    "texture": "images/MossyHill.png"
-                  }
-                }
-              }
-            }
-          },
-          {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
             "layer": 0,
+            "width": 150,
+            "height": 64,
             "tags": [
               "Animated"
             ],
@@ -85,11 +72,6 @@
             }
           },
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent",
-            "x": 150,
-            "y": 64
-          },
-          {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
             "x": 0,
             "y": 0
@@ -98,6 +80,23 @@
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent",
             "x": 0.5,
             "y": 0.5
+          },
+          {
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent",
+            "state": "Idle",
+            "states": {
+              "Idle": {
+                "width": 150,
+                "height": 64,
+                "properties": {
+                  "Texture": {
+                    "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
+                    "atlas": "",
+                    "texture": "images/MossyHill.png"
+                  }
+                }
+              }
+            }
           }
         ]
       }

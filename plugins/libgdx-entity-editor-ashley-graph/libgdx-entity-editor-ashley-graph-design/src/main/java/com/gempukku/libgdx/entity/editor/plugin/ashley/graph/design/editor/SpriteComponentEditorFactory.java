@@ -8,6 +8,7 @@ import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.FloatEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.GraphShaderPropertiesEditorWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringArrayEditorWidget;
 import com.kotcrab.vis.ui.widget.VisTable;
 
@@ -24,6 +25,15 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
         public SpriteComponentEditor(SpriteComponent component, boolean editable) {
             this.component = component;
 
+            PairOfFloatsEditorWidget size = new PairOfFloatsEditorWidget(EditorConfig.LABEL_WIDTH, editable,
+                    "Width", component.getWidth(), "Height", component.getHeight(),
+                    new PairOfFloatsEditorWidget.Callback() {
+                        @Override
+                        public void update(float value1, float value2) {
+                            component.setWidth(value1);
+                            component.setHeight(value2);
+                        }
+                    });
             StringArrayEditorWidget tags = new StringArrayEditorWidget("Tags", editable, component.getTags(),
                     new StringArrayEditorWidget.Callback() {
                         @Override
@@ -49,6 +59,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                     });
 
             VisTable tbl = new VisTable();
+            tbl.add(size).growX().pad(3).row();
             tbl.add(layer).growX().pad(3).row();
             tbl.add(tags).growX().pad(3).row();
             tbl.add(properties).growX().pad(3).row();

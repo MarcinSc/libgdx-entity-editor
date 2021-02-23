@@ -4,7 +4,9 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 
 public class SpriteComponent extends DirtyComponent {
-    private float layer;
+    private float layer = 0f;
+    private float width = 1f;
+    private float height = 1f;
     private Array<String> tags = new Array<>();
     private ObjectMap<String, Object> properties = new ObjectMap<>();
 
@@ -15,6 +17,28 @@ public class SpriteComponent extends DirtyComponent {
     public void setLayer(float layer) {
         if (this.layer != layer) {
             this.layer = layer;
+            setDirty();
+        }
+    }
+
+    public float getWidth() {
+        return width;
+    }
+
+    public void setWidth(float width) {
+        if (this.width != width) {
+            this.width = width;
+            setDirty();
+        }
+    }
+
+    public float getHeight() {
+        return height;
+    }
+
+    public void setHeight(float height) {
+        if (this.height != height) {
+            this.height = height;
             setDirty();
         }
     }

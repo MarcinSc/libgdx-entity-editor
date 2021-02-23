@@ -2,6 +2,7 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
 
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -119,16 +120,29 @@ public class SpriteStateEditorWidget extends VisTable {
                         public void changed(ChangeEvent event, Actor actor) {
                             VisDialog dialog = new VisDialog("Edit state data");
                             dialog.setResizable(true);
-                            dialog.getContentTable().add(
+                            Table contentTable = dialog.getContentTable();
+                            contentTable.add(
+                                    new PairOfFloatsEditorWidget(EditorConfig.LABEL_WIDTH, true,
+                                            "Width", dataDef.getWidth(), "Height", dataDef.getHeight(),
+                                            new PairOfFloatsEditorWidget.Callback() {
+                                                @Override
+                                                public void update(float value1, float value2) {
+                                                    dataDef.setWidth(value1);
+                                                    dataDef.setHeight(value2);
+                                                    callback.run();
+                                                }
+                                            })).growX().row();
+                            contentTable.add(
                                     new GraphShaderPropertiesEditorWidget(
                                             "Sprite state data", true,
-                                            dataDef.getProperties(), new GraphShaderPropertiesEditorWidget.Callback() {
-                                        @Override
-                                        public void setValue(ObjectMap<String, Object> value) {
-                                            dataDef.setProperties(value);
-                                            callback.run();
-                                        }
-                                    })).grow();
+                                            dataDef.getProperties(),
+                                            new GraphShaderPropertiesEditorWidget.Callback() {
+                                                @Override
+                                                public void setValue(ObjectMap<String, Object> value) {
+                                                    dataDef.setProperties(value);
+                                                    callback.run();
+                                                }
+                                            })).grow().row();
                             VisTextButton done = new VisTextButton("Done");
                             done.addListener(
                                     new ChangeListener() {
@@ -141,7 +155,7 @@ public class SpriteStateEditorWidget extends VisTable {
                             dialog.show(getStage(), new Action() {
                                 @Override
                                 public boolean act(float delta) {
-                                    dialog.setSize(600, 320);
+                                    dialog.setSize(600, 370);
                                     dialog.centerWindow();
                                     return true;
                                 }

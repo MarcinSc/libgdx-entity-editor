@@ -60,10 +60,6 @@ public class RenderingSystem extends EntitySystem {
                         entity.add(spriteData);
 
                         setSpriteProperties(entity, true);
-
-                        for (String tag : spriteComponent.getTags()) {
-                            graphSprites.addTag(graphSprite, tag);
-                        }
                     }
 
                     @Override
@@ -86,6 +82,8 @@ public class RenderingSystem extends EntitySystem {
                 if (state != null) {
                     SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
                     if (stateData != null) {
+                        sprite.setWidth(stateData.getWidth());
+                        sprite.setHeight(stateData.getHeight());
                         sprite.setProperties(stateData.getProperties());
                     }
                 }
@@ -107,18 +105,17 @@ public class RenderingSystem extends EntitySystem {
         GraphSprite graphSprite = spriteDataComponent.getGraphSprite();
 
         if (force || spriteComponent.isDirty() || positionComponent.isDirty() || (scaleComponent != null && scaleComponent.isDirty())
-                || (facingComponent != null && facingComponent.isDirty())) {
+                || (facingComponent != null && facingComponent.isDirty()) || (anchorComponent != null && anchorComponent.isDirty())) {
             graphSprites.updateSprite(graphSprite,
                     new SpriteUpdater() {
                         @Override
                         public void processUpdate(Vector3 position, Vector2 size, Vector2 anchor) {
                             tmpPosition.set(positionComponent.getX(), positionComponent.getY());
                             position.set(tmpPosition, spriteComponent.getLayer());
+                            size.set(spriteComponent.getWidth(), spriteComponent.getHeight());
 
                             if (scaleComponent != null) {
-                                size.set(scaleComponent.getX(), scaleComponent.getY());
-                            } else {
-                                size.set(1, 1);
+                                size.scl(scaleComponent.getX(), scaleComponent.getY());
                             }
 
                             if (facingComponent != null) {
