@@ -34,8 +34,11 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
     private EntityEditorProject<T, U> project;
     private boolean entity;
     private Runnable changeCallback;
+    private boolean mutating;
 
-    public EntityInspector() {
+    public EntityInspector(EntityEditorProject<T, U> project) {
+        this.project = project;
+
         entityDetails = new VerticalGroup();
         entityDetails.top();
         entityDetails.grow();
@@ -67,7 +70,9 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
         changeCallback = new Runnable() {
             @Override
             public void run() {
+                mutating = true;
                 project.entityChanged(editedEntity);
+                mutating = false;
             }
         };
     }
@@ -76,9 +81,8 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
         this.objectTreeData = objectTreeData;
     }
 
-    public void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
+    public void setEditedEntity(U editedEntity, boolean entity) {
         this.editedEntity = editedEntity;
-        this.project = project;
         this.entity = entity;
 
         rebuildUi();
@@ -109,7 +113,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
                                                     project.entityChanged(editedEntity);
-                                                    rebuildUi();
                                                 }
                                             });
                                     menu.addItem(menuItem);
@@ -135,7 +138,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                                             public void changed(ChangeEvent event, Actor actor) {
                                                 editedEntity.removeCoreComponent(coreComponent);
                                                 project.entityChanged(editedEntity);
-                                                rebuildUi();
                                             }
                                         });
                                 menu.addItem(menuItem);
@@ -170,7 +172,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                             }
                             if (changed) {
                                 project.entityChanged(editedEntity);
-                                rebuildUi();
                             }
                         }
                     });
@@ -208,7 +209,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                                             @Override
                                             public void finished(String input) {
                                                 objectTreeData.convertToTemplate(input, editedEntity);
-                                                rebuildUi();
                                             }
 
                                             @Override
@@ -258,7 +258,6 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                             public void changed(ChangeEvent event, Actor actor) {
                                 editedEntity.addTemplate(templateId);
                                 project.entityChanged(editedEntity);
-                                rebuildUi();
                             }
                         });
                 targetMenu.addItem(valueMenuItem);
@@ -311,6 +310,12 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                 return container;
         }
         return null;
+    }
+
+    public void entityUpdated() {
+        if (!mutating) {
+            rebuildUi();
+        }
     }
 
     private class TemplateContainer extends VisCheckBox {

@@ -2,7 +2,6 @@ package com.gempukku.libgdx.entity.editor;
 
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.badlogic.gdx.scenes.scene2d.EventListener;
@@ -40,9 +39,9 @@ public class EntityEditorScreen extends VisTable {
         objectTree = new ObjectTree(project, textureSource);
         pluginSettings = new PluginSettings();
         entityEditorPreviewToolbar = new EntityEditorPreviewToolbar();
-        entityEditorPreview = new EntityEditorPreview(entityEditorPreviewToolbar, camera);
+        entityEditorPreview = new EntityEditorPreview(project, entityEditorPreviewToolbar, camera);
         utilityPanel = new UtilityPanel();
-        entityInspector = new EntityInspector();
+        entityInspector = new EntityInspector(project);
         entityInspector.setObjectTreeData(objectTree);
 
         VisSplitPane leftSplitPane = new VisSplitPane(objectTree, pluginSettings, true);
@@ -65,8 +64,8 @@ public class EntityEditorScreen extends VisTable {
                     public boolean handle(Event event) {
                         if (event instanceof EntitySelected) {
                             EntitySelected entityEvent = (EntitySelected) event;
-                            entityInspector.setEditedEntity(entityEvent.getEntity(), project, entityEvent.isEntity());
-                            entityEditorPreview.setEditedEntity(entityEvent.getEntity(), project, entityEvent.isEntity());
+                            entityInspector.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
+                            entityEditorPreview.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
                             return true;
                         }
                         return false;
@@ -101,6 +100,10 @@ public class EntityEditorScreen extends VisTable {
         entityEditorPreview.setDefaultPreviewHandler(this, previewHandler);
     }
 
+    public EntityInspector getEntityInspector() {
+        return entityInspector;
+    }
+
     public EntityEditorPreview getEntityEditorPreview() {
         return entityEditorPreview;
     }
@@ -111,14 +114,6 @@ public class EntityEditorScreen extends VisTable {
 
     public void setUtilityPanel(Actor actor) {
         utilityPanel.setActor(actor);
-    }
-
-    public int getPreviewWidth() {
-        return MathUtils.round(entityEditorPreview.getWidth());
-    }
-
-    public int getPreviewHeight() {
-        return MathUtils.round(entityEditorPreview.getHeight());
     }
 
     public Camera getCamera() {

@@ -17,6 +17,7 @@ import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.gempukku.libgdx.entity.editor.ui.EntityInspector;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
 import com.gempukku.libgdx.graph.pipeline.PipelineLoaderCallback;
@@ -40,6 +41,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     private FileHandle folder;
     private AshleyGraphSettings settings;
+    private EntityInspector<Component, AshleyEntityDefinition> entityInspector;
     private ObjectTreeData<AshleyEntityDefinition> objectTreeData;
     private AshleyEngineJson engineJson;
 
@@ -57,6 +59,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         entityEditorScreen.setPluginSettings(settings);
 
         objectTreeData = entityEditorScreen.getObjectTreeData();
+        entityInspector = entityEditorScreen.getEntityInspector();
 
         ashleyEngine = new Engine();
         ashleyEngine.addSystem(new CleaningSystem(100));
@@ -313,6 +316,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         ashleyEntityComponent.setDirty(true);
 
         entityDefinition.rebuildEntity();
+
+        entityInspector.entityUpdated();
     }
 
     @Override
