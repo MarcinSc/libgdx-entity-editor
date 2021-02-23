@@ -8,19 +8,22 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 
 public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
-    private ObjectTreeData objectTreeData;
+    private ObjectTreeData<AshleyEntityDefinition> objectTreeData;
     private Entity entity;
     private ObjectMap<Class<? extends Component>, Component> coreComponents = new ObjectMap<>();
     private ObjectMap<Class<? extends Component>, Component> inheritedCoreComponents = new ObjectMap<>();
     private Array<String> templates = new Array<>();
 
-    public AshleyEntityDefinition(Json json, ObjectTreeData objectTreeData, Entity entity, JsonValue value) {
-        super(value.getString("id"), value.getString("name"));
+    public AshleyEntityDefinition(Json json, ObjectTreeData<AshleyEntityDefinition> objectTreeData, JsonValue value) {
+        this(json, objectTreeData, value, null);
+    }
+
+    public AshleyEntityDefinition(Json json, ObjectTreeData<AshleyEntityDefinition> objectTreeData, JsonValue value, Entity entity) {
+        super(value.getString("id"), value.getString("name"), entity != null);
         this.objectTreeData = objectTreeData;
         this.entity = entity;
         templates.addAll(value.get("templates").asStringArray());
@@ -31,8 +34,12 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         rebuildEntity();
     }
 
-    public AshleyEntityDefinition(String id, String name, ObjectTreeData objectTreeData, Entity entity) {
-        super(id, name);
+    public AshleyEntityDefinition(String id, String name, ObjectTreeData<AshleyEntityDefinition> objectTreeData) {
+        this(id, name, objectTreeData, null);
+    }
+
+    public AshleyEntityDefinition(String id, String name, ObjectTreeData<AshleyEntityDefinition> objectTreeData, Entity entity) {
+        super(id, name, entity != null);
         this.objectTreeData = objectTreeData;
         this.entity = entity;
     }
@@ -42,30 +49,29 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     }
 
     public void rebuildEntity() {
-        clearInheritedCoreComponents();
-        for (Class<? extends Component> coreComponent : coreComponents.keys()) {
-            entity.remove(coreComponent);
-        }
+        if (isEntity()) {
+            for (Class<? extends Component> inheritedCoreComponentClass : inheritedCoreComponents.keys()) {
+                entity.remove(inheritedCoreComponentClass);
+            }
+            inheritedCoreComponents.clear();
 
-        for (Class<? extends Component> inheritedCoreComponentClass : getInheritedCoreComponents()) {
-            if (!hasCoreComponent(inheritedCoreComponentClass)) {
-                Component inheritedCoreComponent = getInheritedCoreComponent(inheritedCoreComponentClass);
-                Component componentCopy = createComponentCopy(inheritedCoreComponent);
-                inheritedCoreComponents.put(inheritedCoreComponentClass, componentCopy);
-                entity.add(componentCopy);
+            for (Class<? extends Component> coreComponent : coreComponents.keys()) {
+                entity.remove(coreComponent);
+            }
+
+            for (Class<? extends Component> inheritedCoreComponentClass : getInheritedCoreComponents()) {
+                if (!hasCoreComponent(inheritedCoreComponentClass)) {
+                    Component inheritedCoreComponent = getInheritedCoreComponent(inheritedCoreComponentClass);
+                    Component componentCopy = createComponentCopy(inheritedCoreComponent);
+                    inheritedCoreComponents.put(inheritedCoreComponentClass, componentCopy);
+                    entity.add(componentCopy);
+                }
+            }
+
+            for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponentEntry : coreComponents) {
+                entity.add(coreComponentEntry.value);
             }
         }
-
-        for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponentEntry : coreComponents) {
-            entity.add(coreComponentEntry.value);
-        }
-    }
-
-    private void clearInheritedCoreComponents() {
-        for (Class<? extends Component> inheritedCoreComponentClass : inheritedCoreComponents.keys()) {
-            entity.remove(inheritedCoreComponentClass);
-        }
-        inheritedCoreComponents.clear();
     }
 
     @Override
@@ -92,7 +98,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     public Iterable<Class<? extends Component>> getInheritedCoreComponents() {
         Array<Class<? extends Component>> result = new Array<>();
         for (String template : templates) {
-            EntityDefinition<Component> templateDefinition = objectTreeData.getTemplateById(template).getEntityDefinition();
+            AshleyEntityDefinition templateDefinition = objectTreeData.getTemplateById(template).getEntityDefinition();
             for (Class<? extends Component> inheritedCoreComponent : templateDefinition.getInheritedCoreComponents()) {
                 result.add(inheritedCoreComponent);
             }
@@ -107,12 +113,14 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     @Override
     public void addCoreComponent(Component coreComponent) {
         coreComponents.put(coreComponent.getClass(), coreComponent);
-        entity.add(coreComponent);
+        if (isEntity())
+            entity.add(coreComponent);
     }
 
     @Override
     public void removeCoreComponent(Class<? extends Component> coreComponent) {
-        entity.remove(coreComponent);
+        if (isEntity())
+            entity.remove(coreComponent);
         coreComponents.remove(coreComponent);
     }
 
@@ -128,7 +136,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
     @Override
     public Component getCoreComponent(Class<? extends Component> clazz) {
-        return entity.getComponent(clazz);
+        return coreComponents.get(clazz);
     }
 
     private Component resolveCoreComponent(AshleyEntityDefinition entityDefinition, Class<? extends Component> coreComponentClass) {

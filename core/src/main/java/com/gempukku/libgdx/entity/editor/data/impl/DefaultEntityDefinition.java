@@ -5,10 +5,12 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 public abstract class DefaultEntityDefinition<T> implements EntityDefinition<T> {
     private String id;
     private String name;
+    private boolean entity;
 
-    public DefaultEntityDefinition(String id, String name) {
+    public DefaultEntityDefinition(String id, String name, boolean entity) {
         this.id = id;
         this.name = name;
+        this.entity = entity;
     }
 
     @Override
@@ -27,5 +29,10 @@ public abstract class DefaultEntityDefinition<T> implements EntityDefinition<T> 
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean isEntity() {
+        return entity;
     }
 }

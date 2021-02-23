@@ -74,9 +74,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
         for (JsonValue template : project.get("templates")) {
             String path = template.getString("path", null);
-            Entity ashleyEntity = ashleyEngine.createEntity();
             JsonValue data = template.get("data");
-            AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, data);
+            AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data);
             objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
         }
 
@@ -86,7 +85,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 String path = entity.getString("path", null);
                 Entity ashleyEntity = ashleyEngine.createEntity();
                 JsonValue data = entity.get("data");
-                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, data);
+                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data, ashleyEntity);
                 initializeAshleyEntity(ashleyEntity, entityDefinition);
                 objectTreeData.addEntity(name, path, entityDefinition.getName(), entityDefinition);
                 ashleyEngine.addEntity(ashleyEntity);
@@ -266,15 +265,12 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     @Override
     public AshleyEntityDefinition createTemplate(String id, String name) {
-        Entity entity = ashleyEngine.createEntity();
-        return new AshleyEntityDefinition(id, name, objectTreeData, entity);
+        return new AshleyEntityDefinition(id, name, objectTreeData);
     }
 
     @Override
     public AshleyEntityDefinition convertToTemplate(String id, String name, AshleyEntityDefinition entity) {
-        Entity ashleyEntity = ashleyEngine.createEntity();
-
-        AshleyEntityDefinition template = new AshleyEntityDefinition(engineJson, objectTreeData, ashleyEntity, entity.toJson());
+        AshleyEntityDefinition template = new AshleyEntityDefinition(engineJson, objectTreeData, entity.toJson());
         template.setId(id);
         template.setName(name);
 

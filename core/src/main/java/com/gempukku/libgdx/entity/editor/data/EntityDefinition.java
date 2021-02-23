@@ -7,6 +7,8 @@ public interface EntityDefinition<T> {
 
     void setName(String name);
 
+    boolean isEntity();
+
     Iterable<String> getTemplates();
 
     boolean hasTemplate(String id);
