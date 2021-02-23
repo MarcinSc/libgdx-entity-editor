@@ -2,9 +2,9 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.AnchorComponent;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.PairOfFloatsEditorWidget;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
+import com.gempukku.libgdx.entity.editor.ui.editor.widget.PairOfFloatsEditorWidget;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class AnchorComponentEditorFactory implements ComponentEditorFactory<AnchorComponent> {

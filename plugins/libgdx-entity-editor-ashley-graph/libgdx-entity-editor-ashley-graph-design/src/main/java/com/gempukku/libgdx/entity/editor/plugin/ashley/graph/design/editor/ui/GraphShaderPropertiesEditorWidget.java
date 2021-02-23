@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.CurrentTimeValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.EditorConfig;
+import com.gempukku.libgdx.entity.editor.ui.editor.widget.PairOfStringsEditorWidget;
 import com.gempukku.libgdx.graph.shader.ShaderFieldType;
 import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;

@@ -1,14 +1,17 @@
-package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
+package com.gempukku.libgdx.entity.editor.ui.editor.widget;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.gempukku.libgdx.graph.util.SimpleNumberFormatter;
 import com.kotcrab.vis.ui.util.Validators;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
 public class FloatEditorWidget extends VisTable {
+    private static NumberFormat numberFormat = new DecimalFormat("#0.#######");
     private final VisValidatableTextField field;
 
     public FloatEditorWidget(
@@ -27,7 +30,7 @@ public class FloatEditorWidget extends VisTable {
         field = new VisValidatableTextField(Validators.FLOATS);
         field.setRestoreLastValid(true);
         field.setAlignment(Align.right);
-        field.setText(SimpleNumberFormatter.format(value));
+        field.setText(numberFormat.format(value));
         field.addListener(changeListener);
         field.setDisabled(!editable);
 

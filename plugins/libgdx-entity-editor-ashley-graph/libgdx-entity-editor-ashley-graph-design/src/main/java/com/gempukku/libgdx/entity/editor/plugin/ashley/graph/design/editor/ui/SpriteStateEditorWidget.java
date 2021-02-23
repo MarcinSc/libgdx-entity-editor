@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.EditorConfig;
+import com.gempukku.libgdx.entity.editor.ui.editor.widget.PairOfFloatsEditorWidget;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
