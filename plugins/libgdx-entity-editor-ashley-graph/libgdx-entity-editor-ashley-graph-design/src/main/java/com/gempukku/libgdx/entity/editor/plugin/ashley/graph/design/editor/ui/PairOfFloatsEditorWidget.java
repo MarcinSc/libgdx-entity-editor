@@ -21,7 +21,7 @@ public class PairOfFloatsEditorWidget extends VisTable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (field1.isInputValid() && field2.isInputValid()) {
-                    callback.update(Float.valueOf(field1.getText()), Float.valueOf(field2.getText()));
+                    callback.update(Float.parseFloat(field1.getText()), Float.parseFloat(field2.getText()));
                 }
             }
         };

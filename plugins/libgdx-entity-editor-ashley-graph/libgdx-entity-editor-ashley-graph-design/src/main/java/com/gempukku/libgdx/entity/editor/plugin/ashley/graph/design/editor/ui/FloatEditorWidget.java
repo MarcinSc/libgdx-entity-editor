@@ -19,7 +19,7 @@ public class FloatEditorWidget extends VisTable {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (field.isInputValid()) {
-                    callback.update(Float.valueOf(field.getText()));
+                    callback.update(Float.parseFloat(field.getText()));
                 }
             }
         };
