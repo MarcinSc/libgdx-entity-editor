@@ -14,7 +14,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 
-public class EntityEditorPreview extends Widget {
+public class EntityEditorPreview<T> extends Widget {
     private PreviewRenderer previewRenderer;
     private EntityEditorPreviewToolbar toolbar;
     private OrthographicCamera camera;
@@ -84,14 +84,17 @@ public class EntityEditorPreview extends Widget {
         camera.update();
     }
 
-    public <T> void centerOnEntity(EntityDefinition<T> entity, EntityEditorProject<T> project) {
-        Pool<Vector2> vector2Pool = Pools.get(Vector2.class);
-        Vector2 borrowedPosition = vector2Pool.obtain();
-        Vector2 position = project.getEntityPosition(entity, borrowedPosition);
-        if (position != null) {
-            camera.position.set(position, 0);
-            camera.update();
+    public void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
+        if (entity) {
+            Pool<Vector2> vector2Pool = Pools.get(Vector2.class);
+            Vector2 borrowedPosition = vector2Pool.obtain();
+            Vector2 position = project.getEntityPosition(editedEntity, borrowedPosition);
+            if (position != null) {
+                camera.position.set(position, 0);
+                camera.update();
+            }
+            vector2Pool.free(borrowedPosition);
         }
-        vector2Pool.free(borrowedPosition);
+        previewHandler.setEditedEntity(editedEntity, project, entity);
     }
 }

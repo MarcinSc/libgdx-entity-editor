@@ -15,7 +15,9 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.TextureSource;
+import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
+import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.ui.EntityEditorPreviewHandler;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 
@@ -29,6 +31,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private long lastScrolled;
     private EntityEditorScreen screen;
     private ObjectMap<Shape2D, Entity> entityCenters = new ObjectMap<>();
+    private AshleyEntityDefinition editedEntity;
 
     public AshleyGraphPreviewHandler(Engine engine, Camera camera, TextureSource textureSource) {
         this.camera = camera;
@@ -45,6 +48,11 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     }
 
     @Override
+    public <T> void setEditedEntity(EntityDefinition<T> editedEntity, EntityEditorProject<T> project, boolean entity) {
+        this.editedEntity = (AshleyEntityDefinition) editedEntity;
+    }
+
+    @Override
     public void destroy(EntityEditorScreen screen) {
         screen.getEntityEditorPreview().removeListener(this);
         whitePixel.dispose();
@@ -54,11 +62,16 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     public void render(Batch batch, float x, float y, float width, float height) {
         entityCenters.clear();
         TextureRegion crosshair = textureSource.getTexture("images/crosshair.png");
+        TextureRegion selectedCrosshair = textureSource.getTexture("images/crosshair-selected.png");
         for (Entity positionEntity : positionEntities) {
             PositionComponent position = positionEntity.getComponent(PositionComponent.class);
             tmpVector.set(position.getX(), position.getY(), 0);
             Vector3 location = camera.project(tmpVector, x, y, width, height);
-            batch.draw(crosshair, location.x - 11, (location.y - 11), 23, 23);
+            if (editedEntity != null && editedEntity.getEntity() == positionEntity) {
+                batch.draw(selectedCrosshair, location.x - 11, (location.y - 11), 23, 23);
+            } else {
+                batch.draw(crosshair, location.x - 11, (location.y - 11), 23, 23);
+            }
             entityCenters.put(new Ellipse(location.x, location.y, 23, 23), positionEntity);
         }
     }
@@ -69,7 +82,6 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
 
         return true;
     }
-
 
     @Override
     public boolean scrolled(InputEvent event, float x, float y, float amountX, float amountY) {
