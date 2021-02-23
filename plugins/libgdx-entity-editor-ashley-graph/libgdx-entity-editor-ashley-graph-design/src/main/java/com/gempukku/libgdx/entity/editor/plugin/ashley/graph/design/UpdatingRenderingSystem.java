@@ -28,7 +28,9 @@ public class UpdatingRenderingSystem extends RenderingSystem {
     @Override
     public void update(float deltaTime) {
         for (Entity spriteEntity : spriteEntities) {
-            updateSprite(spriteEntity);
+            AshleyEntityComponent ashleyEntityComponent = spriteEntity.getComponent(AshleyEntityComponent.class);
+            if (ashleyEntityComponent.isDirty())
+                updateSprite(spriteEntity);
         }
 
         super.update(deltaTime);

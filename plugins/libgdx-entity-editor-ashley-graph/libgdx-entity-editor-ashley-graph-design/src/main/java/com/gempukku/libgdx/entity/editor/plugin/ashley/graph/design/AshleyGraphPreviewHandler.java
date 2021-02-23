@@ -30,6 +30,7 @@ import com.gempukku.libgdx.graph.util.WhitePixel;
 public class AshleyGraphPreviewHandler extends InputListener implements EntityEditorPreviewHandler {
     private final ImmutableArray<Entity> positionEntities;
 
+    private EntityEditorProject project;
     private Camera camera;
     private TextureSource textureSource;
     private Vector3 tmpVector = new Vector3();
@@ -47,7 +48,8 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private float entityX;
     private float entityY;
 
-    public AshleyGraphPreviewHandler(Engine engine, Camera camera, TextureSource textureSource) {
+    public AshleyGraphPreviewHandler(EntityEditorProject project, Engine engine, Camera camera, TextureSource textureSource) {
+        this.project = project;
         this.camera = camera;
         this.textureSource = textureSource;
         Family position = Family.all(PositionComponent.class).get();
@@ -112,6 +114,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
                     newY = snap * MathUtils.round(newY / snap);
                 }
                 position.setPosition(newX, newY);
+                project.entityChanged(editedEntity);
             }
         }
     }

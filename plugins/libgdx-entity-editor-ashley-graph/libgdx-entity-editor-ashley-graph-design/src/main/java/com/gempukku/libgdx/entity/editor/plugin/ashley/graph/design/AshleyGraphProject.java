@@ -63,7 +63,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         timeKeeper = new DefaultTimeKeeper();
         directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
 
-        entityEditorScreen.setDefaultPreviewHandler(new AshleyGraphPreviewHandler(ashleyEngine, entityEditorScreen.getCamera(), entityEditorScreen.getTextureSource()));
+        entityEditorScreen.setDefaultPreviewHandler(new AshleyGraphPreviewHandler(this, ashleyEngine, entityEditorScreen.getCamera(), entityEditorScreen.getTextureSource()));
 
         setupProject(entityEditorScreen);
 
