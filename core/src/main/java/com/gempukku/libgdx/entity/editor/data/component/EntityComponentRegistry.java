@@ -2,6 +2,7 @@ package com.gempukku.libgdx.entity.editor.data.component;
 
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 
 public class EntityComponentRegistry {
     private static final Array<Class<?>> coreComponents = new Array<>();

@@ -1,11 +1,11 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FacingComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.EnumEditorWidget;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class FacingComponentEditorFactory implements ComponentEditorFactory<FacingComponent> {

@@ -2,12 +2,12 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentEditor;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.SpriteStateEditorWidget;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.StringEditorWidget;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteStateComponentEditorFactory implements ComponentEditorFactory<SpriteStateComponent> {
