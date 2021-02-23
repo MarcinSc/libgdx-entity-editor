@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui.SpriteStateEditorWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget.SpriteStateEditorWidget;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.StringEditorWidget;

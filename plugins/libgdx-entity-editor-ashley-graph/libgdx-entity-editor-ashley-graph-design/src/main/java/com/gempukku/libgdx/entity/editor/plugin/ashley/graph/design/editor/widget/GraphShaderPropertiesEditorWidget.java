@@ -1,4 +1,4 @@
-package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
+package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;

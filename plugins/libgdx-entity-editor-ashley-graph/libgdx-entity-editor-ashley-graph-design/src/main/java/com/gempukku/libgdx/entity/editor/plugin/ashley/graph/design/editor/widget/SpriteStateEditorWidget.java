@@ -1,4 +1,4 @@
-package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.ui;
+package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget;
 
 import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
