@@ -29,7 +29,7 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
     private final VerticalGroup entityDetails;
     private final VerticalGroup entityComponents;
 
-    private ObjectTreeData objectTreeData;
+    private ObjectTreeData<U> objectTreeData;
     private U editedEntity;
     private EntityEditorProject<T, U> project;
     private boolean entity;

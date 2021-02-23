@@ -150,7 +150,6 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         return result;
     }
 
-    @Override
     public JsonValue toJson() {
         Json json = new Json(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);

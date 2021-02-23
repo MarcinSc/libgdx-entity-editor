@@ -40,7 +40,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     private FileHandle folder;
     private AshleyGraphSettings settings;
-    private ObjectTreeData objectTreeData;
+    private ObjectTreeData<AshleyEntityDefinition> objectTreeData;
     private AshleyEngineJson engineJson;
 
     public AshleyGraphProject(FileHandle folder) {
@@ -123,7 +123,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     }
 
     @Override
-    public void save(FileHandle folder, ObjectTreeData objectTreeData) {
+    public void save(FileHandle folder) {
         JsonValue project = new JsonValue(JsonValue.ValueType.object);
 
         JsonValue settingsValue = new JsonValue(JsonValue.ValueType.object);
@@ -141,7 +141,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
             group.addChild("name", new JsonValue(entityGroup));
 
             JsonValue entities = new JsonValue(JsonValue.ValueType.array);
-            for (ObjectTreeData.LocatedEntityDefinition entity : objectTreeData.getEntities(entityGroup)) {
+            for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> entity : objectTreeData.getEntities(entityGroup)) {
                 JsonValue entityJson = new JsonValue(JsonValue.ValueType.object);
                 entityJson.addChild("path", new JsonValue(entity.getPath()));
                 entityJson.addChild("data", entity.getEntityDefinition().toJson());
@@ -154,7 +154,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         project.addChild("entityGroups", entityGroups);
 
         JsonValue templates = new JsonValue(JsonValue.ValueType.array);
-        for (ObjectTreeData.LocatedEntityDefinition template : objectTreeData.getTemplates()) {
+        for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> template : objectTreeData.getTemplates()) {
             JsonValue templateJson = new JsonValue(JsonValue.ValueType.object);
             templateJson.addChild("path", new JsonValue(template.getPath()));
             templateJson.addChild("data", template.getEntityDefinition().toJson());
@@ -177,7 +177,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     private void createSettings(JsonValue project) {
         JsonValue settings = project.get("settings");
-        Runnable exportRunnable = () -> exportProject();
+        Runnable exportRunnable = this::exportProject;
 
         if (settings != null) {
             String rendererPipeline = settings.getString("rendererPipeline", null);

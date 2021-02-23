@@ -1,7 +1,5 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.badlogic.gdx.utils.JsonValue;
-
 public interface EntityDefinition<T> {
     String getId();
 
@@ -30,6 +28,4 @@ public interface EntityDefinition<T> {
     boolean hasCoreComponent(Class<? extends T> coreComponent);
 
     T getCoreComponent(Class<? extends T> clazz);
-
-    JsonValue toJson();
 }

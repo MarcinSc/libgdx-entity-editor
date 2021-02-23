@@ -207,7 +207,7 @@ public class MainEditorScreen extends VisTable implements Disposable {
     }
 
     private void save() {
-        entityEditorProject.save(editedProjectFolder, editorScreen.getObjectTreeData());
+        entityEditorProject.save(editedProjectFolder);
     }
 
     private void close() {

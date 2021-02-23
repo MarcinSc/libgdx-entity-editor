@@ -7,12 +7,11 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
-import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 
 public interface EntityEditorProject<T, U extends EntityDefinition<T>> extends Disposable {
     void initialize(EntityEditorScreen entityEditorScreen);
 
-    void save(FileHandle folder, ObjectTreeData objectTreeData);
+    void save(FileHandle folder);
 
     void update(float delta);
 

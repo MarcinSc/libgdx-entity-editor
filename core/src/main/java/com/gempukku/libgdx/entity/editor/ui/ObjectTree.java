@@ -305,7 +305,7 @@ public class ObjectTree extends VisTable implements ObjectTreeData {
     }
 
     private EntityGroupFolderNode createEntityGroupFolderNode(ObjectTreeNode treeNode, String input) {
-        EntityGroupFolderNode node = new EntityGroupFolderNode(project.createEntityGroup(input), new TextureRegionDrawable(textureSource.getTexture("images/entity-folder.png")));
+        EntityGroupFolderNode node = new EntityGroupFolderNode(project.createEntityFolder(input), new TextureRegionDrawable(textureSource.getTexture("images/entity-folder.png")));
         mergeInNode(treeNode, node);
         return node;
     }

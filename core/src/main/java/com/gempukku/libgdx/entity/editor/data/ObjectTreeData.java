@@ -1,32 +1,32 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-public interface ObjectTreeData {
-    void addEntity(String entityGroup, String parentPath, String name, EntityDefinition entity);
+public interface ObjectTreeData<U extends EntityDefinition<?>> {
+    void addEntity(String entityGroup, String parentPath, String name, U entity);
 
-    void addTemplate(String parentPath, String name, EntityDefinition template);
+    void addTemplate(String parentPath, String name, U template);
 
-    LocatedEntityDefinition getTemplateById(String id);
+    LocatedEntityDefinition<U> getTemplateById(String id);
 
     Iterable<String> getEntityGroups();
 
-    Iterable<LocatedEntityDefinition> getEntities(String entityGroup);
+    Iterable<LocatedEntityDefinition<U>> getEntities(String entityGroup);
 
-    Iterable<LocatedEntityDefinition> getTemplates();
+    Iterable<LocatedEntityDefinition<U>> getTemplates();
 
     boolean canCreateTemplate(String parentPath, String name);
 
-    void convertToTemplate(String name, EntityDefinition entity);
+    void convertToTemplate(String name, U entity);
 
-    class LocatedEntityDefinition {
-        private EntityDefinition entityDefinition;
-        private String path;
+    class LocatedEntityDefinition<U extends EntityDefinition<?>> {
+        private final U entityDefinition;
+        private final String path;
 
-        public LocatedEntityDefinition(EntityDefinition entityDefinition, String path) {
+        public LocatedEntityDefinition(U entityDefinition, String path) {
             this.entityDefinition = entityDefinition;
             this.path = path;
         }
 
-        public EntityDefinition getEntityDefinition() {
+        public U getEntityDefinition() {
             return entityDefinition;
         }
 
