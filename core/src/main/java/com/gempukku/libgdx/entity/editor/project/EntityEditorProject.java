@@ -19,4 +19,6 @@ public interface EntityEditorProject<T> extends Disposable {
     T createCoreComponent(Class<? extends T> coreComponent);
 
     Vector2 getEntityPosition(EntityDefinition<T> entityDefinition, Vector2 position);
+
+    void entityChanged(EntityDefinition<T> entityDefinition);
 }

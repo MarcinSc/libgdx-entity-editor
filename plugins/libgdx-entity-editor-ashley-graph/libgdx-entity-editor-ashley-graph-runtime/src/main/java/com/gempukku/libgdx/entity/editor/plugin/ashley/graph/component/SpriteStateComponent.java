@@ -1,9 +1,10 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 
-public class SpriteStateComponent extends DirtyComponent {
+public class SpriteStateComponent implements Component {
     private String state;
     private ObjectMap<String, SpriteStateDataDef> states = new ObjectMap<>();
 
@@ -13,7 +14,6 @@ public class SpriteStateComponent extends DirtyComponent {
 
     public void setState(String state) {
         this.state = state;
-        setDirty();
     }
 
     public ObjectMap<String, SpriteStateDataDef> getStates() {
@@ -23,6 +23,5 @@ public class SpriteStateComponent extends DirtyComponent {
     public void setStates(ObjectMap<String, SpriteStateDataDef> states) {
         this.states.clear();
         this.states.putAll(states);
-        setDirty();
     }
 }

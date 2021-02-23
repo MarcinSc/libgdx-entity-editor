@@ -33,6 +33,7 @@ public class EntityInspector<T> extends VisTable {
     private EntityDefinition<T> editedEntity;
     private EntityEditorProject<T> project;
     private boolean entity;
+    private Runnable changeCallback;
 
     public EntityInspector() {
         entityDetails = new VerticalGroup();
@@ -62,6 +63,13 @@ public class EntityInspector<T> extends VisTable {
                         event.stop();
                     }
                 });
+
+        changeCallback = new Runnable() {
+            @Override
+            public void run() {
+                project.entityChanged(editedEntity);
+            }
+        };
     }
 
     public void setObjectTreeData(ObjectTreeData objectTreeData) {
@@ -101,6 +109,7 @@ public class EntityInspector<T> extends VisTable {
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
                                                     editedEntity.rebuildEntity();
+                                                    project.entityChanged(editedEntity);
                                                     rebuildUi();
                                                 }
                                             });
@@ -127,6 +136,7 @@ public class EntityInspector<T> extends VisTable {
                                             public void changed(ChangeEvent event, Actor actor) {
                                                 editedEntity.removeCoreComponent(coreComponent);
                                                 editedEntity.rebuildEntity();
+                                                project.entityChanged(editedEntity);
                                                 rebuildUi();
                                             }
                                         });
@@ -162,6 +172,7 @@ public class EntityInspector<T> extends VisTable {
                             }
                             if (changed) {
                                 editedEntity.rebuildEntity();
+                                project.entityChanged(editedEntity);
                                 rebuildUi();
                             }
                         }
@@ -250,6 +261,7 @@ public class EntityInspector<T> extends VisTable {
                             public void changed(ChangeEvent event, Actor actor) {
                                 editedEntity.addTemplate(templateId);
                                 editedEntity.rebuildEntity();
+                                project.entityChanged(editedEntity);
                                 rebuildUi();
                             }
                         });
@@ -287,7 +299,7 @@ public class EntityInspector<T> extends VisTable {
     private void addCoreComponentEditor(T coreComponent, boolean editable, boolean inherited) {
         Class<? extends T> clazz = (Class<? extends T>) coreComponent.getClass();
         ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent, editable), inherited);
+        ComponentContainer container = new ComponentContainer(clazz, componentEditorFactory.createComponentEditor(coreComponent, changeCallback, editable), inherited);
         entityComponents.addActor(container);
     }
 

@@ -9,15 +9,15 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class PositionComponentEditorFactory implements ComponentEditorFactory<PositionComponent> {
     @Override
-    public ComponentEditor<PositionComponent> createComponentEditor(PositionComponent component, boolean editable) {
-        return new PositionComponentEditor(component, editable);
+    public ComponentEditor<PositionComponent> createComponentEditor(PositionComponent component, Runnable callback, boolean editable) {
+        return new PositionComponentEditor(component, callback, editable);
     }
 
     private class PositionComponentEditor implements ComponentEditor<PositionComponent> {
         private Table actor;
         private PositionComponent component;
 
-        public PositionComponentEditor(PositionComponent component, boolean editable) {
+        public PositionComponentEditor(PositionComponent component, Runnable callback, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
@@ -27,6 +27,7 @@ public class PositionComponentEditorFactory implements ComponentEditorFactory<Po
                         @Override
                         public void update(float value1, float value2) {
                             component.setPosition(value1, value2);
+                            callback.run();
                         }
                     }
             );

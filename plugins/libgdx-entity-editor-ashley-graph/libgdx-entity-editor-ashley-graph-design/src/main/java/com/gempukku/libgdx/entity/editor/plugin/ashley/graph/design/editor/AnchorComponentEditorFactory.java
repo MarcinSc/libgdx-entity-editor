@@ -9,15 +9,15 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class AnchorComponentEditorFactory implements ComponentEditorFactory<AnchorComponent> {
     @Override
-    public ComponentEditor<AnchorComponent> createComponentEditor(AnchorComponent component, boolean editable) {
-        return new AnchorComponentEditor(component, editable);
+    public ComponentEditor<AnchorComponent> createComponentEditor(AnchorComponent component, Runnable callback, boolean editable) {
+        return new AnchorComponentEditor(component, callback, editable);
     }
 
     private class AnchorComponentEditor implements ComponentEditor<AnchorComponent> {
         private Table actor;
         private AnchorComponent component;
 
-        public AnchorComponentEditor(AnchorComponent component, boolean editable) {
+        public AnchorComponentEditor(AnchorComponent component, Runnable callback, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
@@ -27,6 +27,7 @@ public class AnchorComponentEditorFactory implements ComponentEditorFactory<Anch
                         @Override
                         public void update(float value1, float value2) {
                             component.setAnchor(value1, value2);
+                            callback.run();
                         }
                     }
             );

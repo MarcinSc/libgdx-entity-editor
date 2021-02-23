@@ -1,7 +1,9 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
 
-public class FacingComponent extends DirtyComponent {
+import com.badlogic.ashley.core.Component;
+
+public class FacingComponent implements Component {
     private FaceDirection faceDirection = FaceDirection.Right;
 
     public FaceDirection getFaceDirection() {
@@ -9,9 +11,6 @@ public class FacingComponent extends DirtyComponent {
     }
 
     public void setFaceDirection(FaceDirection faceDirection) {
-        if (this.faceDirection != faceDirection) {
-            this.faceDirection = faceDirection;
-            setDirty();
-        }
+        this.faceDirection = faceDirection;
     }
 }

@@ -1,6 +1,8 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
-public class PositionComponent extends DirtyComponent {
+import com.badlogic.ashley.core.Component;
+
+public class PositionComponent implements Component {
     private float x;
     private float y;
 
@@ -13,10 +15,7 @@ public class PositionComponent extends DirtyComponent {
     }
 
     public void setPosition(float x, float y) {
-        if (this.x != x || this.y != y) {
-            this.x = x;
-            this.y = y;
-            setDirty();
-        }
+        this.x = x;
+        this.y = y;
     }
 }

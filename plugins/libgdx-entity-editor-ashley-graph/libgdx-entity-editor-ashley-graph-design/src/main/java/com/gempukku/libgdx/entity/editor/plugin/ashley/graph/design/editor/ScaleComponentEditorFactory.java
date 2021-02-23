@@ -9,15 +9,15 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class ScaleComponentEditorFactory implements ComponentEditorFactory<ScaleComponent> {
     @Override
-    public ComponentEditor<ScaleComponent> createComponentEditor(ScaleComponent component, boolean editable) {
-        return new ScaleComponentEditor(component, editable);
+    public ComponentEditor<ScaleComponent> createComponentEditor(ScaleComponent component, Runnable callback, boolean editable) {
+        return new ScaleComponentEditor(component, callback, editable);
     }
 
     private class ScaleComponentEditor implements ComponentEditor<ScaleComponent> {
         private Table actor;
         private ScaleComponent component;
 
-        public ScaleComponentEditor(ScaleComponent component, boolean editable) {
+        public ScaleComponentEditor(ScaleComponent component, Runnable callback, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
@@ -27,6 +27,7 @@ public class ScaleComponentEditorFactory implements ComponentEditorFactory<Scale
                         @Override
                         public void update(float value1, float value2) {
                             component.setScale(value1, value2);
+                            callback.run();
                         }
                     });
 

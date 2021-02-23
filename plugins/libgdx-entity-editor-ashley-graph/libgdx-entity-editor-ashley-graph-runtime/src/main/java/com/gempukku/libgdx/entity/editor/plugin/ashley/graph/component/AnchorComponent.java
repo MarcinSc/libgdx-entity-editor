@@ -1,6 +1,8 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
-public class AnchorComponent extends DirtyComponent {
+import com.badlogic.ashley.core.Component;
+
+public class AnchorComponent implements Component {
     private float x = 0.5f;
     private float y = 0.5f;
 
@@ -13,10 +15,7 @@ public class AnchorComponent extends DirtyComponent {
     }
 
     public void setAnchor(float x, float y) {
-        if (this.x != x || this.y != y) {
-            this.x = x;
-            this.y = y;
-            setDirty();
-        }
+        this.x = x;
+        this.y = y;
     }
 }

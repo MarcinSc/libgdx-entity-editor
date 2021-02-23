@@ -1,5 +1,5 @@
 package com.gempukku.libgdx.entity.editor.data.component;
 
 public interface ComponentEditorFactory<T> {
-    ComponentEditor<T> createComponentEditor(T component, boolean editable);
+    ComponentEditor<T> createComponentEditor(T component, Runnable callback, boolean editable);
 }

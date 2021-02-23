@@ -12,15 +12,15 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteStateComponentEditorFactory implements ComponentEditorFactory<SpriteStateComponent> {
     @Override
-    public ComponentEditor createComponentEditor(SpriteStateComponent component, boolean editable) {
-        return new SpriteStateComponentEditor(component, editable);
+    public ComponentEditor createComponentEditor(SpriteStateComponent component, Runnable callback, boolean editable) {
+        return new SpriteStateComponentEditor(component, callback, editable);
     }
 
     private class SpriteStateComponentEditor implements ComponentEditor<SpriteStateComponent> {
         private Table actor;
         private SpriteStateComponent component;
 
-        public SpriteStateComponentEditor(SpriteStateComponent component, boolean editable) {
+        public SpriteStateComponentEditor(SpriteStateComponent component, Runnable callback, boolean editable) {
             this.component = component;
 
             StringEditorWidget state = new StringEditorWidget(
@@ -30,6 +30,7 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
                         @Override
                         public void update(String value) {
                             component.setState(value);
+                            callback.run();
                         }
                     });
 
@@ -39,6 +40,7 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
                         @Override
                         public void setValue(ObjectMap<String, SpriteStateDataDef> value) {
                             component.setStates(value);
+                            callback.run();
                         }
                     });
 

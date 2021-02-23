@@ -1,6 +1,8 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
-public class ScaleComponent extends DirtyComponent {
+import com.badlogic.ashley.core.Component;
+
+public class ScaleComponent implements Component {
     private float x = 1;
     private float y = 1;
 
@@ -13,10 +15,7 @@ public class ScaleComponent extends DirtyComponent {
     }
 
     public void setScale(float x, float y) {
-        if (this.x != x || this.y != y) {
-            this.x = x;
-            this.y = y;
-            setDirty();
-        }
+        this.x = x;
+        this.y = y;
     }
 }

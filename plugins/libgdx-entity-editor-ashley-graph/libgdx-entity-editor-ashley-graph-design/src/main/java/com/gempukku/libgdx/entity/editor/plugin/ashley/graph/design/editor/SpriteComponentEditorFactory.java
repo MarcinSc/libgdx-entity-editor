@@ -14,15 +14,15 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class SpriteComponentEditorFactory implements ComponentEditorFactory<SpriteComponent> {
     @Override
-    public ComponentEditor createComponentEditor(SpriteComponent component, boolean editable) {
-        return new SpriteComponentEditor(component, editable);
+    public ComponentEditor createComponentEditor(SpriteComponent component, Runnable callback, boolean editable) {
+        return new SpriteComponentEditor(component, callback, editable);
     }
 
     private class SpriteComponentEditor implements ComponentEditor<SpriteComponent> {
         private Table actor;
         private SpriteComponent component;
 
-        public SpriteComponentEditor(SpriteComponent component, boolean editable) {
+        public SpriteComponentEditor(SpriteComponent component, Runnable callback, boolean editable) {
             this.component = component;
 
             PairOfFloatsEditorWidget size = new PairOfFloatsEditorWidget(EditorConfig.LABEL_WIDTH, editable,
@@ -32,6 +32,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         public void update(float value1, float value2) {
                             component.setWidth(value1);
                             component.setHeight(value2);
+                            callback.run();
                         }
                     });
             StringArrayEditorWidget tags = new StringArrayEditorWidget("Tags", editable, component.getTags(),
@@ -39,6 +40,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         @Override
                         public void setValue(Array<String> value) {
                             component.setTags(value);
+                            callback.run();
                         }
                     });
 
@@ -47,6 +49,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         @Override
                         public void update(float value) {
                             component.setLayer(value);
+                            callback.run();
                         }
                     });
 
@@ -55,6 +58,7 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                         @Override
                         public void setValue(ObjectMap<String, Object> value) {
                             component.setProperties(value);
+                            callback.run();
                         }
                     });
 

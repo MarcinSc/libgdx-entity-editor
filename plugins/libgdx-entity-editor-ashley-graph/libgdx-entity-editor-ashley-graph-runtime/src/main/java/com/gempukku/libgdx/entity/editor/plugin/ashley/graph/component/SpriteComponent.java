@@ -1,9 +1,10 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 
-public class SpriteComponent extends DirtyComponent {
+public class SpriteComponent implements Component {
     private float layer = 0f;
     private float width = 1f;
     private float height = 1f;
@@ -15,10 +16,7 @@ public class SpriteComponent extends DirtyComponent {
     }
 
     public void setLayer(float layer) {
-        if (this.layer != layer) {
-            this.layer = layer;
-            setDirty();
-        }
+        this.layer = layer;
     }
 
     public float getWidth() {
@@ -26,10 +24,7 @@ public class SpriteComponent extends DirtyComponent {
     }
 
     public void setWidth(float width) {
-        if (this.width != width) {
-            this.width = width;
-            setDirty();
-        }
+        this.width = width;
     }
 
     public float getHeight() {
@@ -37,10 +32,7 @@ public class SpriteComponent extends DirtyComponent {
     }
 
     public void setHeight(float height) {
-        if (this.height != height) {
-            this.height = height;
-            setDirty();
-        }
+        this.height = height;
     }
 
     public Iterable<String> getTags() {
@@ -52,17 +44,13 @@ public class SpriteComponent extends DirtyComponent {
     }
 
     public void setTags(Array<String> tags) {
-        if (!tags.equals(this.tags)) {
-            this.tags.clear();
-            this.tags.addAll(tags);
-            setDirty();
-        }
+        this.tags.clear();
+        this.tags.addAll(tags);
     }
 
     public void setProperties(ObjectMap<String, Object> properties) {
         this.properties.clear();
         this.properties.putAll(properties);
-        setDirty();
     }
 
     public ObjectMap<String, Object> getProperties() {

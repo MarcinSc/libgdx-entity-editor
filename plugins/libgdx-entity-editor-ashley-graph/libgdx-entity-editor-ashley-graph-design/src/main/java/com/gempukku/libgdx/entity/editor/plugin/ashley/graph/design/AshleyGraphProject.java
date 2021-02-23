@@ -20,8 +20,6 @@ import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.plugin.ObjectTreeFeedback;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.CleaningSystem;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.system.RenderingSystem;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.ui.ObjectTree;
 import com.gempukku.libgdx.graph.loader.GraphLoader;
@@ -107,7 +105,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
                 // TODO temporary camera
                 pipelineRenderer.setPipelineProperty("Camera", entityEditorScreen.getCamera());
 
-                RenderingSystem renderingSystem = new RenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
+                UpdatingRenderingSystem renderingSystem = new UpdatingRenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
                 ashleyEngine.addSystem(renderingSystem);
                 graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
                 entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);
@@ -314,13 +312,21 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
     }
 
     @Override
-    public Vector2 getEntityPosition(EntityDefinition entityDefinition, Vector2 position) {
+    public Vector2 getEntityPosition(EntityDefinition<Component> entityDefinition, Vector2 position) {
         AshleyEntityDefinition ashleyEntityDefinition = (AshleyEntityDefinition) entityDefinition;
         Entity entity = ashleyEntityDefinition.getEntity();
         PositionComponent positionComponent = entity.getComponent(PositionComponent.class);
         if (positionComponent != null)
             return position.set(positionComponent.getX(), positionComponent.getY());
         return null;
+    }
+
+    @Override
+    public void entityChanged(EntityDefinition<Component> entityDefinition) {
+        AshleyEntityDefinition ashleyEntityDefinition = (AshleyEntityDefinition) entityDefinition;
+        Entity entity = ashleyEntityDefinition.getEntity();
+        AshleyEntityComponent ashleyEntityComponent = entity.getComponent(AshleyEntityComponent.class);
+        ashleyEntityComponent.setDirty(true);
     }
 
     @Override

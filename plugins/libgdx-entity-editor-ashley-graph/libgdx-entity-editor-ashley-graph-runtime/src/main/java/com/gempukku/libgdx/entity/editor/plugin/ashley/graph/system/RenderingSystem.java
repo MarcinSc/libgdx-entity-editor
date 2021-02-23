@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -33,7 +32,6 @@ public class RenderingSystem extends EntitySystem {
     private TimeProvider timeProvider;
     private PipelineRenderer pipelineRenderer;
     private TextureLoader textureLoader;
-    private ImmutableArray<Entity> spriteEntities;
 
     public RenderingSystem(int priority, TimeProvider timeProvider, PipelineRenderer pipelineRenderer, TextureLoader textureLoader) {
         super(priority);
@@ -45,7 +43,6 @@ public class RenderingSystem extends EntitySystem {
     @Override
     public void addedToEngine(Engine engine) {
         Family spriteAndPosition = Family.all(SpriteComponent.class, PositionComponent.class).get();
-        spriteEntities = engine.getEntitiesFor(spriteAndPosition);
         engine.addEntityListener(spriteAndPosition,
                 new EntityListener() {
                     @Override
@@ -59,7 +56,7 @@ public class RenderingSystem extends EntitySystem {
                         spriteData.setGraphSprite(graphSprite);
                         entity.add(spriteData);
 
-                        setSpriteProperties(entity, true);
+                        setSpriteProperties(entity);
                     }
 
                     @Override
@@ -71,29 +68,26 @@ public class RenderingSystem extends EntitySystem {
                 });
     }
 
-    @Override
-    public void update(float delta) {
-        for (Entity spriteEntity : spriteEntities) {
-            SpriteComponent sprite = spriteEntity.getComponent(SpriteComponent.class);
-            SpriteStateComponent spriteState = spriteEntity.getComponent(SpriteStateComponent.class);
+    public void updateSprite(Entity spriteEntity) {
+        SpriteComponent sprite = spriteEntity.getComponent(SpriteComponent.class);
+        SpriteStateComponent spriteState = spriteEntity.getComponent(SpriteStateComponent.class);
 
-            if (spriteState != null && spriteState.isDirty()) {
-                String state = spriteState.getState();
-                if (state != null) {
-                    SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
-                    if (stateData != null) {
-                        sprite.setWidth(stateData.getWidth());
-                        sprite.setHeight(stateData.getHeight());
-                        sprite.setProperties(stateData.getProperties());
-                    }
+        if (spriteState != null) {
+            String state = spriteState.getState();
+            if (state != null) {
+                SpriteStateDataDef stateData = spriteState.getStates().get(spriteState.getState());
+                if (stateData != null) {
+                    sprite.setWidth(stateData.getWidth());
+                    sprite.setHeight(stateData.getHeight());
+                    sprite.setProperties(stateData.getProperties());
                 }
             }
-
-            setSpriteProperties(spriteEntity, false);
         }
+
+        setSpriteProperties(spriteEntity);
     }
 
-    private void setSpriteProperties(Entity entity, boolean force) {
+    private void setSpriteProperties(Entity entity) {
         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
         final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
@@ -104,59 +98,54 @@ public class RenderingSystem extends EntitySystem {
 
         GraphSprite graphSprite = spriteDataComponent.getGraphSprite();
 
-        if (force || spriteComponent.isDirty() || positionComponent.isDirty() || (scaleComponent != null && scaleComponent.isDirty())
-                || (facingComponent != null && facingComponent.isDirty()) || (anchorComponent != null && anchorComponent.isDirty())) {
-            graphSprites.updateSprite(graphSprite,
-                    new SpriteUpdater() {
-                        @Override
-                        public void processUpdate(Vector3 position, Vector2 size, Vector2 anchor) {
-                            tmpPosition.set(positionComponent.getX(), positionComponent.getY());
-                            position.set(tmpPosition, spriteComponent.getLayer());
-                            size.set(spriteComponent.getWidth(), spriteComponent.getHeight());
+        graphSprites.updateSprite(graphSprite,
+                new SpriteUpdater() {
+                    @Override
+                    public void processUpdate(Vector3 position, Vector2 size, Vector2 anchor) {
+                        tmpPosition.set(positionComponent.getX(), positionComponent.getY());
+                        position.set(tmpPosition, spriteComponent.getLayer());
+                        size.set(spriteComponent.getWidth(), spriteComponent.getHeight());
 
-                            if (scaleComponent != null) {
-                                size.scl(scaleComponent.getX(), scaleComponent.getY());
-                            }
-
-                            if (facingComponent != null) {
-                                FaceDirection faceDirection = facingComponent.getFaceDirection();
-                                size.scl(faceDirection.getDirection(), 1);
-                            }
-
-                            if (anchorComponent != null) {
-                                anchor.set(anchorComponent.getX(), anchorComponent.getY());
-                            } else {
-                                anchor.set(0.5f, 0.5f);
-                            }
+                        if (scaleComponent != null) {
+                            size.scl(scaleComponent.getX(), scaleComponent.getY());
                         }
-                    });
+
+                        if (facingComponent != null) {
+                            FaceDirection faceDirection = facingComponent.getFaceDirection();
+                            size.scl(faceDirection.getDirection(), 1);
+                        }
+
+                        if (anchorComponent != null) {
+                            anchor.set(anchorComponent.getX(), anchorComponent.getY());
+                        } else {
+                            anchor.set(0.5f, 0.5f);
+                        }
+                    }
+                });
+
+        for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
+            Object value = property.value;
+            if (value instanceof Number) {
+                graphSprites.setProperty(graphSprite, property.key, ((Number) value).floatValue());
+            } else if (value instanceof TextureValue) {
+                TextureValue textureValue = (TextureValue) value;
+                TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());
+                graphSprites.setProperty(graphSprite, property.key, textureRegionValue);
+            } else if (value instanceof CurrentTimeValue) {
+                graphSprites.setProperty(graphSprite, property.key, timeProvider.getTime());
+            } else {
+                graphSprites.setProperty(graphSprite, property.key, value);
+            }
         }
 
-        if (force || spriteComponent.isDirty()) {
-            for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
-                Object value = property.value;
-                if (value instanceof Number) {
-                    graphSprites.setProperty(graphSprite, property.key, ((Number) value).floatValue());
-                } else if (value instanceof TextureValue) {
-                    TextureValue textureValue = (TextureValue) value;
-                    TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());
-                    graphSprites.setProperty(graphSprite, property.key, textureRegionValue);
-                } else if (value instanceof CurrentTimeValue) {
-                    graphSprites.setProperty(graphSprite, property.key, timeProvider.getTime());
-                } else {
-                    graphSprites.setProperty(graphSprite, property.key, value);
-                }
-            }
+        for (String tag : graphSprite.getAllTags()) {
+            if (!spriteComponent.hasTag(tag))
+                graphSprites.removeTag(graphSprite, tag);
+        }
 
-            for (String tag : graphSprite.getAllTags()) {
-                if (!spriteComponent.hasTag(tag))
-                    graphSprites.removeTag(graphSprite, tag);
-            }
-
-            for (String tag : spriteComponent.getTags()) {
-                if (!graphSprite.hasTag(tag))
-                    graphSprites.addTag(graphSprite, tag);
-            }
+        for (String tag : spriteComponent.getTags()) {
+            if (!graphSprite.hasTag(tag))
+                graphSprites.addTag(graphSprite, tag);
         }
     }
 }
