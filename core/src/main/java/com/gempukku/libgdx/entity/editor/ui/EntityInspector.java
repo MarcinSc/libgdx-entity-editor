@@ -108,7 +108,6 @@ public class EntityInspector<T> extends VisTable {
                                                 public void changed(ChangeEvent event, Actor actor) {
                                                     T component = project.createCoreComponent(coreComponentClass);
                                                     editedEntity.addCoreComponent(component);
-                                                    editedEntity.rebuildEntity();
                                                     project.entityChanged(editedEntity);
                                                     rebuildUi();
                                                 }
@@ -135,7 +134,6 @@ public class EntityInspector<T> extends VisTable {
                                             @Override
                                             public void changed(ChangeEvent event, Actor actor) {
                                                 editedEntity.removeCoreComponent(coreComponent);
-                                                editedEntity.rebuildEntity();
                                                 project.entityChanged(editedEntity);
                                                 rebuildUi();
                                             }
@@ -171,7 +169,6 @@ public class EntityInspector<T> extends VisTable {
                                 }
                             }
                             if (changed) {
-                                editedEntity.rebuildEntity();
                                 project.entityChanged(editedEntity);
                                 rebuildUi();
                             }

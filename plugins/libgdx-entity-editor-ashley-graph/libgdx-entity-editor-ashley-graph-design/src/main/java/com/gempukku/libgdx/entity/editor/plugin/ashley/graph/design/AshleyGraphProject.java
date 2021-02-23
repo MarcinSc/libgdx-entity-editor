@@ -327,6 +327,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component>, Objec
         Entity entity = ashleyEntityDefinition.getEntity();
         AshleyEntityComponent ashleyEntityComponent = entity.getComponent(AshleyEntityComponent.class);
         ashleyEntityComponent.setDirty(true);
+
+        ashleyEntityDefinition.rebuildEntity();
     }
 
     @Override
