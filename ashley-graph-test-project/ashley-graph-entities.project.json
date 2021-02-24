@@ -56,6 +56,11 @@
         "templates": [],
         "coreComponents": [
           {
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
+            "x": 0,
+            "y": 0
+          },
+          {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
             "layer": 0,
             "width": 150,
@@ -70,11 +75,6 @@
                 "texture": "images/MossyHill.png"
               }
             }
-          },
-          {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-            "x": 0,
-            "y": 0
           }
         ]
       }

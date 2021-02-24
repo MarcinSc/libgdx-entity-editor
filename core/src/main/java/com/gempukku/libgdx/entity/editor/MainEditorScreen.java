@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
@@ -15,7 +13,6 @@ import com.badlogic.gdx.utils.IntMap;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProjectInitializer;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
-import com.kotcrab.vis.ui.util.OsUtils;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.widget.Menu;
 import com.kotcrab.vis.ui.widget.MenuBar;
@@ -39,10 +36,6 @@ public class MainEditorScreen extends VisTable implements Disposable {
     private DirectTextureSource directTextureSource;
 
     public MainEditorScreen() {
-        initialize();
-    }
-
-    private void initialize() {
         directTextureSource = new DirectTextureSource();
 
         entityEditorScreenContainer = new Container<>();
@@ -52,24 +45,6 @@ public class MainEditorScreen extends VisTable implements Disposable {
 
         add(menuBar.getTable()).growX().row();
         add(entityEditorScreenContainer).grow().row();
-
-        addListener(
-                new InputListener() {
-                    @Override
-                    public boolean keyDown(InputEvent event, int keycode) {
-                        boolean ctrlPressed = OsUtils.isMac() ?
-                                Gdx.input.isKeyPressed(Input.Keys.SYM) :
-                                Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
-                        if (ctrlPressed) {
-                            Runnable runnable = shortcuts.get(keycode);
-                            if (runnable != null) {
-                                runnable.run();
-                                return true;
-                            }
-                        }
-                        return false;
-                    }
-                });
     }
 
     private MenuBar createMenuBar() {
@@ -207,7 +182,7 @@ public class MainEditorScreen extends VisTable implements Disposable {
     }
 
     private void save() {
-        entityEditorProject.save(editedProjectFolder);
+        entityEditorProject.save();
     }
 
     private void close() {
@@ -267,5 +242,9 @@ public class MainEditorScreen extends VisTable implements Disposable {
             entityEditorProject.dispose();
         }
         directTextureSource.dispose();
+    }
+
+    public Runnable getCtrlKeyShortcut(int keycode) {
+        return shortcuts.get(keycode);
     }
 }

@@ -50,7 +50,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     }
 
     @Override
-    public void initialize(EntityEditorScreen entityEditorScreen) {
+    public void initialize(EntityEditorScreen<Component, AshleyEntityDefinition> entityEditorScreen) {
         this.whitePixel = new WhitePixel();
         CommonShaderConfiguration.setDefaultTextureRegionProperty(whitePixel.textureRegion);
 
@@ -93,7 +93,12 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         }
     }
 
-    private void setupProject(EntityEditorScreen entityEditorScreen) {
+    @Override
+    public FileHandle getProjectFolder() {
+        return folder;
+    }
+
+    private void setupProject(EntityEditorScreen<Component, AshleyEntityDefinition> entityEditorScreen) {
         FileHandle child = folder.child(settings.getRendererPipeline());
         try {
             InputStream inputStream = child.read();
@@ -125,7 +130,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     }
 
     @Override
-    public void save(FileHandle folder) {
+    public void save() {
         JsonValue project = new JsonValue(JsonValue.ValueType.object);
 
         JsonValue settingsValue = new JsonValue(JsonValue.ValueType.object);
@@ -208,9 +213,9 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         templatesFolder.emptyDirectory();
         entitiesFolder.emptyDirectory();
 
-        for (ObjectTreeData.LocatedEntityDefinition template : objectTreeData.getTemplates()) {
+        for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> template : objectTreeData.getTemplates()) {
             String path = template.getPath();
-            AshleyEntityDefinition entityDefinition = (AshleyEntityDefinition) template.getEntityDefinition();
+            AshleyEntityDefinition entityDefinition = template.getEntityDefinition();
             String fullPath = ObjectTree.getFullPath(path, entityDefinition.getName() + ".json");
 
             FileHandle templateFile = templatesFolder.child(fullPath);
@@ -223,8 +228,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
             JsonValue json = new JsonValue(JsonValue.ValueType.object);
             JsonValue entityArray = new JsonValue(JsonValue.ValueType.array);
-            for (ObjectTreeData.LocatedEntityDefinition entity : objectTreeData.getEntities(entityGroup)) {
-                AshleyEntityDefinition entityDefinition = (AshleyEntityDefinition) entity.getEntityDefinition();
+            for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> entity : objectTreeData.getEntities(entityGroup)) {
+                AshleyEntityDefinition entityDefinition = entity.getEntityDefinition();
                 entityArray.addChild(entityDefinition.exportJson(templatesSubfolder));
             }
 

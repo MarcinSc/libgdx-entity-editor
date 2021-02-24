@@ -1,6 +1,7 @@
 package com.gempukku.libgdx.entity.editor.ui;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
@@ -8,6 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.gempukku.libgdx.entity.editor.TextureSource;
+import com.gempukku.libgdx.entity.editor.data.CustomComponentNode;
+import com.gempukku.libgdx.entity.editor.data.CustomComponentsNode;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinitionNode;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
@@ -20,7 +23,16 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.data.component.ComponentTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinitionImpl;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.type.Type;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
@@ -30,7 +42,10 @@ import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTree;
+import com.kotcrab.vis.ui.widget.file.FileChooser;
+import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
+import java.io.IOException;
 import java.util.Comparator;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -42,6 +57,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
 
     private EntityGroupsNode entityGroupsNode;
     private EntityTemplatesNode templatesNode;
+    private CustomComponentsNode customComponentsNode;
 
     private Comparator<ObjectTreeNode> comparator = new ObjectTreeNodeComparator<T, U>();
     private TextureSource textureSource;
@@ -75,6 +91,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                             entityTemplateClicked((EntityTemplateNode) clickedNode, x, y);
                         } else if (clickedNode instanceof EntityDefinitionNode) {
                             entityDefinitionClicked((EntityDefinitionNode) clickedNode, x, y);
+                        } else if (clickedNode instanceof CustomComponentsNode) {
+                            customComponentsClicked(x, y);
                         }
                     }
                 });
@@ -95,8 +113,10 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
 
         entityGroupsNode = new EntityGroupsNode("Entity Groups");
         templatesNode = new EntityTemplatesNode("Templates");
+        customComponentsNode = new CustomComponentsNode("Custom components");
         tree.add(entityGroupsNode);
         tree.add(templatesNode);
+        tree.add(customComponentsNode);
 
         VisScrollPane scrollPane = new VisScrollPane(tree);
         scrollPane.setForceScroll(false, true);
@@ -314,6 +334,62 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         EntityTemplatesFolderNode node = new EntityTemplatesFolderNode(project.createTemplatesFolder(input), new TextureRegionDrawable(textureSource.getTexture("images/template-folder.png")));
         mergeInNode(treeNode, node);
         return node;
+    }
+
+    private void customComponentsClicked(float x, float y) {
+        PopupMenu popupMenu = new PopupMenu();
+        MenuItem createGroup = new MenuItem("Add custom component");
+        createGroup.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        FileHandle projectFolder = project.getProjectFolder();
+                        FileChooser fileChooser = new FileChooser(projectFolder, FileChooser.Mode.OPEN);
+                        fileChooser.setModal(true);
+                        fileChooser.setListener(new FileChooserAdapter() {
+                            @Override
+                            public void selected(Array<FileHandle> file) {
+                                FileHandle selectedFile = file.get(0);
+                                if (selectedFile.path().startsWith(projectFolder.path())) {
+                                    // The java file is in the project folder
+                                    try {
+                                        CustomComponentDefinition customComponentDefinition = parseCustomComponentDefinition(selectedFile);
+                                        CustomComponentNode componentNode = new CustomComponentNode(customComponentDefinition, null);
+                                        mergeInNode(customComponentsNode, componentNode);
+                                    } catch (Exception exp) {
+                                        Dialogs.showErrorDialog(getStage(), "Unable to parse the component", exp);
+                                    }
+                                } else {
+                                    Dialogs.showErrorDialog(getStage(), "The file has to be in the project folder");
+                                }
+                            }
+                        });
+                        getStage().addActor(fileChooser.fadeIn());
+                    }
+                });
+        popupMenu.addItem(createGroup);
+        popupMenu.showMenu(getStage(), x + getX(), y + getY());
+    }
+
+    private CustomComponentDefinition parseCustomComponentDefinition(FileHandle javaFile) throws IOException {
+        CompilationUnit compilationUnit = StaticJavaParser.parse(javaFile.file());
+        ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(javaFile.name()).get();
+        String name = classDeclaration.getNameAsString();
+        String className = classDeclaration.getFullyQualifiedName().get();
+
+        String pathInProject = javaFile.path().substring(project.getProjectFolder().path().length() + 1);
+        CustomComponentDefinitionImpl result = new CustomComponentDefinitionImpl(pathInProject, name, className);
+        classDeclaration.findAll(FieldDeclaration.class).stream()
+                .filter(f -> !f.isStatic() && !f.isTransient())
+                .forEach(f -> {
+                            VariableDeclarator variable = f.getVariable(0);
+                            String variableName = variable.getName().asString();
+                            Type variableType = variable.getType();
+                            if (!variableType.isArrayType() && !variableType.asString().equals("Array"))
+                                result.addFieldType(variableName, ComponentTypeRegistry.getComponentFieldType(variableType));
+                        }
+                );
+        return result;
     }
 
     private void entityGroupsClicked(float x, float y) {
@@ -774,6 +850,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                 return 3;
             if (node instanceof EntityTemplateNode)
                 return 4;
+            if (node instanceof CustomComponentNode)
+                return 5;
             throw new IllegalArgumentException("Unknown type of node");
         }
 
@@ -788,6 +866,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                 return ((EntityTemplatesFolderNode) node).getValue().getName();
             if (node instanceof EntityTemplateNode)
                 return ((EntityTemplateNode<T, U>) node).getValue().getName();
+            if (node instanceof CustomComponentNode)
+                return ((CustomComponentNode) node).getValue().getName();
             throw new IllegalArgumentException("Unknown type of node");
         }
     }

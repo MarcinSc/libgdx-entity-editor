@@ -22,6 +22,7 @@ import com.gempukku.libgdx.entity.editor.plugin.PluginDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.PluginPreferences;
 import com.gempukku.libgdx.entity.editor.plugin.PluginRegistry;
 import com.kotcrab.vis.ui.VisUI;
+import com.kotcrab.vis.ui.util.OsUtils;
 import com.kotcrab.vis.ui.widget.file.FileChooser;
 
 /**
@@ -69,6 +70,23 @@ public class GdxEntityEditor extends ApplicationAdapter {
                             viewport.setUnitsPerPixel(scale);
                             resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
                             return true;
+                        }
+                        return false;
+                    }
+                });
+        stage.addListener(
+                new InputListener() {
+                    @Override
+                    public boolean keyDown(InputEvent event, int keycode) {
+                        boolean ctrlPressed = OsUtils.isMac() ?
+                                Gdx.input.isKeyPressed(Input.Keys.SYM) :
+                                Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT) || Gdx.input.isKeyPressed(Input.Keys.CONTROL_RIGHT);
+                        if (ctrlPressed) {
+                            Runnable runnable = screen.getCtrlKeyShortcut(keycode);
+                            if (runnable != null) {
+                                runnable.run();
+                                return true;
+                            }
                         }
                         return false;
                     }

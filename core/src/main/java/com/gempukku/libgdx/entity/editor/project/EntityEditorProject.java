@@ -9,9 +9,11 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 
 public interface EntityEditorProject<T, U extends EntityDefinition<T>> extends Disposable {
-    void initialize(EntityEditorScreen entityEditorScreen);
+    void initialize(EntityEditorScreen<T, U> entityEditorScreen);
 
-    void save(FileHandle folder);
+    FileHandle getProjectFolder();
+
+    void save();
 
     void update(float delta);
 
