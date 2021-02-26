@@ -16,13 +16,10 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
         return new SpriteStateComponentEditor(component, callback, editable);
     }
 
-    private class SpriteStateComponentEditor implements ComponentEditor<SpriteStateComponent> {
+    private class SpriteStateComponentEditor implements ComponentEditor {
         private Table actor;
-        private SpriteStateComponent component;
 
         public SpriteStateComponentEditor(SpriteStateComponent component, Runnable callback, boolean editable) {
-            this.component = component;
-
             StringEditorWidget state = new StringEditorWidget(
                     EditorConfig.LABEL_WIDTH, editable,
                     "State", component.getState(),
@@ -59,11 +56,6 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
         @Override
         public void refresh() {
 
-        }
-
-        @Override
-        public SpriteStateComponent getComponent() {
-            return component;
         }
     }
 }

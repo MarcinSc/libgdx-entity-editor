@@ -3,15 +3,22 @@ package com.gempukku.libgdx.entity.editor.data.component;
 import com.badlogic.gdx.utils.ObjectMap;
 
 public class CustomComponentDefinitionImpl implements CustomComponentDefinition {
+    private String id;
     private String path;
     private String name;
     private String className;
     private ObjectMap<String, ComponentFieldType> fieldTypes = new ObjectMap<>();
 
-    public CustomComponentDefinitionImpl(String path, String name, String className) {
+    public CustomComponentDefinitionImpl(String id, String path, String name, String className) {
+        this.id = id;
         this.path = path;
         this.name = name;
         this.className = className;
+    }
+
+    @Override
+    public String getId() {
+        return id;
     }
 
     @Override

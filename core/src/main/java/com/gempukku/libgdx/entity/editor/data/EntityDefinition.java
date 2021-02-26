@@ -1,5 +1,7 @@
 package com.gempukku.libgdx.entity.editor.data;
 
+import com.badlogic.gdx.utils.ObjectMap;
+
 public interface EntityDefinition<T> {
     String getId();
 
@@ -30,4 +32,12 @@ public interface EntityDefinition<T> {
     boolean hasCoreComponent(Class<? extends T> coreComponent);
 
     T getCoreComponent(Class<? extends T> clazz);
+
+    boolean hasCustomComponent(String id);
+
+    void addCustomComponent(String id, ObjectMap<String, Object> componentData);
+
+    ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents();
+
+    ObjectMap<String, ObjectMap<String, Object>> getCustomComponents();
 }

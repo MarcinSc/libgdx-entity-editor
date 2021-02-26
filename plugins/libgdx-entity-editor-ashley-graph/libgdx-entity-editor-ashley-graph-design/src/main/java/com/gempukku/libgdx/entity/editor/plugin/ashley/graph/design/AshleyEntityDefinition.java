@@ -16,6 +16,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     private Entity entity;
     private ObjectMap<Class<? extends Component>, Component> coreComponents = new ObjectMap<>();
     private ObjectMap<Class<? extends Component>, Component> inheritedCoreComponents = new ObjectMap<>();
+    private ObjectMap<String, ObjectMap<String, Object>> customComponents = new ObjectMap<>();
     private Array<String> templates = new Array<>();
 
     public AshleyEntityDefinition(Json json, ObjectTreeData<AshleyEntityDefinition> objectTreeData, JsonValue value) {
@@ -31,6 +32,13 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
             Component component = json.readValue(Component.class, coreComponent);
             coreComponents.put(component.getClass(), component);
         }
+        for (JsonValue customComponent : value.get("customComponents")) {
+            String id = customComponent.getString("id");
+            JsonValue data = customComponent.get("data");
+            ObjectMap<String, Object> componentData = json.readValue(ObjectMap.class, data);
+            customComponents.put(id, componentData);
+        }
+
         rebuildEntity();
     }
 
@@ -158,6 +166,32 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         return result;
     }
 
+    @Override
+    public boolean hasCustomComponent(String id) {
+        return customComponents.containsKey(id);
+    }
+
+    @Override
+    public void addCustomComponent(String id, ObjectMap<String, Object> componentData) {
+        customComponents.put(id, componentData);
+    }
+
+    @Override
+    public ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents() {
+        ObjectMap<String, ObjectMap<String, Object>> result = new ObjectMap<>();
+        for (String template : templates) {
+            AshleyEntityDefinition templateDefinition = objectTreeData.getTemplateById(template).getEntityDefinition();
+            result.putAll(templateDefinition.getInheritedCustomComponents());
+            result.putAll(templateDefinition.getCustomComponents());
+        }
+        return result;
+    }
+
+    @Override
+    public ObjectMap<String, ObjectMap<String, Object>> getCustomComponents() {
+        return customComponents;
+    }
+
     public JsonValue toJson() {
         Json json = new Json(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);
@@ -179,6 +213,15 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
             coreComponents.addChild(jsonReader.parse(json.toJson(coreComponentEntry.value, Component.class)));
         }
         result.addChild("coreComponents", coreComponents);
+
+        JsonValue customComponents = new JsonValue(JsonValue.ValueType.array);
+        for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponentEntry : this.customComponents) {
+            JsonValue customComponent = new JsonValue(JsonValue.ValueType.object);
+            customComponent.addChild("id", new JsonValue(customComponentEntry.key));
+            customComponent.addChild("data", jsonReader.parse(json.toJson(customComponentEntry.value, ObjectMap.class)));
+            customComponents.addChild(customComponent);
+        }
+        result.addChild("customComponents", customComponents);
 
         return result;
     }

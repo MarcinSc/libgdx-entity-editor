@@ -13,6 +13,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
@@ -27,6 +28,7 @@ import com.gempukku.libgdx.graph.time.DefaultTimeKeeper;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 public class AshleyGraphProject implements EntityEditorProject<Component, AshleyEntityDefinition> {
@@ -77,6 +79,16 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
             JsonValue data = template.get("data");
             AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data);
             objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
+        }
+
+        for (JsonValue customComponent : project.get("customComponents")) {
+            String id = customComponent.getString("id");
+            String path = customComponent.getString("path");
+            try {
+                objectTreeData.addCustomComponent(id, folder.child(path));
+            } catch (IOException exp) {
+                // TODO
+            }
         }
 
         for (JsonValue entityGroup : project.get("entityGroups")) {
@@ -160,6 +172,17 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         }
         project.addChild("entityGroups", entityGroups);
 
+        JsonValue customComponents = new JsonValue(JsonValue.ValueType.array);
+        for (CustomComponentDefinition customComponent : objectTreeData.getCustomComponents()) {
+            String id = customComponent.getId();
+            String path = customComponent.getPath();
+            JsonValue customComponentJson = new JsonValue(JsonValue.ValueType.object);
+            customComponentJson.addChild("id", new JsonValue(id));
+            customComponentJson.addChild("path", new JsonValue(path));
+            customComponents.addChild(customComponentJson);
+        }
+        project.addChild("customComponents", customComponents);
+
         JsonValue templates = new JsonValue(JsonValue.ValueType.array);
         for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> template : objectTreeData.getTemplates()) {
             JsonValue templateJson = new JsonValue(JsonValue.ValueType.object);
@@ -167,7 +190,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
             templateJson.addChild("data", template.getEntityDefinition().toJson());
             templates.addChild(templateJson);
         }
-
         project.addChild("templates", templates);
 
         folder.child(PROJECT_FILE_NAME).writeString(project.toJson(JsonWriter.OutputType.json), false);

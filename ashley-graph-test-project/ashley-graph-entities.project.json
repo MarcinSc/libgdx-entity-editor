@@ -24,6 +24,21 @@
                 "x": 70,
                 "y": 1
               }
+            ],
+            "customComponents": [
+              {
+                "id": "550b97dfcb2f4357b902d8292298a4bf",
+                "data": {
+                  "x": {
+                    "class": "java.lang.Float",
+                    "value": 1
+                  },
+                  "y": {
+                    "class": "java.lang.Float",
+                    "value": 2
+                  }
+                }
+              }
             ]
           }
         },
@@ -41,10 +56,17 @@
                 "x": -100,
                 "y": 29
               }
-            ]
+            ],
+            "customComponents": []
           }
         }
       ]
+    }
+  ],
+  "customComponents": [
+    {
+      "id": "550b97dfcb2f4357b902d8292298a4bf",
+      "path": "src/PositionComponent.java"
     }
   ],
   "templates": [
@@ -55,11 +77,6 @@
         "name": "template-1",
         "templates": [],
         "coreComponents": [
-          {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-            "x": 0,
-            "y": 0
-          },
           {
             "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
             "layer": 0,
@@ -75,8 +92,14 @@
                 "texture": "images/MossyHill.png"
               }
             }
+          },
+          {
+            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
+            "x": 0,
+            "y": 0
           }
-        ]
+        ],
+        "customComponents": []
       }
     }
   ]

@@ -18,13 +18,10 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
         return new SpriteComponentEditor(component, callback, editable);
     }
 
-    private class SpriteComponentEditor implements ComponentEditor<SpriteComponent> {
+    private class SpriteComponentEditor implements ComponentEditor {
         private Table actor;
-        private SpriteComponent component;
 
         public SpriteComponentEditor(SpriteComponent component, Runnable callback, boolean editable) {
-            this.component = component;
-
             PairOfFloatsEditorWidget size = new PairOfFloatsEditorWidget(EditorConfig.LABEL_WIDTH, editable,
                     "Width", component.getWidth(), "Height", component.getHeight(),
                     new PairOfFloatsEditorWidget.Callback() {
@@ -79,11 +76,6 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
         @Override
         public void refresh() {
 
-        }
-
-        @Override
-        public SpriteComponent getComponent() {
-            return component;
         }
     }
 }

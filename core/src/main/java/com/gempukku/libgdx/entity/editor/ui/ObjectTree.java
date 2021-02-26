@@ -23,9 +23,9 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentTypeRegistry;
 import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinitionImpl;
+import com.gempukku.libgdx.entity.editor.data.component.CustomComponentRegistry;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -351,11 +351,10 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                             public void selected(Array<FileHandle> file) {
                                 FileHandle selectedFile = file.get(0);
                                 if (selectedFile.path().startsWith(projectFolder.path())) {
+                                    String id = createId();
                                     // The java file is in the project folder
                                     try {
-                                        CustomComponentDefinition customComponentDefinition = parseCustomComponentDefinition(selectedFile);
-                                        CustomComponentNode componentNode = new CustomComponentNode(customComponentDefinition, null);
-                                        mergeInNode(customComponentsNode, componentNode);
+                                        addCustomComponent(id, selectedFile);
                                     } catch (Exception exp) {
                                         Dialogs.showErrorDialog(getStage(), "Unable to parse the component", exp);
                                     }
@@ -371,22 +370,22 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private CustomComponentDefinition parseCustomComponentDefinition(FileHandle javaFile) throws IOException {
+    private CustomComponentDefinition parseCustomComponentDefinition(String id, FileHandle javaFile) throws IOException {
         CompilationUnit compilationUnit = StaticJavaParser.parse(javaFile.file());
-        ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(javaFile.name()).get();
-        String name = classDeclaration.getNameAsString();
+        String name = compilationUnit.getPrimaryTypeName().get();
+        ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(name).get();
         String className = classDeclaration.getFullyQualifiedName().get();
 
         String pathInProject = javaFile.path().substring(project.getProjectFolder().path().length() + 1);
-        CustomComponentDefinitionImpl result = new CustomComponentDefinitionImpl(pathInProject, name, className);
+        CustomComponentDefinitionImpl result = new CustomComponentDefinitionImpl(id, pathInProject, name, className);
         classDeclaration.findAll(FieldDeclaration.class).stream()
                 .filter(f -> !f.isStatic() && !f.isTransient())
                 .forEach(f -> {
-                            VariableDeclarator variable = f.getVariable(0);
-                            String variableName = variable.getName().asString();
-                            Type variableType = variable.getType();
+                    VariableDeclarator variable = f.getVariable(0);
+                    String variableName = variable.getName().asString();
+                    Type variableType = variable.getType();
                             if (!variableType.isArrayType() && !variableType.asString().equals("Array"))
-                                result.addFieldType(variableName, ComponentTypeRegistry.getComponentFieldType(variableType));
+                                result.addFieldType(variableName, CustomComponentRegistry.getComponentFieldType(variableType));
                         }
                 );
         return result;
@@ -529,6 +528,13 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
+    public void addCustomComponent(String id, FileHandle file) throws IOException {
+        CustomComponentDefinition customComponentDefinition = parseCustomComponentDefinition(id, file);
+        CustomComponentNode componentNode = new CustomComponentNode(customComponentDefinition, null);
+        mergeInNode(customComponentsNode, componentNode);
+    }
+
+    @Override
     public LocatedEntityDefinition<U> getTemplateById(String id) {
         return findTemplateById(templatesNode, id, null);
     }
@@ -577,7 +583,27 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         appendTemplates(templatesNode, result, null);
         return result;
     }
-//
+
+    @Override
+    public Iterable<CustomComponentDefinition> getCustomComponents() {
+        Array<CustomComponentDefinition> result = new Array<>();
+        for (CustomComponentNode child : customComponentsNode.getChildren()) {
+            result.add(child.getValue());
+        }
+        return result;
+    }
+
+    @Override
+    public CustomComponentDefinition getCustomComponentById(String id) {
+        for (CustomComponentNode child : customComponentsNode.getChildren()) {
+            CustomComponentDefinition customComponentDefinition = child.getValue();
+            if (customComponentDefinition.getId().equals(id))
+                return customComponentDefinition;
+        }
+        return null;
+    }
+
+    //
 //    private boolean canCreateEntity(String entityGroup, String parentPath, String name) {
 //        if (!validEntityGroup(entityGroup) || !validParentPath(parentPath) || !validName(name))
 //            return false;

@@ -10,17 +10,14 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class FacingComponentEditorFactory implements ComponentEditorFactory<FacingComponent> {
     @Override
-    public ComponentEditor<FacingComponent> createComponentEditor(FacingComponent component, Runnable callback, boolean editable) {
+    public ComponentEditor createComponentEditor(FacingComponent component, Runnable callback, boolean editable) {
         return new FacingComponentEditor(component, callback, editable);
     }
 
-    private class FacingComponentEditor implements ComponentEditor<FacingComponent> {
+    private class FacingComponentEditor implements ComponentEditor {
         private Table actor;
-        private FacingComponent component;
 
         public FacingComponentEditor(FacingComponent component, Runnable callback, boolean editable) {
-            this.component = component;
-
             EnumEditorWidget<FaceDirection> widget = new EnumEditorWidget<FaceDirection>(
                     EditorConfig.LABEL_WIDTH, editable,
                     FaceDirection.class, false,
@@ -47,11 +44,6 @@ public class FacingComponentEditorFactory implements ComponentEditorFactory<Faci
         @Override
         public void refresh() {
 
-        }
-
-        @Override
-        public FacingComponent getComponent() {
-            return component;
         }
     }
 }

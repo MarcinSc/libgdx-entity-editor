@@ -5,5 +5,5 @@ dependencies {
 	api "com.badlogicgames.gdx:gdx:$gdxVersion"
 	api 'com.github.kotcrab:vis-ui:aa0184c'
 	// https://mvnrepository.com/artifact/com.github.javaparser/javaparser-core
-	implementation group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
+	api group: 'com.github.javaparser', name: 'javaparser-core', version: '3.19.0'
 }

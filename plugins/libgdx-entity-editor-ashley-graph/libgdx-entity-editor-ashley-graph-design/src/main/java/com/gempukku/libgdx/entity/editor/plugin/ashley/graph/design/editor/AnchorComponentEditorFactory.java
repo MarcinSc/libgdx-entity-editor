@@ -9,17 +9,14 @@ import com.kotcrab.vis.ui.widget.VisTable;
 
 public class AnchorComponentEditorFactory implements ComponentEditorFactory<AnchorComponent> {
     @Override
-    public ComponentEditor<AnchorComponent> createComponentEditor(AnchorComponent component, Runnable callback, boolean editable) {
+    public ComponentEditor createComponentEditor(AnchorComponent component, Runnable callback, boolean editable) {
         return new AnchorComponentEditor(component, callback, editable);
     }
 
-    private class AnchorComponentEditor implements ComponentEditor<AnchorComponent> {
-        private Table actor;
-        private AnchorComponent component;
+    private class AnchorComponentEditor implements ComponentEditor {
+        private VisTable actor;
 
         public AnchorComponentEditor(AnchorComponent component, Runnable callback, boolean editable) {
-            this.component = component;
-
             PairOfFloatsEditorWidget widget = new PairOfFloatsEditorWidget(
                     EditorConfig.LABEL_WIDTH, editable,
                     "X", component.getX(), "Y", component.getY(),
@@ -46,11 +43,6 @@ public class AnchorComponentEditorFactory implements ComponentEditorFactory<Anch
         @Override
         public void refresh() {
 
-        }
-
-        @Override
-        public AnchorComponent getComponent() {
-            return component;
         }
     }
 }
