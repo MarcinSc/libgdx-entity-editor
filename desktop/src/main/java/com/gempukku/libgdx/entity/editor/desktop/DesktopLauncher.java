@@ -5,7 +5,10 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.gempukku.libgdx.entity.editor.GdxEntityEditor;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.type.BooleanComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.FloatComponentFieldType;
+import com.gempukku.libgdx.entity.editor.data.component.type.IntegerComponentFieldType;
+import com.gempukku.libgdx.entity.editor.data.component.type.LongComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.StringComponentFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.PluginDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.PluginRegistry;
@@ -47,6 +50,9 @@ public class DesktopLauncher {
             System.out.println("Starting libGDX-entity Editor");
 
             CustomFieldTypeRegistry.registerComponentFieldType(new FloatComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new IntegerComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new LongComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new BooleanComponentFieldType());
             CustomFieldTypeRegistry.registerComponentFieldType(new StringComponentFieldType());
 
             PluginRegistry.addPluginDefinition(
