@@ -37,6 +37,8 @@ public interface EntityDefinition<T> {
 
     void addCustomComponent(String id, ObjectMap<String, Object> componentData);
 
+    void removeCustomComponent(String id);
+
     ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents();
 
     ObjectMap<String, ObjectMap<String, Object>> getCustomComponents();

@@ -4,8 +4,9 @@ import com.badlogic.gdx.Files.FileType;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.gempukku.libgdx.entity.editor.GdxEntityEditor;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
 import com.gempukku.libgdx.entity.editor.data.component.type.FloatComponentFieldType;
+import com.gempukku.libgdx.entity.editor.data.component.type.StringComponentFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.PluginDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.PluginRegistry;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.AshleyGraphEntityEditorPluginInitializer;
@@ -45,7 +46,8 @@ public class DesktopLauncher {
         } else {
             System.out.println("Starting libGDX-entity Editor");
 
-            CustomComponentRegistry.registerComponentFieldType(new FloatComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new FloatComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new StringComponentFieldType());
 
             PluginRegistry.addPluginDefinition(
                     new PluginDefinition("internal", AshleyGraphEntityEditorPluginInitializer.class,

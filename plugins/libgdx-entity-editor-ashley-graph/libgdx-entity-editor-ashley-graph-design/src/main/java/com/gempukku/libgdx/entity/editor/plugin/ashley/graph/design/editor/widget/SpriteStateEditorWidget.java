@@ -1,6 +1,5 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget;
 
-import com.badlogic.gdx.scenes.scene2d.Action;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
@@ -153,14 +152,9 @@ public class SpriteStateEditorWidget extends VisTable {
                                         }
                                     });
                             dialog.getButtonsTable().add(done);
-                            dialog.show(getStage(), new Action() {
-                                @Override
-                                public boolean act(float delta) {
-                                    dialog.setSize(600, 370);
-                                    dialog.centerWindow();
-                                    return true;
-                                }
-                            });
+                            dialog.pack();
+                            dialog.centerWindow();
+                            dialog.show(getStage());
                         }
                     });
             textButton.setDisabled(!editable);

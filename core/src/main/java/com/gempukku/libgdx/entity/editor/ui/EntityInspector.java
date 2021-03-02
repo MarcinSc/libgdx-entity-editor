@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.EntityComponentRegistry;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
@@ -121,8 +121,8 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
 
                             menu.addSeparator();
 
-                            for (CustomComponentDefinition customComponent : objectTreeData.getCustomComponents()) {
-                                if (!editedEntity.hasCustomComponent(customComponent.getId())) {
+                            for (CustomDataDefinition customComponent : objectTreeData.getCustomDataDefinitions()) {
+                                if (customComponent.isComponent() && !editedEntity.hasCustomComponent(customComponent.getId())) {
                                     MenuItem menuItem = new MenuItem(customComponent.getName());
                                     menuItem.addListener(
                                             new ChangeListener() {
@@ -161,6 +161,21 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                                 menu.addItem(menuItem);
                             }
                             menu.addSeparator();
+                            for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : editedEntity.getCustomComponents()) {
+                                String customComponentId = customComponent.key;
+                                CustomDataDefinition dataDefinition = objectTreeData.getCustomDataDefinitionById(customComponentId);
+
+                                MenuItem menuItem = new MenuItem(dataDefinition.getName());
+                                menuItem.addListener(
+                                        new ChangeListener() {
+                                            @Override
+                                            public void changed(ChangeEvent event, Actor actor) {
+                                                editedEntity.removeCustomComponent(customComponentId);
+                                                project.entityChanged(editedEntity);
+                                            }
+                                        });
+                                menu.addItem(menuItem);
+                            }
 
                             menu.showMenu(getStage(), removeComponent);
                         }
@@ -251,7 +266,7 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
 
             for (ObjectMap.Entry<String, ObjectMap<String, Object>> inheritedCustomComponent : editedEntity.getInheritedCustomComponents()) {
                 if (!editedEntity.hasCustomComponent(inheritedCustomComponent.key)) {
-                    addCustomComponentEditor(objectTreeData.getCustomComponentById(inheritedCustomComponent.key), inheritedCustomComponent.value, false, true);
+                    addCustomComponentEditor(objectTreeData.getCustomDataDefinitionById(inheritedCustomComponent.key), inheritedCustomComponent.value, false, true);
                 }
             }
 
@@ -261,7 +276,7 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
             }
 
             for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : editedEntity.getCustomComponents()) {
-                addCustomComponentEditor(objectTreeData.getCustomComponentById(customComponent.key), customComponent.value, true, false);
+                addCustomComponentEditor(objectTreeData.getCustomDataDefinitionById(customComponent.key), customComponent.value, true, false);
             }
         }
     }
@@ -327,9 +342,9 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
         entityComponents.addActor(container);
     }
 
-    private void addCustomComponentEditor(CustomComponentDefinition customComponentDefinition, ObjectMap<String, Object> componentData, boolean editable, boolean inherited) {
-        CustomComponentEditor customComponentEditor = new CustomComponentEditor(customComponentDefinition, componentData, changeCallback, editable);
-        ComponentContainer container = new ComponentContainer(customComponentDefinition.getName(), customComponentEditor, inherited);
+    private void addCustomComponentEditor(CustomDataDefinition customDataDefinition, ObjectMap<String, Object> componentData, boolean editable, boolean inherited) {
+        CustomComponentEditor customComponentEditor = new CustomComponentEditor(customDataDefinition, componentData, changeCallback, editable);
+        ComponentContainer container = new ComponentContainer(customDataDefinition.getName(), customComponentEditor, inherited);
         entityComponents.addActor(container);
     }
 

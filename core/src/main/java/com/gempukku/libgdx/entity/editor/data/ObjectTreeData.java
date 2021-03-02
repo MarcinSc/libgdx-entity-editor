@@ -1,16 +1,13 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.badlogic.gdx.files.FileHandle;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
-
-import java.io.IOException;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 
 public interface ObjectTreeData<U extends EntityDefinition<?>> {
     void addEntity(String entityGroup, String parentPath, String name, U entity);
 
     void addTemplate(String parentPath, String name, U template);
 
-    void addCustomComponent(String id, FileHandle file) throws IOException;
+    void addCustomDataType(CustomDataDefinition customDataDefinition);
 
     LocatedEntityDefinition<U> getTemplateById(String id);
 
@@ -20,9 +17,9 @@ public interface ObjectTreeData<U extends EntityDefinition<?>> {
 
     Iterable<LocatedEntityDefinition<U>> getTemplates();
 
-    Iterable<CustomComponentDefinition> getCustomComponents();
+    Iterable<CustomDataDefinition> getCustomDataDefinitions();
 
-    CustomComponentDefinition getCustomComponentById(String id);
+    CustomDataDefinition getCustomDataDefinitionById(String id);
 
     boolean canCreateTemplate(String parentPath, String name);
 

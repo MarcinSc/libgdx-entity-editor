@@ -58,7 +58,6 @@ public class AshleyGraphSettings extends VisTable {
 
     private VisDialog createExportDialog() {
         VisDialog exportDialog = new VisDialog("Export");
-        exportDialog.centerWindow();
         exportDialog.setResizable(true);
         exportDialog.setModal(true);
 
@@ -95,7 +94,8 @@ public class AshleyGraphSettings extends VisTable {
         buttonsTable.add(cancelButton);
         buttonsTable.add(exportButton).row();
 
-        exportDialog.setSize(600, 200);
+        exportDialog.pack();
+        exportDialog.centerWindow();
 
         return exportDialog;
     }

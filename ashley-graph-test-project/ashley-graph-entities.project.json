@@ -25,21 +25,7 @@
                 "y": 1
               }
             ],
-            "customComponents": [
-              {
-                "id": "550b97dfcb2f4357b902d8292298a4bf",
-                "data": {
-                  "x": {
-                    "class": "java.lang.Float",
-                    "value": 1
-                  },
-                  "y": {
-                    "class": "java.lang.Float",
-                    "value": 2
-                  }
-                }
-              }
-            ]
+            "customComponents": []
           }
         },
         {
@@ -63,10 +49,16 @@
       ]
     }
   ],
-  "customComponents": [
+  "customDataDefinitions": [
     {
-      "id": "550b97dfcb2f4357b902d8292298a4bf",
-      "path": "src/PositionComponent.java"
+      "id": "c300c8a1b7b948d8b2fa094b1f0c7c64",
+      "name": "PositionComponent",
+      "className": "com.gempukku.example.component.PositionComponent",
+      "component": true,
+      "fields": {
+        "x": "float",
+        "y": "float"
+      }
     }
   ],
   "templates": [

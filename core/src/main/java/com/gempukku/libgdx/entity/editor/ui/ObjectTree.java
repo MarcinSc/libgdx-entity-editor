@@ -9,8 +9,8 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
 import com.gempukku.libgdx.entity.editor.TextureSource;
-import com.gempukku.libgdx.entity.editor.data.CustomComponentNode;
-import com.gempukku.libgdx.entity.editor.data.CustomComponentsNode;
+import com.gempukku.libgdx.entity.editor.data.CustomDataDefinitionNode;
+import com.gempukku.libgdx.entity.editor.data.CustomDataTypesNode;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinitionNode;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
@@ -23,9 +23,9 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinitionImpl;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinitionImpl;
+import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -57,7 +57,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
 
     private EntityGroupsNode entityGroupsNode;
     private EntityTemplatesNode templatesNode;
-    private CustomComponentsNode customComponentsNode;
+    private CustomDataTypesNode customDataTypesNode;
 
     private Comparator<ObjectTreeNode> comparator = new ObjectTreeNodeComparator<T, U>();
     private TextureSource textureSource;
@@ -91,8 +91,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                             entityTemplateClicked((EntityTemplateNode) clickedNode, x, y);
                         } else if (clickedNode instanceof EntityDefinitionNode) {
                             entityDefinitionClicked((EntityDefinitionNode) clickedNode, x, y);
-                        } else if (clickedNode instanceof CustomComponentsNode) {
-                            customComponentsClicked(x, y);
+                        } else if (clickedNode instanceof CustomDataTypesNode) {
+                            customDataTypesClicked(x, y);
                         }
                     }
                 });
@@ -113,10 +113,10 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
 
         entityGroupsNode = new EntityGroupsNode("Entity Groups");
         templatesNode = new EntityTemplatesNode("Templates");
-        customComponentsNode = new CustomComponentsNode("Custom components");
+        customDataTypesNode = new CustomDataTypesNode("Custom data types");
         tree.add(entityGroupsNode);
         tree.add(templatesNode);
-        tree.add(customComponentsNode);
+        tree.add(customDataTypesNode);
 
         VisScrollPane scrollPane = new VisScrollPane(tree);
         scrollPane.setForceScroll(false, true);
@@ -336,10 +336,32 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         return node;
     }
 
-    private void customComponentsClicked(float x, float y) {
+    private void customDataTypesClicked(float x, float y) {
         PopupMenu popupMenu = new PopupMenu();
-        MenuItem createGroup = new MenuItem("Add custom component");
-        createGroup.addListener(
+
+        MenuItem createNew = new MenuItem("Add new");
+        createNew.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        String id = createId();
+                        CustomDataDefinitionImpl customDataDefinition = new CustomDataDefinitionImpl(id, false, "", "");
+                        DataTypeEditorDialog dialog = new DataTypeEditorDialog(customDataDefinition) {
+                            @Override
+                            protected void result(Object object) {
+                                if (object.equals("Add")) {
+                                    addCustomDataType(customDataDefinition);
+                                }
+                            }
+                        };
+                        dialog.button("Cancel", "Cancel");
+                        dialog.button("Add", "Add");
+                        dialog.show(getStage());
+                    }
+                });
+
+        MenuItem createFromFile = new MenuItem("Add from file...");
+        createFromFile.addListener(
                 new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
@@ -354,7 +376,18 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                                     String id = createId();
                                     // The java file is in the project folder
                                     try {
-                                        addCustomComponent(id, selectedFile);
+                                        CustomDataDefinitionImpl customDataDefinition = parseCustomComponentDefinition(id, selectedFile);
+                                        DataTypeEditorDialog dialog = new DataTypeEditorDialog(customDataDefinition) {
+                                            @Override
+                                            protected void result(Object object) {
+                                                if (object.equals("Add")) {
+                                                    addCustomDataType(customDataDefinition);
+                                                }
+                                            }
+                                        };
+                                        dialog.button("Cancel", "Cancel");
+                                        dialog.button("Add", "Add");
+                                        dialog.show(getStage());
                                     } catch (Exception exp) {
                                         Dialogs.showErrorDialog(getStage(), "Unable to parse the component", exp);
                                     }
@@ -366,26 +399,28 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                         getStage().addActor(fileChooser.fadeIn());
                     }
                 });
-        popupMenu.addItem(createGroup);
+
+        popupMenu.addItem(createNew);
+        popupMenu.addItem(createFromFile);
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private CustomComponentDefinition parseCustomComponentDefinition(String id, FileHandle javaFile) throws IOException {
+    private CustomDataDefinitionImpl parseCustomComponentDefinition(String id, FileHandle javaFile) throws IOException {
         CompilationUnit compilationUnit = StaticJavaParser.parse(javaFile.file());
         String name = compilationUnit.getPrimaryTypeName().get();
         ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(name).get();
         String className = classDeclaration.getFullyQualifiedName().get();
 
-        String pathInProject = javaFile.path().substring(project.getProjectFolder().path().length() + 1);
-        CustomComponentDefinitionImpl result = new CustomComponentDefinitionImpl(id, pathInProject, name, className);
+        CustomDataDefinitionImpl result = new CustomDataDefinitionImpl(id, false, name, className);
         classDeclaration.findAll(FieldDeclaration.class).stream()
                 .filter(f -> !f.isStatic() && !f.isTransient())
                 .forEach(f -> {
-                    VariableDeclarator variable = f.getVariable(0);
-                    String variableName = variable.getName().asString();
-                    Type variableType = variable.getType();
-                            if (!variableType.isArrayType() && !variableType.asString().equals("Array"))
-                                result.addFieldType(variableName, CustomComponentRegistry.getComponentFieldType(variableType));
+                            VariableDeclarator variable = f.getVariable(0);
+                            String variableName = variable.getName().asString();
+                            Type variableType = variable.getType();
+                            boolean isArray = variableType.isArrayType() || variableType.asString().equals("Array");
+                            if (!isArray)
+                                result.addFieldType(variableName, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
                         }
                 );
         return result;
@@ -528,10 +563,9 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
-    public void addCustomComponent(String id, FileHandle file) throws IOException {
-        CustomComponentDefinition customComponentDefinition = parseCustomComponentDefinition(id, file);
-        CustomComponentNode componentNode = new CustomComponentNode(customComponentDefinition, null);
-        mergeInNode(customComponentsNode, componentNode);
+    public void addCustomDataType(CustomDataDefinition customDataDefinition) {
+        CustomDataDefinitionNode componentNode = new CustomDataDefinitionNode(customDataDefinition, null);
+        mergeInNode(customDataTypesNode, componentNode);
     }
 
     @Override
@@ -585,20 +619,20 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
-    public Iterable<CustomComponentDefinition> getCustomComponents() {
-        Array<CustomComponentDefinition> result = new Array<>();
-        for (CustomComponentNode child : customComponentsNode.getChildren()) {
+    public Iterable<CustomDataDefinition> getCustomDataDefinitions() {
+        Array<CustomDataDefinition> result = new Array<>();
+        for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
             result.add(child.getValue());
         }
         return result;
     }
 
     @Override
-    public CustomComponentDefinition getCustomComponentById(String id) {
-        for (CustomComponentNode child : customComponentsNode.getChildren()) {
-            CustomComponentDefinition customComponentDefinition = child.getValue();
-            if (customComponentDefinition.getId().equals(id))
-                return customComponentDefinition;
+    public CustomDataDefinition getCustomDataDefinitionById(String id) {
+        for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
+            CustomDataDefinition customDataDefinition = child.getValue();
+            if (customDataDefinition.getId().equals(id))
+                return customDataDefinition;
         }
         return null;
     }
@@ -876,7 +910,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                 return 3;
             if (node instanceof EntityTemplateNode)
                 return 4;
-            if (node instanceof CustomComponentNode)
+            if (node instanceof CustomDataDefinitionNode)
                 return 5;
             throw new IllegalArgumentException("Unknown type of node");
         }
@@ -892,8 +926,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                 return ((EntityTemplatesFolderNode) node).getValue().getName();
             if (node instanceof EntityTemplateNode)
                 return ((EntityTemplateNode<T, U>) node).getValue().getName();
-            if (node instanceof CustomComponentNode)
-                return ((CustomComponentNode) node).getValue().getName();
+            if (node instanceof CustomDataDefinitionNode)
+                return ((CustomDataDefinitionNode) node).getValue().getName();
             throw new IllegalArgumentException("Unknown type of node");
         }
     }

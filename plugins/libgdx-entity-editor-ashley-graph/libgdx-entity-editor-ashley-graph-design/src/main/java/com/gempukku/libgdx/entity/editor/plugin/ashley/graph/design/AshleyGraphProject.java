@@ -7,13 +7,15 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
+import com.badlogic.gdx.utils.ObjectMap;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.CustomComponentDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinitionImpl;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
@@ -28,7 +30,6 @@ import com.gempukku.libgdx.graph.time.DefaultTimeKeeper;
 import com.gempukku.libgdx.graph.util.WhitePixel;
 import com.gempukku.libgdx.lib.template.ashley.AshleyEngineJson;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 public class AshleyGraphProject implements EntityEditorProject<Component, AshleyEntityDefinition> {
@@ -81,14 +82,21 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
             objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
         }
 
-        for (JsonValue customComponent : project.get("customComponents")) {
-            String id = customComponent.getString("id");
-            String path = customComponent.getString("path");
-            try {
-                objectTreeData.addCustomComponent(id, folder.child(path));
-            } catch (IOException exp) {
-                // TODO
+        for (JsonValue customDataDefinition : project.get("customDataDefinitions")) {
+            String id = customDataDefinition.getString("id");
+            String name = customDataDefinition.getString("name");
+            String className = customDataDefinition.getString("className");
+            boolean component = customDataDefinition.getBoolean("component");
+
+            CustomDataDefinitionImpl dataDefinition = new CustomDataDefinitionImpl(id, component, name, className);
+
+            for (JsonValue field : customDataDefinition.get("fields")) {
+                String fieldName = field.name();
+                String fieldTypeId = field.asString();
+                dataDefinition.addFieldType(fieldName, fieldTypeId);
             }
+
+            objectTreeData.addCustomDataType(dataDefinition);
         }
 
         for (JsonValue entityGroup : project.get("entityGroups")) {
@@ -172,16 +180,22 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         }
         project.addChild("entityGroups", entityGroups);
 
-        JsonValue customComponents = new JsonValue(JsonValue.ValueType.array);
-        for (CustomComponentDefinition customComponent : objectTreeData.getCustomComponents()) {
-            String id = customComponent.getId();
-            String path = customComponent.getPath();
+        JsonValue customDataDefinitions = new JsonValue(JsonValue.ValueType.array);
+        for (CustomDataDefinition customDataDefinition : objectTreeData.getCustomDataDefinitions()) {
             JsonValue customComponentJson = new JsonValue(JsonValue.ValueType.object);
-            customComponentJson.addChild("id", new JsonValue(id));
-            customComponentJson.addChild("path", new JsonValue(path));
-            customComponents.addChild(customComponentJson);
+            customComponentJson.addChild("id", new JsonValue(customDataDefinition.getId()));
+            customComponentJson.addChild("name", new JsonValue(customDataDefinition.getName()));
+            customComponentJson.addChild("className", new JsonValue(customDataDefinition.getClassName()));
+            customComponentJson.addChild("component", new JsonValue(customDataDefinition.isComponent()));
+            JsonValue fields = new JsonValue(JsonValue.ValueType.object);
+            for (ObjectMap.Entry<String, String> fieldType : customDataDefinition.getFieldTypes()) {
+                fields.addChild(fieldType.key, new JsonValue(fieldType.value));
+            }
+            customComponentJson.addChild("fields", fields);
+
+            customDataDefinitions.addChild(customComponentJson);
         }
-        project.addChild("customComponents", customComponents);
+        project.addChild("customDataDefinitions", customDataDefinitions);
 
         JsonValue templates = new JsonValue(JsonValue.ValueType.array);
         for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> template : objectTreeData.getTemplates()) {

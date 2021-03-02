@@ -9,6 +9,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
 
 public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
@@ -177,6 +178,11 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     }
 
     @Override
+    public void removeCustomComponent(String id) {
+        customComponents.remove(id);
+    }
+
+    @Override
     public ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents() {
         ObjectMap<String, ObjectMap<String, Object>> result = new ObjectMap<>();
         for (String template : templates) {
@@ -251,6 +257,12 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponent : coreComponents) {
             String className = coreComponent.key.getName();
             JsonValue componentJson = jsonReader.parse(json.toJson(coreComponent.value, coreComponent.key));
+            result.addChild(className, componentJson);
+        }
+        for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : customComponents) {
+            CustomDataDefinition customDataDefinition = objectTreeData.getCustomDataDefinitionById(customComponent.key);
+            String className = customDataDefinition.getClassName();
+            JsonValue componentJson = jsonReader.parse(json.toJson(customComponent.value, ObjectMap.class));
             result.addChild(className, componentJson);
         }
 

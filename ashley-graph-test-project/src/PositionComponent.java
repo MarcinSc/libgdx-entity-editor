@@ -1,4 +1,4 @@
-package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
+package com.gempukku.example.component;
 
 import com.badlogic.ashley.core.Component;
 
