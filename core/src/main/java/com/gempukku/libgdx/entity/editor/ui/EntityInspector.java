@@ -6,15 +6,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
-import com.gempukku.libgdx.entity.editor.data.component.EntityComponentRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.DataStorage;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
-import com.gempukku.libgdx.entity.editor.ui.editor.CustomComponentEditor;
+import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorRegistry;
+import com.gempukku.libgdx.entity.editor.ui.editor.DefaultComponentEditor;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
@@ -28,7 +28,7 @@ import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
-public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable {
+public class EntityInspector<T, U extends EntityDefinition> extends VisTable {
     private final VerticalGroup entityDetails;
     private final VerticalGroup entityComponents;
 
@@ -102,34 +102,15 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                         public void changed(ChangeEvent event, Actor actor) {
                             PopupMenu menu = new PopupMenu();
 
-                            for (Class coreComponent : EntityComponentRegistry.getCoreComponents()) {
-                                if (project.supportsComponent(coreComponent) && !editedEntity.hasCoreComponent(coreComponent)) {
-                                    Class<? extends T> coreComponentClass = (Class<? extends T>) coreComponent;
-                                    MenuItem menuItem = new MenuItem(coreComponent.getSimpleName());
+                            for (DataDefinition dataDefinition : objectTreeData.getDataDefinitions()) {
+                                if (dataDefinition.isComponent() && !editedEntity.hasComponent(dataDefinition.getId())) {
+                                    MenuItem menuItem = new MenuItem(dataDefinition.getName());
                                     menuItem.addListener(
                                             new ChangeListener() {
                                                 @Override
                                                 public void changed(ChangeEvent event, Actor actor) {
-                                                    T component = project.createCoreComponent(coreComponentClass);
-                                                    editedEntity.addCoreComponent(component);
-                                                    project.entityChanged(editedEntity);
-                                                }
-                                            });
-                                    menu.addItem(menuItem);
-                                }
-                            }
-
-                            menu.addSeparator();
-
-                            for (CustomDataDefinition customComponent : objectTreeData.getCustomDataDefinitions()) {
-                                if (customComponent.isComponent() && !editedEntity.hasCustomComponent(customComponent.getId())) {
-                                    MenuItem menuItem = new MenuItem(customComponent.getName());
-                                    menuItem.addListener(
-                                            new ChangeListener() {
-                                                @Override
-                                                public void changed(ChangeEvent event, Actor actor) {
-                                                    ObjectMap<String, Object> componentData = new ObjectMap<>();
-                                                    editedEntity.addCustomComponent(customComponent.getId(), componentData);
+                                                    DataStorage dataStorage = dataDefinition.createDataStorage(project);
+                                                    editedEntity.addComponent(dataDefinition.getId(), dataStorage);
                                                     project.entityChanged(editedEntity);
                                                 }
                                             });
@@ -148,29 +129,15 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
                         public void changed(ChangeEvent event, Actor actor) {
                             PopupMenu menu = new PopupMenu();
 
-                            for (Class<? extends T> coreComponent : editedEntity.getCoreComponents()) {
-                                MenuItem menuItem = new MenuItem(coreComponent.getSimpleName());
-                                menuItem.addListener(
-                                        new ChangeListener() {
-                                            @Override
-                                            public void changed(ChangeEvent event, Actor actor) {
-                                                editedEntity.removeCoreComponent(coreComponent);
-                                                project.entityChanged(editedEntity);
-                                            }
-                                        });
-                                menu.addItem(menuItem);
-                            }
-                            menu.addSeparator();
-                            for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : editedEntity.getCustomComponents()) {
-                                String customComponentId = customComponent.key;
-                                CustomDataDefinition dataDefinition = objectTreeData.getCustomDataDefinitionById(customComponentId);
+                            for (String componentId : editedEntity.getComponents()) {
+                                DataDefinition dataDefinition = objectTreeData.getDataDefinitionById(componentId);
 
                                 MenuItem menuItem = new MenuItem(dataDefinition.getName());
                                 menuItem.addListener(
                                         new ChangeListener() {
                                             @Override
                                             public void changed(ChangeEvent event, Actor actor) {
-                                                editedEntity.removeCustomComponent(customComponentId);
+                                                editedEntity.removeComponent(componentId);
                                                 project.entityChanged(editedEntity);
                                             }
                                         });
@@ -257,26 +224,16 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
             templatesButtonTable.row();
             entityDetails.addActor(templatesButtonTable);
 
-            for (Class<? extends T> inheritedCoreComponentClass : editedEntity.getInheritedCoreComponents()) {
-                if (!editedEntity.hasCoreComponent(inheritedCoreComponentClass)) {
-                    T inheritedCoreComponent = editedEntity.getInheritedCoreComponent(inheritedCoreComponentClass);
-                    addCoreComponentEditor(inheritedCoreComponent, false, true);
+            for (String inheritedComponentId : editedEntity.getInheritedComponents()) {
+                if (!editedEntity.hasComponent(inheritedComponentId)) {
+                    DataStorage dataStorage = editedEntity.getInheritedComponent(inheritedComponentId);
+                    addComponentEditor(objectTreeData.getDataDefinitionById(inheritedComponentId), dataStorage, false, true);
                 }
             }
 
-            for (ObjectMap.Entry<String, ObjectMap<String, Object>> inheritedCustomComponent : editedEntity.getInheritedCustomComponents()) {
-                if (!editedEntity.hasCustomComponent(inheritedCustomComponent.key)) {
-                    addCustomComponentEditor(objectTreeData.getCustomDataDefinitionById(inheritedCustomComponent.key), inheritedCustomComponent.value, false, true);
-                }
-            }
-
-            for (Class<? extends T> coreComponentClass : editedEntity.getCoreComponents()) {
-                T coreComponent = editedEntity.getCoreComponent(coreComponentClass);
-                addCoreComponentEditor(coreComponent, true, false);
-            }
-
-            for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : editedEntity.getCustomComponents()) {
-                addCustomComponentEditor(objectTreeData.getCustomDataDefinitionById(customComponent.key), customComponent.value, true, false);
+            for (String componentId : editedEntity.getComponents()) {
+                DataStorage dataStorage = editedEntity.getComponent(componentId);
+                addComponentEditor(objectTreeData.getDataDefinitionById(componentId), dataStorage, true, false);
             }
         }
     }
@@ -335,17 +292,17 @@ public class EntityInspector<T, U extends EntityDefinition<T>> extends VisTable 
         }
     }
 
-    private void addCoreComponentEditor(T coreComponent, boolean editable, boolean inherited) {
-        Class<? extends T> clazz = (Class<? extends T>) coreComponent.getClass();
-        ComponentEditorFactory<T> componentEditorFactory = (ComponentEditorFactory<T>) EntityComponentRegistry.getComponentEditorFactory(clazz);
-        ComponentContainer container = new ComponentContainer(clazz.getSimpleName(), componentEditorFactory.createComponentEditor(coreComponent, changeCallback, editable), inherited);
-        entityComponents.addActor(container);
-    }
-
-    private void addCustomComponentEditor(CustomDataDefinition customDataDefinition, ObjectMap<String, Object> componentData, boolean editable, boolean inherited) {
-        CustomComponentEditor customComponentEditor = new CustomComponentEditor(customDataDefinition, componentData, changeCallback, editable);
-        ComponentContainer container = new ComponentContainer(customDataDefinition.getName(), customComponentEditor, inherited);
-        entityComponents.addActor(container);
+    private void addComponentEditor(DataDefinition dataDefinition, DataStorage componentData, boolean editable, boolean inherited) {
+        ComponentEditorFactory editorFactory = ComponentEditorRegistry.getComponentEditorFactory(dataDefinition.getId());
+        if (editorFactory != null) {
+            ComponentEditor componentEditor = editorFactory.createComponentEditor(componentData, changeCallback, editable);
+            ComponentContainer container = new ComponentContainer(dataDefinition.getName(), componentEditor, inherited);
+            entityComponents.addActor(container);
+        } else {
+            DefaultComponentEditor defaultComponentEditor = new DefaultComponentEditor(dataDefinition, componentData, changeCallback, editable);
+            ComponentContainer container = new ComponentContainer(dataDefinition.getName(), defaultComponentEditor, inherited);
+            entityComponents.addActor(container);
+        }
     }
 
     public void entityUpdated() {

@@ -8,7 +8,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 
-public interface EntityEditorProject<T, U extends EntityDefinition<T>> extends Disposable {
+public interface EntityEditorProject<T, U extends EntityDefinition> extends Disposable {
     void initialize(EntityEditorScreen<T, U> entityEditorScreen);
 
     FileHandle getProjectFolder();

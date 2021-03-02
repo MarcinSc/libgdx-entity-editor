@@ -1,15 +1,15 @@
 package com.gempukku.libgdx.entity.editor.data.component;
 
-import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.Array;
 
-public class CustomDataDefinitionImpl implements CustomDataDefinition {
+public abstract class DefaultDataDefinition<T extends DataStorage> implements DataDefinition<T> {
     private String id;
     private boolean component;
     private String name;
     private String className;
-    private ObjectMap<String, String> fieldTypes = new ObjectMap<>();
+    private Array<FieldDefinition> fieldTypes = new Array<>();
 
-    public CustomDataDefinitionImpl(String id, boolean component, String name, String className) {
+    public DefaultDataDefinition(String id, boolean component, String name, String className) {
         this.id = id;
         this.component = component;
         this.name = name;
@@ -36,6 +36,11 @@ public class CustomDataDefinitionImpl implements CustomDataDefinition {
         return className;
     }
 
+    @Override
+    public Iterable<FieldDefinition> getFieldTypes() {
+        return fieldTypes;
+    }
+
     public void setComponent(boolean component) {
         this.component = component;
     }
@@ -48,20 +53,25 @@ public class CustomDataDefinitionImpl implements CustomDataDefinition {
         this.className = className;
     }
 
-    public void addFieldType(String name, String fieldType) {
-        fieldTypes.put(name, fieldType);
-    }
-
-    @Override
-    public ObjectMap<String, String> getFieldTypes() {
-        return fieldTypes;
+    public void addFieldType(String fieldName, String typeId) {
+        fieldTypes.add(new DefaultFieldDefinition(fieldName, typeId));
     }
 
     public void removeField(String name) {
-        fieldTypes.remove(name);
+        for (FieldDefinition fieldType : fieldTypes) {
+            if (fieldType.getName().equals(name)) {
+                fieldTypes.removeValue(fieldType, true);
+                break;
+            }
+        }
     }
 
     public boolean hasField(String name) {
-        return fieldTypes.containsKey(name);
+        for (FieldDefinition fieldType : fieldTypes) {
+            if (fieldType.getName().equals(name))
+                return true;
+        }
+
+        return false;
     }
 }

@@ -8,90 +8,82 @@
   },
   "entityGroups": [
     {
-      "name": "level-1",
+      "name": "level1",
       "entities": [
         {
           "path": null,
           "data": {
-            "id": "a1234567890",
-            "name": "entity",
+            "id": "f192b04d4d864d46a260f457ab16f775",
+            "name": "entity1",
             "templates": [
-              "86bca5521330480c988898fa12e3c539"
+              "8e26872416ce4651ae5b324b1ab97e88"
             ],
-            "coreComponents": [
-              {
-                "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-                "x": 70,
-                "y": 1
-              }
-            ],
-            "customComponents": []
+            "components": []
           }
         },
         {
           "path": null,
           "data": {
-            "id": "f9c94a35425c4e18b3e100c8313533d6",
-            "name": "entity3",
+            "id": "1b63eb46fa404f4f9579b41c31933a70",
+            "name": "entity2",
             "templates": [
-              "86bca5521330480c988898fa12e3c539"
+              "8e26872416ce4651ae5b324b1ab97e88"
             ],
-            "coreComponents": [
+            "components": [
               {
-                "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-                "x": -100,
-                "y": 29
+                "id": "PositionComponent",
+                "data": {
+                  "x": 0,
+                  "y": 83
+                }
               }
-            ],
-            "customComponents": []
+            ]
           }
         }
       ]
     }
   ],
-  "customDataDefinitions": [
-    {
-      "id": "c300c8a1b7b948d8b2fa094b1f0c7c64",
-      "name": "PositionComponent",
-      "className": "com.gempukku.example.component.PositionComponent",
-      "component": true,
-      "fields": {
-        "x": "float",
-        "y": "float"
-      }
-    }
-  ],
+  "customDataDefinitions": [],
   "templates": [
     {
       "path": null,
       "data": {
-        "id": "86bca5521330480c988898fa12e3c539",
-        "name": "template-1",
+        "id": "8e26872416ce4651ae5b324b1ab97e88",
+        "name": "MossyHill",
         "templates": [],
-        "coreComponents": [
+        "components": [
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent",
-            "layer": 0,
-            "width": 150,
-            "height": 64,
-            "tags": [
-              "Animated"
-            ],
-            "properties": {
-              "Texture": {
-                "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
-                "atlas": "",
-                "texture": "images/MossyHill.png"
+            "id": "PositionComponent",
+            "data": {
+              "x": 0,
+              "y": 0
+            }
+          },
+          {
+            "id": "SpriteComponent",
+            "data": {
+              "layer": 5,
+              "width": 180,
+              "height": 64,
+              "tags": [
+                "Animated"
+              ],
+              "properties": {
+                "Texture": {
+                  "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
+                  "atlas": "",
+                  "texture": "images/MossyHill.png"
+                }
               }
             }
           },
           {
-            "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.PositionComponent",
-            "x": 0,
-            "y": 0
+            "id": "FacingComponent",
+            "data": {
+              "faceDirection": "Left"
+            }
           }
-        ],
-        "customComponents": []
+        ]
       }
     }
   ]

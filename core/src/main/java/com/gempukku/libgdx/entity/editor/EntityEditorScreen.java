@@ -21,7 +21,7 @@ import com.gempukku.libgdx.entity.editor.ui.UtilityPanel;
 import com.kotcrab.vis.ui.widget.VisSplitPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 
-public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTable {
+public class EntityEditorScreen<T, U extends EntityDefinition> extends VisTable {
     private final ObjectTree<T, U> objectTree;
     private final PluginSettings pluginSettings;
     private final EntityEditorPreviewToolbar entityEditorPreviewToolbar;
@@ -63,7 +63,7 @@ public class EntityEditorScreen<T, U extends EntityDefinition<T>> extends VisTab
                     @Override
                     public boolean handle(Event event) {
                         if (event instanceof EntitySelected) {
-                            EntitySelected<T, U> entityEvent = (EntitySelected<T, U>) event;
+                            EntitySelected<U> entityEvent = (EntitySelected<U>) event;
                             entityInspector.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
                             entityEditorPreview.setEditedEntity(entityEvent.getEntity(), entityEvent.isEntity());
                             return true;

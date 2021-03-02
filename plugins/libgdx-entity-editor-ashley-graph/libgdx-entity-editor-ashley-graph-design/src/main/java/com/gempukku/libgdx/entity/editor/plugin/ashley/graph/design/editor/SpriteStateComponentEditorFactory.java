@@ -4,16 +4,19 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteStateComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.SpriteStateComponentDataStorage;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget.SpriteStateEditorWidget;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.StringEditorWidget;
 import com.kotcrab.vis.ui.widget.VisTable;
 
-public class SpriteStateComponentEditorFactory implements ComponentEditorFactory<SpriteStateComponent> {
+import java.util.function.Consumer;
+
+public class SpriteStateComponentEditorFactory implements ComponentEditorFactory<SpriteStateComponentDataStorage> {
     @Override
-    public ComponentEditor createComponentEditor(SpriteStateComponent component, Runnable callback, boolean editable) {
-        return new SpriteStateComponentEditor(component, callback, editable);
+    public ComponentEditor createComponentEditor(SpriteStateComponentDataStorage dataStorage, Runnable callback, boolean editable) {
+        return new SpriteStateComponentEditor(dataStorage.getComponent(), callback, editable);
     }
 
     private class SpriteStateComponentEditor implements ComponentEditor {
@@ -21,12 +24,12 @@ public class SpriteStateComponentEditorFactory implements ComponentEditorFactory
 
         public SpriteStateComponentEditor(SpriteStateComponent component, Runnable callback, boolean editable) {
             StringEditorWidget state = new StringEditorWidget(
-                    EditorConfig.LABEL_WIDTH, editable,
-                    "State", component.getState(),
-                    new StringEditorWidget.Callback() {
+                    editable,
+                    component.getState(),
+                    new Consumer<String>() {
                         @Override
-                        public void update(String value) {
-                            component.setState(value);
+                        public void accept(String s) {
+                            component.setState(s);
                             callback.run();
                         }
                     });

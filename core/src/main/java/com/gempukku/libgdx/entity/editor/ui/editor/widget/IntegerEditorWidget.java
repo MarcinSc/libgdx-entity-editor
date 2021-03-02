@@ -9,20 +9,20 @@ import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.function.Consumer;
 
 public class IntegerEditorWidget extends VisTable {
     private static NumberFormat numberFormat = new DecimalFormat("#0");
     private final VisValidatableTextField field;
 
     public IntegerEditorWidget(
-            float width, boolean editable,
-            String label, int value,
-            IntegerEditorWidget.Callback callback) {
+            boolean editable, int value,
+            Consumer<Number> callback) {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 if (field.isInputValid()) {
-                    callback.update(Integer.parseInt(field.getText()));
+                    callback.accept(Integer.parseInt(field.getText()));
                 }
             }
         };
@@ -34,11 +34,6 @@ public class IntegerEditorWidget extends VisTable {
         field.addListener(changeListener);
         field.setDisabled(!editable);
 
-        add(label + ": ").width(width);
         add(field).growX().row();
-    }
-
-    public interface Callback {
-        void update(int value);
     }
 }

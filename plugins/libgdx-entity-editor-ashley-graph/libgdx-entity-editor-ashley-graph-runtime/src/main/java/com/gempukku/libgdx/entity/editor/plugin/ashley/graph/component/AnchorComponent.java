@@ -14,8 +14,11 @@ public class AnchorComponent implements Component {
         return y;
     }
 
-    public void setAnchor(float x, float y) {
+    public void setX(float x) {
         this.x = x;
+    }
+
+    public void setY(float y) {
         this.y = y;
     }
 }

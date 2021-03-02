@@ -5,10 +5,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinitionImpl;
+import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
 import com.kotcrab.vis.ui.util.dialog.InputDialogListener;
@@ -22,9 +22,9 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 public class DataTypeEditorDialog extends VisDialog {
-    private CustomDataDefinitionImpl dataDefinition;
+    private CustomDataDefinition dataDefinition;
 
-    public DataTypeEditorDialog(CustomDataDefinitionImpl dataDefinition) {
+    public DataTypeEditorDialog(CustomDataDefinition dataDefinition) {
         super("Data Type Editor");
         this.dataDefinition = dataDefinition;
 
@@ -73,8 +73,8 @@ public class DataTypeEditorDialog extends VisDialog {
         fieldsGroup.grow();
         fieldsGroup.top().left();
 
-        for (ObjectMap.Entry<String, String> fieldType : dataDefinition.getFieldTypes()) {
-            fieldsGroup.addActor(new FieldEntry(fieldType.key, CustomFieldTypeRegistry.getComponentFieldTypeById(fieldType.value).getName()));
+        for (FieldDefinition fieldDefinition : dataDefinition.getFieldTypes()) {
+            fieldsGroup.addActor(new FieldEntry(fieldDefinition.getName(), CustomFieldTypeRegistry.getComponentFieldTypeById(fieldDefinition.getTypeId()).getName()));
         }
 
         VisScrollPane fieldsScrollPane = new VisScrollPane(fieldsGroup) {

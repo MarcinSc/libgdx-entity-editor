@@ -3,7 +3,7 @@ package com.gempukku.libgdx.entity.editor.ui;
 import com.badlogic.gdx.scenes.scene2d.Event;
 import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 
-public class EntitySelected<T, U extends EntityDefinition<T>> extends Event {
+public class EntitySelected<U extends EntityDefinition> extends Event {
     private U entity;
     private boolean isEntity;
 

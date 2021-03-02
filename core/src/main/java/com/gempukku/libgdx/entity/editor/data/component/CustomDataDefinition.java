@@ -1,21 +1,39 @@
 package com.gempukku.libgdx.entity.editor.data.component;
 
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 
-public interface CustomDataDefinition {
-    boolean isComponent();
+public class CustomDataDefinition extends DefaultDataDefinition<CustomDataStorage> {
+    public CustomDataDefinition(String id, boolean component, String name, String className) {
+        super(id, component, name, className);
+    }
 
-    String getId();
+    @Override
+    public CustomDataStorage createDataStorage(EntityEditorProject project) {
+        return new CustomDataStorage();
+    }
 
-    String getName();
+    @Override
+    public CustomDataStorage loadDataStorage(Json json, JsonValue data) {
+        return new CustomDataStorage(json.readValue(ObjectMap.class, data));
+    }
 
-    String getClassName();
+    @Override
+    public JsonValue serializeDataStorage(Json json, CustomDataStorage dataStorage) {
+        JsonReader jsonReader = new JsonReader();
+        return jsonReader.parse(json.toJson(dataStorage.getData(), ObjectMap.class));
+    }
 
-    ObjectMap<String, String> getFieldTypes();
-//
-//    ObjectMap<String, ComponentFieldType> getArrayFieldTypes();
-//
-//    ObjectMap<String, CustomDataDefinition> getObjectArrayFieldTypes();
-//
-//    ObjectMap<String, CustomDataDefinition> getObjectMapFieldTypes();
+    @Override
+    public JsonValue exportComponent(Json json, CustomDataStorage dataStorage) {
+        return serializeDataStorage(json, dataStorage);
+    }
+
+    @Override
+    public boolean isStoreWithProject() {
+        return true;
+    }
 }

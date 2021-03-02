@@ -1,15 +1,18 @@
 package com.gempukku.libgdx.entity.editor.data.component.type;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.StringEditorWidget;
 import com.github.javaparser.ast.type.Type;
 
+import java.util.function.Consumer;
+
 public class StringComponentFieldType implements ComponentFieldType<String> {
+    public static final String ID = "String";
+
     @Override
     public String getId() {
-        return "String";
+        return ID;
     }
 
     @Override
@@ -18,18 +21,10 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
     }
 
     @Override
-    public Actor createEditor(float labelWidth, boolean editable, String fieldName, String fieldValue,
-                              ObjectMap<String, Object> componentData, Runnable callback) {
+    public Actor createEditor(boolean editable, String fieldValue, Consumer<String> consumer) {
         if (fieldValue == null)
             fieldValue = "";
-        return new StringEditorWidget(labelWidth, editable, fieldName, fieldValue,
-                new StringEditorWidget.Callback() {
-                    @Override
-                    public void update(String value) {
-                        componentData.put(fieldName, value);
-                        callback.run();
-                    }
-                });
+        return new StringEditorWidget(editable, fieldValue, consumer);
     }
 
     @Override

@@ -1,8 +1,8 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.data.component.DataStorage;
 
-public interface EntityDefinition<T> {
+public interface EntityDefinition {
     String getId();
 
     String getName();
@@ -19,27 +19,17 @@ public interface EntityDefinition<T> {
 
     void removeTemplate(String id);
 
-    Iterable<Class<? extends T>> getInheritedCoreComponents();
+    Iterable<String> getInheritedComponents();
 
-    T getInheritedCoreComponent(Class<? extends T> inheritedCoreComponentClass);
+    DataStorage getInheritedComponent(String componentId);
 
-    void addCoreComponent(T coreComponent);
+    Iterable<String> getComponents();
 
-    void removeCoreComponent(Class<? extends T> coreComponent);
+    void addComponent(String id, DataStorage dataStorage);
 
-    Iterable<Class<? extends T>> getCoreComponents();
+    void removeComponent(String componentId);
 
-    boolean hasCoreComponent(Class<? extends T> coreComponent);
+    boolean hasComponent(String componentId);
 
-    T getCoreComponent(Class<? extends T> clazz);
-
-    boolean hasCustomComponent(String id);
-
-    void addCustomComponent(String id, ObjectMap<String, Object> componentData);
-
-    void removeCustomComponent(String id);
-
-    ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents();
-
-    ObjectMap<String, ObjectMap<String, Object>> getCustomComponents();
+    DataStorage getComponent(String componentId);
 }

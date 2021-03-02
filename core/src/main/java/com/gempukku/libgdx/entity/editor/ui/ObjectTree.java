@@ -24,8 +24,8 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinitionImpl;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
@@ -50,7 +50,7 @@ import java.util.Comparator;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable implements ObjectTreeData<U> {
+public class ObjectTree<T, U extends EntityDefinition> extends VisTable implements ObjectTreeData<U> {
     private static final Pattern namePattern = Pattern.compile("^[a-zA-Z][a-zA-Z0-9-]{0,14}$");
     private VisTree<ObjectTreeNode, Object> tree;
     private EntityEditorProject<T, U> project;
@@ -345,7 +345,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         String id = createId();
-                        CustomDataDefinitionImpl customDataDefinition = new CustomDataDefinitionImpl(id, false, "", "");
+                        CustomDataDefinition customDataDefinition = new CustomDataDefinition(id, false, "", "");
                         DataTypeEditorDialog dialog = new DataTypeEditorDialog(customDataDefinition) {
                             @Override
                             protected void result(Object object) {
@@ -376,7 +376,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
                                     String id = createId();
                                     // The java file is in the project folder
                                     try {
-                                        CustomDataDefinitionImpl customDataDefinition = parseCustomComponentDefinition(id, selectedFile);
+                                        CustomDataDefinition customDataDefinition = parseCustomComponentDefinition(id, selectedFile);
                                         DataTypeEditorDialog dialog = new DataTypeEditorDialog(customDataDefinition) {
                                             @Override
                                             protected void result(Object object) {
@@ -405,17 +405,17 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private CustomDataDefinitionImpl parseCustomComponentDefinition(String id, FileHandle javaFile) throws IOException {
+    private CustomDataDefinition parseCustomComponentDefinition(String id, FileHandle javaFile) throws IOException {
         CompilationUnit compilationUnit = StaticJavaParser.parse(javaFile.file());
         String name = compilationUnit.getPrimaryTypeName().get();
         ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(name).get();
         String className = classDeclaration.getFullyQualifiedName().get();
 
-        CustomDataDefinitionImpl result = new CustomDataDefinitionImpl(id, false, name, className);
+        CustomDataDefinition result = new CustomDataDefinition(id, false, name, className);
         classDeclaration.findAll(FieldDeclaration.class).stream()
                 .filter(f -> !f.isStatic() && !f.isTransient())
                 .forEach(f -> {
-                            VariableDeclarator variable = f.getVariable(0);
+                    VariableDeclarator variable = f.getVariable(0);
                             String variableName = variable.getName().asString();
                             Type variableType = variable.getType();
                             boolean isArray = variableType.isArrayType() || variableType.asString().equals("Array");
@@ -563,8 +563,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
-    public void addCustomDataType(CustomDataDefinition customDataDefinition) {
-        CustomDataDefinitionNode componentNode = new CustomDataDefinitionNode(customDataDefinition, null);
+    public void addCustomDataType(DataDefinition dataDefinition) {
+        CustomDataDefinitionNode componentNode = new CustomDataDefinitionNode(dataDefinition, null);
         mergeInNode(customDataTypesNode, componentNode);
     }
 
@@ -619,8 +619,8 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
-    public Iterable<CustomDataDefinition> getCustomDataDefinitions() {
-        Array<CustomDataDefinition> result = new Array<>();
+    public Iterable<DataDefinition<?>> getDataDefinitions() {
+        Array<DataDefinition<?>> result = new Array<>();
         for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
             result.add(child.getValue());
         }
@@ -628,11 +628,11 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
     }
 
     @Override
-    public CustomDataDefinition getCustomDataDefinitionById(String id) {
+    public DataDefinition<?> getDataDefinitionById(String id) {
         for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
-            CustomDataDefinition customDataDefinition = child.getValue();
-            if (customDataDefinition.getId().equals(id))
-                return customDataDefinition;
+            DataDefinition<?> dataDefinition = child.getValue();
+            if (dataDefinition.getId().equals(id))
+                return dataDefinition;
         }
         return null;
     }
@@ -888,7 +888,7 @@ public class ObjectTree<T, U extends EntityDefinition<T>> extends VisTable imple
         }
     }
 
-    private static class ObjectTreeNodeComparator<T, U extends EntityDefinition<T>> implements Comparator<ObjectTreeNode> {
+    private static class ObjectTreeNodeComparator<T, U extends EntityDefinition> implements Comparator<ObjectTreeNode> {
         @Override
         public int compare(ObjectTreeNode o1, ObjectTreeNode o2) {
             int type1 = getTypeValue(o1);

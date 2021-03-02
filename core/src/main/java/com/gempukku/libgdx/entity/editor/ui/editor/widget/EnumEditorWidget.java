@@ -6,13 +6,15 @@ import com.badlogic.gdx.utils.Array;
 import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import java.util.function.Consumer;
+
 public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
     private Class<T> clazz;
 
     public EnumEditorWidget(
-            float width, boolean editable,
+            boolean editable,
             Class<T> clazz, boolean allowsNull,
-            String label, T value, Callback<T> callback) {
+            T value, Consumer<T> callback) {
         this.clazz = clazz;
 
         Array<String> values = new Array<>();
@@ -28,13 +30,12 @@ public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                callback.update(getValue(selectBox.getSelected()));
+                callback.accept(getValue(selectBox.getSelected()));
             }
         };
         selectBox.addListener(changeListener);
         selectBox.setDisabled(!editable);
 
-        add(label + ": ").width(width);
         add(selectBox).growX().row();
     }
 
@@ -50,9 +51,5 @@ public class EnumEditorWidget<T extends Enum<T>> extends VisTable {
                 return enumConstant;
         }
         return null;
-    }
-
-    public interface Callback<T extends Enum<T>> {
-        void update(T value);
     }
 }

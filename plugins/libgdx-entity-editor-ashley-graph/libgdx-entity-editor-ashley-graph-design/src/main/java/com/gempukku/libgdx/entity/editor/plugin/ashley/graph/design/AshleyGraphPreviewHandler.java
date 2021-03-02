@@ -64,7 +64,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     }
 
     @Override
-    public <T, U extends EntityDefinition<T>> void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
+    public <T, U extends EntityDefinition> void setEditedEntity(U editedEntity, EntityEditorProject<T, U> project, boolean entity) {
         this.editedEntity = (AshleyEntityDefinition) editedEntity;
     }
 
@@ -100,7 +100,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
             panX = x;
             panY = y;
         } else {
-            if (editedEntity.hasCoreComponent(PositionComponent.class)) {
+            if (editedEntity.hasComponent("PositionComponent")) {
                 EntityEditorPreviewToolbar toolbar = screen.getEntityEditorPreviewToolbar();
 
                 PositionComponent position = editedEntity.getEntity().getComponent(PositionComponent.class);
@@ -113,7 +113,8 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
                     newX = snap * MathUtils.round(newX / snap);
                     newY = snap * MathUtils.round(newY / snap);
                 }
-                position.setPosition(newX, newY);
+                position.setX(newX);
+                position.setY(newY);
                 project.entityChanged(editedEntity);
             }
         }

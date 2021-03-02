@@ -1,15 +1,18 @@
 package com.gempukku.libgdx.entity.editor.data.component.type;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.LongEditorWidget;
 import com.github.javaparser.ast.type.Type;
 
+import java.util.function.Consumer;
+
 public class LongComponentFieldType implements ComponentFieldType<Number> {
+    public static final String ID = "long";
+
     @Override
     public String getId() {
-        return "long";
+        return ID;
     }
 
     @Override
@@ -18,18 +21,10 @@ public class LongComponentFieldType implements ComponentFieldType<Number> {
     }
 
     @Override
-    public Actor createEditor(float labelWidth, boolean editable, String fieldName, Number fieldValue,
-                              ObjectMap<String, Object> componentData, Runnable callback) {
+    public Actor createEditor(boolean editable, Number fieldValue, Consumer<Number> consumer) {
         if (fieldValue == null)
             fieldValue = 0;
-        return new LongEditorWidget(labelWidth, editable, fieldName, fieldValue.intValue(),
-                new LongEditorWidget.Callback() {
-                    @Override
-                    public void update(long value) {
-                        componentData.put(fieldName, value);
-                        callback.run();
-                    }
-                });
+        return new LongEditorWidget(editable, fieldValue.intValue(), consumer);
     }
 
     @Override

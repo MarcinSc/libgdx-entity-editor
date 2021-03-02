@@ -4,20 +4,21 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
-import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.DataStorage;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityDefinition;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.ComponentDataStorage;
 
 public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     private ObjectTreeData<AshleyEntityDefinition> objectTreeData;
     private Entity entity;
-    private ObjectMap<Class<? extends Component>, Component> coreComponents = new ObjectMap<>();
-    private ObjectMap<Class<? extends Component>, Component> inheritedCoreComponents = new ObjectMap<>();
-    private ObjectMap<String, ObjectMap<String, Object>> customComponents = new ObjectMap<>();
+    private ObjectMap<String, DataStorage> components = new ObjectMap<>();
+    private ObjectMap<String, DataStorage> inheritedComponents = new ObjectMap<>();
     private Array<String> templates = new Array<>();
 
     public AshleyEntityDefinition(Json json, ObjectTreeData<AshleyEntityDefinition> objectTreeData, JsonValue value) {
@@ -29,15 +30,12 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         this.objectTreeData = objectTreeData;
         this.entity = entity;
         templates.addAll(value.get("templates").asStringArray());
-        for (JsonValue coreComponent : value.get("coreComponents")) {
-            Component component = json.readValue(Component.class, coreComponent);
-            coreComponents.put(component.getClass(), component);
-        }
-        for (JsonValue customComponent : value.get("customComponents")) {
-            String id = customComponent.getString("id");
-            JsonValue data = customComponent.get("data");
-            ObjectMap<String, Object> componentData = json.readValue(ObjectMap.class, data);
-            customComponents.put(id, componentData);
+        for (JsonValue coreComponent : value.get("components")) {
+            String id = coreComponent.getString("id");
+            JsonValue data = coreComponent.get("data");
+            DataDefinition<?> dataDefinition = objectTreeData.getDataDefinitionById(id);
+            DataStorage dataStorage = dataDefinition.loadDataStorage(json, data);
+            components.put(id, dataStorage);
         }
 
         rebuildEntity();
@@ -59,26 +57,34 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
     public void rebuildEntity() {
         if (isEntity()) {
-            for (Class<? extends Component> inheritedCoreComponentClass : inheritedCoreComponents.keys()) {
-                entity.remove(inheritedCoreComponentClass);
+            for (ObjectMap.Entry<String, DataStorage> inheritedComponent : inheritedComponents) {
+                if (inheritedComponent.value instanceof ComponentDataStorage) {
+                    entity.remove(((ComponentDataStorage) inheritedComponent.value).getComponent().getClass());
+                }
             }
-            inheritedCoreComponents.clear();
+            inheritedComponents.clear();
 
-            for (Class<? extends Component> coreComponent : coreComponents.keys()) {
-                entity.remove(coreComponent);
-            }
-
-            for (Class<? extends Component> inheritedCoreComponentClass : getInheritedCoreComponents()) {
-                if (!hasCoreComponent(inheritedCoreComponentClass)) {
-                    Component inheritedCoreComponent = getInheritedCoreComponent(inheritedCoreComponentClass);
-                    Component componentCopy = createComponentCopy(inheritedCoreComponent);
-                    inheritedCoreComponents.put(inheritedCoreComponentClass, componentCopy);
-                    entity.add(componentCopy);
+            for (ObjectMap.Entry<String, DataStorage> component : components) {
+                if (component.value instanceof ComponentDataStorage) {
+                    entity.remove(((ComponentDataStorage) component.value).getComponent().getClass());
                 }
             }
 
-            for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponentEntry : coreComponents) {
-                entity.add(coreComponentEntry.value);
+            for (String inheritedComponentId : getInheritedComponents()) {
+                if (!hasComponent(inheritedComponentId)) {
+                    DataStorage inheritedCoreComponent = getInheritedComponent(inheritedComponentId);
+                    inheritedComponents.put(inheritedComponentId, inheritedCoreComponent);
+                    if (inheritedCoreComponent instanceof ComponentDataStorage) {
+                        ComponentDataStorage componentDataStorage = ((ComponentDataStorage) inheritedCoreComponent).createCopy();
+                        entity.add(componentDataStorage.getComponent());
+                    }
+                }
+            }
+
+            for (ObjectMap.Entry<String, DataStorage> component : components) {
+                if (component.value instanceof ComponentDataStorage) {
+                    entity.add(((ComponentDataStorage) component.value).getComponent());
+                }
             }
         }
     }
@@ -104,15 +110,15 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     }
 
     @Override
-    public Iterable<Class<? extends Component>> getInheritedCoreComponents() {
-        Array<Class<? extends Component>> result = new Array<>();
+    public Iterable<String> getInheritedComponents() {
+        ObjectSet<String> result = new ObjectSet<>();
         for (String template : templates) {
             AshleyEntityDefinition templateDefinition = objectTreeData.getTemplateById(template).getEntityDefinition();
-            for (Class<? extends Component> inheritedCoreComponent : templateDefinition.getInheritedCoreComponents()) {
-                result.add(inheritedCoreComponent);
+            for (String componentId : templateDefinition.getInheritedComponents()) {
+                result.add(componentId);
             }
-            for (Class<? extends Component> coreComponent : templateDefinition.getCoreComponents()) {
-                result.add(coreComponent);
+            for (String componentId : templateDefinition.getComponents()) {
+                result.add(componentId);
             }
         }
 
@@ -120,89 +126,56 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
     }
 
     @Override
-    public void addCoreComponent(Component coreComponent) {
-        coreComponents.put(coreComponent.getClass(), coreComponent);
-        if (isEntity())
-            entity.add(coreComponent);
+    public void addComponent(String componentId, DataStorage dataStorage) {
+        components.put(componentId, dataStorage);
+        if (isEntity() && dataStorage instanceof ComponentDataStorage)
+            entity.add(((ComponentDataStorage) dataStorage).getComponent());
     }
 
     @Override
-    public void removeCoreComponent(Class<? extends Component> coreComponent) {
-        if (isEntity())
-            entity.remove(coreComponent);
-        coreComponents.remove(coreComponent);
+    public void removeComponent(String componentId) {
+        DataStorage dataStorage = components.remove(componentId);
+        if (isEntity() && dataStorage instanceof ComponentDataStorage)
+            entity.remove(((ComponentDataStorage) dataStorage).getComponent().getClass());
     }
 
     @Override
-    public Iterable<Class<? extends Component>> getCoreComponents() {
-        return new ObjectMap.Keys<>(coreComponents);
+    public Iterable<String> getComponents() {
+        return new ObjectMap.Keys<>(components);
     }
 
     @Override
-    public boolean hasCoreComponent(Class<? extends Component> coreComponent) {
-        return coreComponents.containsKey(coreComponent);
+    public boolean hasComponent(String componentId) {
+        return components.containsKey(componentId);
     }
 
     @Override
-    public Component getCoreComponent(Class<? extends Component> clazz) {
-        return coreComponents.get(clazz);
+    public DataStorage getComponent(String componentId) {
+        return components.get(componentId);
     }
 
-    private Component resolveCoreComponent(AshleyEntityDefinition entityDefinition, Class<? extends Component> coreComponentClass) {
-        Component result = entityDefinition.getCoreComponent(coreComponentClass);
+    private DataStorage resolveComponent(AshleyEntityDefinition entityDefinition, String componentId) {
+        DataStorage result = entityDefinition.getComponent(componentId);
         if (result != null)
             return result;
-        return entityDefinition.getInheritedCoreComponent(coreComponentClass);
+        return entityDefinition.getInheritedComponent(componentId);
     }
 
     @Override
-    public Component getInheritedCoreComponent(Class<? extends Component> coreComponentClass) {
-        Component result = null;
+    public DataStorage getInheritedComponent(String componentId) {
+        DataStorage result = null;
         for (String template : templates) {
             AshleyEntityDefinition templateDefinition = (AshleyEntityDefinition) objectTreeData.getTemplateById(template).getEntityDefinition();
-            Component component = resolveCoreComponent(templateDefinition, coreComponentClass);
+            DataStorage component = resolveComponent(templateDefinition, componentId);
             if (component != null)
                 result = component;
         }
         return result;
     }
 
-    @Override
-    public boolean hasCustomComponent(String id) {
-        return customComponents.containsKey(id);
-    }
-
-    @Override
-    public void addCustomComponent(String id, ObjectMap<String, Object> componentData) {
-        customComponents.put(id, componentData);
-    }
-
-    @Override
-    public void removeCustomComponent(String id) {
-        customComponents.remove(id);
-    }
-
-    @Override
-    public ObjectMap<String, ObjectMap<String, Object>> getInheritedCustomComponents() {
-        ObjectMap<String, ObjectMap<String, Object>> result = new ObjectMap<>();
-        for (String template : templates) {
-            AshleyEntityDefinition templateDefinition = objectTreeData.getTemplateById(template).getEntityDefinition();
-            result.putAll(templateDefinition.getInheritedCustomComponents());
-            result.putAll(templateDefinition.getCustomComponents());
-        }
-        return result;
-    }
-
-    @Override
-    public ObjectMap<String, ObjectMap<String, Object>> getCustomComponents() {
-        return customComponents;
-    }
-
     public JsonValue toJson() {
         Json json = new Json(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);
-
-        JsonReader jsonReader = new JsonReader();
 
         JsonValue result = new JsonValue(JsonValue.ValueType.object);
         result.addChild("id", new JsonValue(getId()));
@@ -214,20 +187,17 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         }
         result.addChild("templates", templates);
 
-        JsonValue coreComponents = new JsonValue(JsonValue.ValueType.array);
-        for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponentEntry : this.coreComponents) {
-            coreComponents.addChild(jsonReader.parse(json.toJson(coreComponentEntry.value, Component.class)));
-        }
-        result.addChild("coreComponents", coreComponents);
+        JsonValue components = new JsonValue(JsonValue.ValueType.array);
+        for (ObjectMap.Entry<String, DataStorage> componentEntry : this.components) {
+            String id = componentEntry.key;
+            DataDefinition dataDefinition = objectTreeData.getDataDefinitionById(id);
 
-        JsonValue customComponents = new JsonValue(JsonValue.ValueType.array);
-        for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponentEntry : this.customComponents) {
-            JsonValue customComponent = new JsonValue(JsonValue.ValueType.object);
-            customComponent.addChild("id", new JsonValue(customComponentEntry.key));
-            customComponent.addChild("data", jsonReader.parse(json.toJson(customComponentEntry.value, ObjectMap.class)));
-            customComponents.addChild(customComponent);
+            JsonValue component = new JsonValue(JsonValue.ValueType.object);
+            component.addChild("id", new JsonValue(id));
+            component.addChild("data", dataDefinition.serializeDataStorage(json, componentEntry.value));
+            components.addChild(component);
         }
-        result.addChild("customComponents", customComponents);
+        result.addChild("components", components);
 
         return result;
     }
@@ -243,8 +213,6 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         Json json = new Json(JsonWriter.OutputType.json);
         json.setUsePrototypes(false);
 
-        JsonReader jsonReader = new JsonReader();
-
         JsonValue result = new JsonValue(JsonValue.ValueType.object);
         JsonValue templateArray = new JsonValue(JsonValue.ValueType.array);
         for (String templateId : this.templates) {
@@ -254,15 +222,10 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         }
         result.addChild("tpl:extends", templateArray);
 
-        for (ObjectMap.Entry<Class<? extends Component>, Component> coreComponent : coreComponents) {
-            String className = coreComponent.key.getName();
-            JsonValue componentJson = jsonReader.parse(json.toJson(coreComponent.value, coreComponent.key));
-            result.addChild(className, componentJson);
-        }
-        for (ObjectMap.Entry<String, ObjectMap<String, Object>> customComponent : customComponents) {
-            CustomDataDefinition customDataDefinition = objectTreeData.getCustomDataDefinitionById(customComponent.key);
-            String className = customDataDefinition.getClassName();
-            JsonValue componentJson = jsonReader.parse(json.toJson(customComponent.value, ObjectMap.class));
+        for (ObjectMap.Entry<String, DataStorage> component : components) {
+            DataDefinition dataDefinition = objectTreeData.getDataDefinitionById(component.key);
+            String className = dataDefinition.getClassName();
+            JsonValue componentJson = dataDefinition.exportComponent(json, component.value);
             result.addChild(className, componentJson);
         }
 

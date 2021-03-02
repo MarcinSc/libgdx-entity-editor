@@ -6,17 +6,18 @@ import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextField;
 
+import java.util.function.Consumer;
+
 public class StringEditorWidget extends VisTable {
     private final VisTextField field;
 
     public StringEditorWidget(
-            float width, boolean editable,
-            String label, String value,
-            StringEditorWidget.Callback callback) {
+            boolean editable, String value,
+            Consumer<String> callback) {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                callback.update(field.getText());
+                callback.accept(field.getText());
             }
         };
 
@@ -25,11 +26,6 @@ public class StringEditorWidget extends VisTable {
         field.addListener(changeListener);
         field.setDisabled(!editable);
 
-        add(label + ": ").width(width);
         add(field).growX().row();
-    }
-
-    public interface Callback {
-        void update(String value);
     }
 }

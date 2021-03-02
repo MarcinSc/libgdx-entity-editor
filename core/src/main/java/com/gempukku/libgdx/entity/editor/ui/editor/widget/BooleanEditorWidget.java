@@ -6,29 +6,26 @@ import com.badlogic.gdx.utils.Align;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 
+import java.util.function.Consumer;
+
 public class BooleanEditorWidget extends VisTable {
     private VisCheckBox checkBox;
 
     public BooleanEditorWidget(
-            float width, boolean editable,
-            String label, boolean value,
-            BooleanEditorWidget.Callback callback) {
+            boolean editable, boolean value,
+            Consumer<Boolean> callback) {
         ChangeListener changeListener = new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                callback.update(checkBox.isChecked());
+                callback.accept(checkBox.isChecked());
             }
         };
 
-        checkBox = new VisCheckBox(label, value);
+        checkBox = new VisCheckBox("Checked", value);
         checkBox.align(Align.left);
         checkBox.addListener(changeListener);
         checkBox.setDisabled(!editable);
 
         add(checkBox).growX().row();
-    }
-
-    public interface Callback {
-        void update(boolean value);
     }
 }

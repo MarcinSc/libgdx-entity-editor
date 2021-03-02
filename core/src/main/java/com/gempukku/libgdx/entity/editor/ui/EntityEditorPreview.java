@@ -11,7 +11,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.gempukku.libgdx.entity.editor.project.PreviewRenderer;
 
-public class EntityEditorPreview<T, U extends EntityDefinition<T>> extends Widget {
+public class EntityEditorPreview<T, U extends EntityDefinition> extends Widget {
     private PreviewRenderer previewRenderer;
     private EntityEditorProject<T, U> project;
     private EntityEditorPreviewToolbar toolbar;

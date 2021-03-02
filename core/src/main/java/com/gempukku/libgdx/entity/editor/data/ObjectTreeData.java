@@ -1,13 +1,13 @@
 package com.gempukku.libgdx.entity.editor.data;
 
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
 
-public interface ObjectTreeData<U extends EntityDefinition<?>> {
+public interface ObjectTreeData<U extends EntityDefinition> {
     void addEntity(String entityGroup, String parentPath, String name, U entity);
 
     void addTemplate(String parentPath, String name, U template);
 
-    void addCustomDataType(CustomDataDefinition customDataDefinition);
+    void addCustomDataType(DataDefinition dataDefinition);
 
     LocatedEntityDefinition<U> getTemplateById(String id);
 
@@ -17,15 +17,15 @@ public interface ObjectTreeData<U extends EntityDefinition<?>> {
 
     Iterable<LocatedEntityDefinition<U>> getTemplates();
 
-    Iterable<CustomDataDefinition> getCustomDataDefinitions();
+    Iterable<DataDefinition<?>> getDataDefinitions();
 
-    CustomDataDefinition getCustomDataDefinitionById(String id);
+    DataDefinition<?> getDataDefinitionById(String id);
 
     boolean canCreateTemplate(String parentPath, String name);
 
     void convertToTemplate(String name, U entity);
 
-    class LocatedEntityDefinition<U extends EntityDefinition<?>> {
+    class LocatedEntityDefinition<U extends EntityDefinition> {
         private final U entityDefinition;
         private final String path;
 

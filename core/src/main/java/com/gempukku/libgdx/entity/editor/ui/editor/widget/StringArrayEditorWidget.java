@@ -1,7 +1,6 @@
 package com.gempukku.libgdx.entity.editor.ui.editor.widget;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.CheckBox;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
@@ -13,9 +12,11 @@ import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 
+import java.util.function.Consumer;
+
 public class StringArrayEditorWidget extends VisTable {
     public StringArrayEditorWidget(
-            String label, boolean editable, Iterable<String> values, Callback callback) {
+            boolean editable, Iterable<String> values, Consumer<Array<String>> callback) {
         final VerticalGroup verticalGroup = new VerticalGroup();
         verticalGroup.grow();
         verticalGroup.align(Align.topLeft);
@@ -58,7 +59,7 @@ public class StringArrayEditorWidget extends VisTable {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         for (Actor child : verticalGroup.getChildren()) {
-                            CheckBox checkbox = (CheckBox) child;
+                            VisCheckBox checkbox = (VisCheckBox) child;
                             if (checkbox.isChecked()) {
                                 verticalGroup.removeActor(child);
                             }
@@ -71,26 +72,21 @@ public class StringArrayEditorWidget extends VisTable {
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
 
-        add(label + ":").growX().row();
         add(scrollPane).height(100).growX().row();
         add(buttonTable).growX().row();
     }
 
-    private void updateValues(VerticalGroup group, Callback callback) {
+    private void updateValues(VerticalGroup group, Consumer<Array<String>> callback) {
         Array<String> result = new Array<>();
         for (Actor child : group.getChildren()) {
-            result.add(((CheckBox) child).getText().toString());
+            result.add(((VisCheckBox) child).getText().toString());
         }
-        callback.setValue(result);
+        callback.accept(result);
     }
 
     private void addString(VerticalGroup verticalGroup, String value) {
         VisCheckBox checkBox = new VisCheckBox(value);
         checkBox.align(Align.left);
         verticalGroup.addActor(checkBox);
-    }
-
-    public interface Callback {
-        void setValue(Array<String> value);
     }
 }
