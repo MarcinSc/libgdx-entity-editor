@@ -23,8 +23,10 @@ public class FloatComponentFieldType implements ComponentFieldType<Number> {
 
     @Override
     public Actor createEditor(boolean editable, Number fieldValue, Consumer<Number> consumer) {
-        if (fieldValue == null)
+        if (fieldValue == null) {
             fieldValue = getDefaultValue();
+            consumer.accept(fieldValue);
+        }
         return new FloatEditorWidget(editable, fieldValue.floatValue(), consumer);
     }
 

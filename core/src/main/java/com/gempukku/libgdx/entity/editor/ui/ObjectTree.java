@@ -26,6 +26,7 @@ import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.DefaultDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.github.javaparser.StaticJavaParser;
@@ -98,6 +99,8 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                             entityDefinitionClicked((EntityDefinitionNode) clickedNode, x, y);
                         } else if (clickedNode instanceof CustomDataTypesNode) {
                             customDataTypesClicked(x, y);
+                        } else if (clickedNode instanceof CustomDataDefinitionNode) {
+                            customDataTypeClicked((CustomDataDefinitionNode) clickedNode, x, y);
                         }
                     }
                 });
@@ -128,6 +131,57 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         scrollPane.setFadeScrollBars(false);
 
         add(scrollPane).grow();
+    }
+
+    private void customDataTypeClicked(CustomDataDefinitionNode treeNode, float x, float y) {
+        if (!treeNode.getValue().isReadOnly()) {
+            MenuItem edit = new MenuItem("Edit");
+            edit.addListener(
+                    new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            DataTypeEditorDialog dialog = new DataTypeEditorDialog((DefaultDataDefinition) treeNode.getValue()) {
+                                @Override
+                                protected void result(Object object) {
+                                }
+                            };
+                            dialog.button("Done", "Done");
+                            dialog.show(getStage());
+                        }
+                    });
+
+            MenuItem remove = new MenuItem("Remove");
+            remove.addListener(
+                    new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            Dialogs.showOptionDialog(getStage(), "Delete type", "Are you sure you want to delete this type?",
+                                    Dialogs.OptionDialogType.YES_CANCEL,
+                                    new OptionDialogListener() {
+                                        @Override
+                                        public void yes() {
+                                            deleteCustomType(treeNode);
+                                        }
+
+                                        @Override
+                                        public void no() {
+
+                                        }
+
+                                        @Override
+                                        public void cancel() {
+
+                                        }
+                                    });
+                        }
+                    });
+
+
+            PopupMenu popupMenu = new PopupMenu();
+            popupMenu.addItem(edit);
+            popupMenu.addItem(remove);
+            popupMenu.showMenu(getStage(), x + getX(), y + getY());
+        }
     }
 
     private void entityDefinitionClicked(EntityDefinitionNode<T, U> treeNode, float x, float y) {
@@ -249,6 +303,21 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     private void deleteEntity(EntityDefinitionNode<T, U> entity) {
         project.removeEntity(entity.getValue());
         entity.remove();
+    }
+
+    private void deleteCustomType(CustomDataDefinitionNode dataDefinitionNode) {
+        String dataDefinitionId = dataDefinitionNode.getValue().getId();
+        for (LocatedEntityDefinition<U> templateDefinition : getTemplates()) {
+            templateDefinition.getEntityDefinition().removeComponent(dataDefinitionId);
+        }
+        for (String entityGroup : getEntityGroups()) {
+            for (LocatedEntityDefinition<U> entity : getEntities(entityGroup)) {
+                entity.getEntityDefinition().removeComponent(dataDefinitionId);
+            }
+        }
+
+        dataDefinitionNode.remove();
+        rebuildAllEntities();
     }
 
     private void deleteTemplate(EntityTemplateNode<T, U> template) {

@@ -23,8 +23,10 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
 
     @Override
     public Actor createEditor(boolean editable, Boolean fieldValue, Consumer<Boolean> consumer) {
-        if (fieldValue == null)
+        if (fieldValue == null) {
             fieldValue = getDefaultValue();
+            consumer.accept(fieldValue);
+        }
         return new BooleanEditorWidget(editable, fieldValue, consumer);
     }
 

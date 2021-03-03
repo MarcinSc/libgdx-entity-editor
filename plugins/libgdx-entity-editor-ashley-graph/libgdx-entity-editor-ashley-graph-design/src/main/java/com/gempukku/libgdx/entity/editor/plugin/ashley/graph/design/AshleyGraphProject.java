@@ -202,7 +202,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
         JsonValue customDataDefinitions = new JsonValue(JsonValue.ValueType.array);
         for (DataDefinition<?> dataDefinition : objectTreeData.getDataDefinitions()) {
-            if (dataDefinition.isStoreWithProject()) {
+            if (dataDefinition.isStoredWithProject()) {
                 JsonValue customComponentJson = new JsonValue(JsonValue.ValueType.object);
                 customComponentJson.addChild("id", new JsonValue(dataDefinition.getId()));
                 customComponentJson.addChild("name", new JsonValue(dataDefinition.getName()));

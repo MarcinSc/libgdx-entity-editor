@@ -13,7 +13,9 @@ public interface DataDefinition<T extends DataStorage> {
 
     String getClassName();
 
-    boolean isStoreWithProject();
+    boolean isStoredWithProject();
+
+    boolean isReadOnly();
 
     Iterable<FieldDefinition> getFieldTypes();
 

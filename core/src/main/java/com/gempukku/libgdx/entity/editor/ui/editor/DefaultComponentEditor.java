@@ -49,7 +49,7 @@ public class DefaultComponentEditor implements ComponentEditor {
                         });
 
                 tbl.add(name + ":").colspan(2).left().pad(3).row();
-                tbl.add(arrayFieldEditor).growX().pad(3).row();
+                tbl.add(arrayFieldEditor).colspan(2).growX().pad(3).row();
             }
         }
 

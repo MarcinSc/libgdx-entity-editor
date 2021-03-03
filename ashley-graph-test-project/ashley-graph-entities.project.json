@@ -18,18 +18,7 @@
             "templates": [
               "8e26872416ce4651ae5b324b1ab97e88"
             ],
-            "components": [
-              {
-                "id": "237b869390c34e2bb1b9b56b5fb37898",
-                "data": {
-                  "value": [
-                    0.0,
-                    0.0,
-                    0.0
-                  ]
-                }
-              }
-            ]
+            "components": []
           }
         },
         {
@@ -48,7 +37,8 @@
                     "a",
                     "b",
                     "c"
-                  ]
+                  ],
+                  "blah": 0.0
                 }
               },
               {
@@ -66,19 +56,6 @@
   ],
   "customDataDefinitions": [
     {
-      "id": "237b869390c34e2bb1b9b56b5fb37898",
-      "name": "ArrayFloatComponent",
-      "className": "com.gempukku.example.component.ArrayFloatComponent",
-      "component": true,
-      "fields": [
-        {
-          "name": "value",
-          "type": "Array",
-          "fieldTypeId": "float"
-        }
-      ]
-    },
-    {
       "id": "f366d10a7e8d4a38ad6263c80880e7ed",
       "name": "StringArrayComponent",
       "className": "com.gempukku.example.component.StringArrayComponent",
@@ -88,6 +65,11 @@
           "name": "value",
           "type": "Array",
           "fieldTypeId": "String"
+        },
+        {
+          "name": "blah",
+          "type": "Object",
+          "fieldTypeId": "float"
         }
       ]
     }

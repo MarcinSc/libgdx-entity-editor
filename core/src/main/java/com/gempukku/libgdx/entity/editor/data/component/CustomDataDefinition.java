@@ -51,7 +51,12 @@ public class CustomDataDefinition extends DefaultDataDefinition<CustomDataStorag
     }
 
     @Override
-    public boolean isStoreWithProject() {
+    public boolean isStoredWithProject() {
         return true;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return false;
     }
 }

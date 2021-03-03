@@ -6,8 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
-import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.DefaultDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -17,14 +17,15 @@ import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
+import com.kotcrab.vis.ui.widget.VisSelectBox;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 public class DataTypeEditorDialog extends VisDialog {
-    private CustomDataDefinition dataDefinition;
+    private DefaultDataDefinition<?> dataDefinition;
 
-    public DataTypeEditorDialog(CustomDataDefinition dataDefinition) {
+    public DataTypeEditorDialog(DefaultDataDefinition<?> dataDefinition) {
         super("Data Type Editor");
         this.dataDefinition = dataDefinition;
 
@@ -74,7 +75,7 @@ public class DataTypeEditorDialog extends VisDialog {
         fieldsGroup.top().left();
 
         for (FieldDefinition fieldDefinition : dataDefinition.getFieldTypes()) {
-            fieldsGroup.addActor(new FieldEntry(fieldDefinition.getName(), CustomFieldTypeRegistry.getComponentFieldTypeById(fieldDefinition.getFieldTypeId()).getName()));
+            fieldsGroup.addActor(new FieldEntry(fieldDefinition.getName(), fieldDefinition.getType().name(), CustomFieldTypeRegistry.getComponentFieldTypeById(fieldDefinition.getFieldTypeId()).getName()));
         }
 
         VisScrollPane fieldsScrollPane = new VisScrollPane(fieldsGroup) {
@@ -104,6 +105,8 @@ public class DataTypeEditorDialog extends VisDialog {
                         }
                     }
                 });
+        VisSelectBox<FieldDefinition.Type> typesSelect = new VisSelectBox<>();
+        typesSelect.setItems(FieldDefinition.Type.values());
         VisTextButton addField = new VisTextButton("Add");
         addField.addListener(
                 new ChangeListener() {
@@ -126,8 +129,9 @@ public class DataTypeEditorDialog extends VisDialog {
                                                     new InputDialogListener() {
                                                         @Override
                                                         public void finished(String input) {
-                                                            dataDefinition.addFieldType(input, FieldDefinition.Type.Object, fieldType.getId());
-                                                            fieldsGroup.addActor(new FieldEntry(input, fieldType.getName()));
+                                                            FieldDefinition.Type type = typesSelect.getSelected();
+                                                            dataDefinition.addFieldType(input, type, fieldType.getId());
+                                                            fieldsGroup.addActor(new FieldEntry(input, type.name(), fieldType.getName()));
                                                         }
 
                                                         @Override
@@ -145,8 +149,15 @@ public class DataTypeEditorDialog extends VisDialog {
                 });
 
         VisTable fieldsButtons = new VisTable();
+        fieldsButtons.pad(3);
         fieldsButtons.add(removeFields);
+        fieldsButtons.add(typesSelect);
         fieldsButtons.add(addField);
+
+        VisTable labels = new VisTable();
+        labels.add("Name").width(150);
+        labels.add("Type").width(100);
+        labels.add("Field type").growX().row();
 
         Table contentTable = getContentTable();
         contentTable.add("Name: ");
@@ -158,6 +169,8 @@ public class DataTypeEditorDialog extends VisDialog {
         contentTable.add(componentCheckBox).colspan(2).growX();
         contentTable.row();
         contentTable.add("Fields:").colspan(2).growX();
+        contentTable.row();
+        contentTable.add(labels).colspan(2).growX();
         contentTable.row();
         contentTable.add(fieldsScrollPane).colspan(2).growX();
         contentTable.row();
@@ -174,12 +187,13 @@ public class DataTypeEditorDialog extends VisDialog {
         private VisCheckBox checkBox;
         private String name;
 
-        public FieldEntry(String name, String type) {
+        public FieldEntry(String name, String type, String fieldType) {
             this.name = name;
             checkBox = new VisCheckBox(name);
             checkBox.align(Align.left);
             add(checkBox).width(150);
-            add(type).growX();
+            add(type).width(100);
+            add(fieldType).growX();
             row();
         }
 

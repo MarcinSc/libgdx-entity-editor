@@ -23,8 +23,10 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
 
     @Override
     public Actor createEditor(boolean editable, String fieldValue, Consumer<String> consumer) {
-        if (fieldValue == null)
+        if (fieldValue == null) {
             fieldValue = getDefaultValue();
+            consumer.accept(fieldValue);
+        }
         return new StringEditorWidget(editable, fieldValue, consumer);
     }
 

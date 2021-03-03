@@ -38,7 +38,12 @@ public abstract class ComponentDataDefinition<T extends Component, U extends Com
     }
 
     @Override
-    public boolean isStoreWithProject() {
+    public boolean isStoredWithProject() {
         return false;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return true;
     }
 }
