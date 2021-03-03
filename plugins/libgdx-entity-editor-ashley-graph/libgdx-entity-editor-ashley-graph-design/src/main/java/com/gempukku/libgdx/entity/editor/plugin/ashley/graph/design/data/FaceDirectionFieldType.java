@@ -1,6 +1,7 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.EnumEditorWidget;
@@ -29,8 +30,20 @@ public class FaceDirectionFieldType implements ComponentFieldType<FaceDirection>
 
     @Override
     public Actor createEditor(boolean editable, FaceDirection fieldValue, Consumer<FaceDirection> consumer) {
+        if (fieldValue == null)
+            fieldValue = getDefaultValue();
         return new EnumEditorWidget<FaceDirection>(
                 editable, FaceDirection.class, false,
                 fieldValue, consumer);
+    }
+
+    @Override
+    public JsonValue convertToJson(FaceDirection value) {
+        return new JsonValue(value.name());
+    }
+
+    @Override
+    public FaceDirection getDefaultValue() {
+        return FaceDirection.values()[0];
     }
 }

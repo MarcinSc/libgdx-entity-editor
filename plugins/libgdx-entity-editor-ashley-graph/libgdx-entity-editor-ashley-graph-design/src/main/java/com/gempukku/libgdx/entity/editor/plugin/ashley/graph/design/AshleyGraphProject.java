@@ -107,9 +107,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 CustomDataDefinition dataDefinition = new CustomDataDefinition(id, component, name, className);
 
                 for (JsonValue field : customDataDefinition.get("fields")) {
-                    String fieldName = field.name();
-                    String fieldTypeId = field.asString();
-                    dataDefinition.addFieldType(fieldName, fieldTypeId);
+                    String fieldName = field.getString("name");
+                    FieldDefinition.Type type = FieldDefinition.Type.valueOf(field.getString("type"));
+                    String fieldTypeId = field.getString("fieldTypeId");
+                    dataDefinition.addFieldType(fieldName, type, fieldTypeId);
                 }
 
                 objectTreeData.addCustomDataType(dataDefinition);
@@ -207,9 +208,13 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 customComponentJson.addChild("name", new JsonValue(dataDefinition.getName()));
                 customComponentJson.addChild("className", new JsonValue(dataDefinition.getClassName()));
                 customComponentJson.addChild("component", new JsonValue(dataDefinition.isComponent()));
-                JsonValue fields = new JsonValue(JsonValue.ValueType.object);
+                JsonValue fields = new JsonValue(JsonValue.ValueType.array);
                 for (FieldDefinition fieldDefinition : dataDefinition.getFieldTypes()) {
-                    fields.addChild(fieldDefinition.getName(), new JsonValue(fieldDefinition.getTypeId()));
+                    JsonValue field = new JsonValue(JsonValue.ValueType.object);
+                    field.addChild("name", new JsonValue(fieldDefinition.getName()));
+                    field.addChild("type", new JsonValue(fieldDefinition.getType().name()));
+                    field.addChild("fieldTypeId", new JsonValue(fieldDefinition.getFieldTypeId()));
+                    fields.addChild(field);
                 }
                 customComponentJson.addChild("fields", fields);
 

@@ -54,7 +54,11 @@ public abstract class DefaultDataDefinition<T extends DataStorage> implements Da
     }
 
     public void addFieldType(String fieldName, String typeId) {
-        fieldTypes.add(new DefaultFieldDefinition(fieldName, typeId));
+        addFieldType(fieldName, FieldDefinition.Type.Object, typeId);
+    }
+
+    public void addFieldType(String fieldName, FieldDefinition.Type type, String typeId) {
+        fieldTypes.add(new DefaultFieldDefinition(fieldName, type, typeId));
     }
 
     public void removeField(String name) {

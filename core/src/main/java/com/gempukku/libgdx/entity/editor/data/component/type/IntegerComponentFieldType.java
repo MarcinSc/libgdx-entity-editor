@@ -1,6 +1,7 @@
 package com.gempukku.libgdx.entity.editor.data.component.type;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.IntegerEditorWidget;
 import com.github.javaparser.ast.type.Type;
@@ -23,7 +24,7 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
     @Override
     public Actor createEditor(boolean editable, Number fieldValue, Consumer<Number> consumer) {
         if (fieldValue == null)
-            fieldValue = 0;
+            fieldValue = getDefaultValue();
         return new IntegerEditorWidget(editable, fieldValue.intValue(), consumer);
     }
 
@@ -31,6 +32,18 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
     public boolean accepts(String componentClass, String fieldName, Type type, boolean exact) {
         if (exact)
             return false;
-        return type.isPrimitiveType() && type.asString().equals("int");
+        String str = type.asString();
+        return (type.isPrimitiveType() && str.equals("int"))
+                || (str.equals("Integer") || str.equals("java.lang.Integer"));
+    }
+
+    @Override
+    public JsonValue convertToJson(Number value) {
+        return new JsonValue(value.intValue());
+    }
+
+    @Override
+    public Number getDefaultValue() {
+        return 1;
     }
 }

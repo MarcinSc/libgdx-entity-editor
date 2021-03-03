@@ -1,6 +1,7 @@
 package com.gempukku.libgdx.entity.editor.data.component.type;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.StringEditorWidget;
 import com.github.javaparser.ast.type.Type;
@@ -23,7 +24,7 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
     @Override
     public Actor createEditor(boolean editable, String fieldValue, Consumer<String> consumer) {
         if (fieldValue == null)
-            fieldValue = "";
+            fieldValue = getDefaultValue();
         return new StringEditorWidget(editable, fieldValue, consumer);
     }
 
@@ -33,5 +34,15 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
             return false;
         String stringType = type.asString();
         return stringType.equals("java.lang.String") || stringType.equals("String");
+    }
+
+    @Override
+    public JsonValue convertToJson(String value) {
+        return new JsonValue(value);
+    }
+
+    @Override
+    public String getDefaultValue() {
+        return "";
     }
 }

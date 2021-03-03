@@ -74,7 +74,7 @@ public class DataTypeEditorDialog extends VisDialog {
         fieldsGroup.top().left();
 
         for (FieldDefinition fieldDefinition : dataDefinition.getFieldTypes()) {
-            fieldsGroup.addActor(new FieldEntry(fieldDefinition.getName(), CustomFieldTypeRegistry.getComponentFieldTypeById(fieldDefinition.getTypeId()).getName()));
+            fieldsGroup.addActor(new FieldEntry(fieldDefinition.getName(), CustomFieldTypeRegistry.getComponentFieldTypeById(fieldDefinition.getFieldTypeId()).getName()));
         }
 
         VisScrollPane fieldsScrollPane = new VisScrollPane(fieldsGroup) {
@@ -126,7 +126,7 @@ public class DataTypeEditorDialog extends VisDialog {
                                                     new InputDialogListener() {
                                                         @Override
                                                         public void finished(String input) {
-                                                            dataDefinition.addFieldType(input, fieldType.getId());
+                                                            dataDefinition.addFieldType(input, FieldDefinition.Type.Object, fieldType.getId());
                                                             fieldsGroup.addActor(new FieldEntry(input, fieldType.getName()));
                                                         }
 

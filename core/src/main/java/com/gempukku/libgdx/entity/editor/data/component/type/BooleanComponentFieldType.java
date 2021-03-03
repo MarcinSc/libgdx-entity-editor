@@ -1,6 +1,7 @@
 package com.gempukku.libgdx.entity.editor.data.component.type;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.BooleanEditorWidget;
 import com.github.javaparser.ast.type.Type;
@@ -23,7 +24,7 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
     @Override
     public Actor createEditor(boolean editable, Boolean fieldValue, Consumer<Boolean> consumer) {
         if (fieldValue == null)
-            fieldValue = false;
+            fieldValue = getDefaultValue();
         return new BooleanEditorWidget(editable, fieldValue, consumer);
     }
 
@@ -31,6 +32,18 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
     public boolean accepts(String componentClass, String fieldName, Type type, boolean exact) {
         if (exact)
             return false;
-        return type.isPrimitiveType() && type.asString().equals("boolean");
+        String str = type.asString();
+        return (type.isPrimitiveType() && str.equals("boolean"))
+                || (str.equals("Boolean") || str.equals("java.lang.Boolean"));
+    }
+
+    @Override
+    public JsonValue convertToJson(Boolean value) {
+        return new JsonValue(value);
+    }
+
+    @Override
+    public Boolean getDefaultValue() {
+        return false;
     }
 }

@@ -26,12 +26,16 @@ import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
 import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
+import com.github.javaparser.ast.type.ArrayType;
 import com.github.javaparser.ast.type.Type;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -47,6 +51,7 @@ import com.kotcrab.vis.ui.widget.file.FileChooserAdapter;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -415,12 +420,19 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         classDeclaration.findAll(FieldDeclaration.class).stream()
                 .filter(f -> !f.isStatic() && !f.isTransient())
                 .forEach(f -> {
-                    VariableDeclarator variable = f.getVariable(0);
+                            VariableDeclarator variable = f.getVariable(0);
                             String variableName = variable.getName().asString();
                             Type variableType = variable.getType();
-                            boolean isArray = variableType.isArrayType() || variableType.asString().equals("Array");
-                            if (!isArray)
-                                result.addFieldType(variableName, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                            if (variableType.isArrayType()) {
+                                variableType = ((ArrayType) variableType).getComponentType();
+                                result.addFieldType(variableName, FieldDefinition.Type.Array, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                            } else if (variableType.asString().startsWith("Array<") || variableType.asString().startsWith("com.badlogic.gdx.utils.Array<")) {
+                                Optional<NodeList<Type>> o = ((NodeWithTypeArguments) variableType).getTypeArguments();
+                                variableType = o.get().get(0);
+                                result.addFieldType(variableName, FieldDefinition.Type.Array, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                            } else {
+                                result.addFieldType(variableName, FieldDefinition.Type.Object, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                            }
                         }
                 );
         return result;
