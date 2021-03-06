@@ -48,4 +48,9 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
     public Boolean getDefaultValue() {
         return false;
     }
+
+    @Override
+    public boolean isEditorSmall() {
+        return true;
+    }
 }

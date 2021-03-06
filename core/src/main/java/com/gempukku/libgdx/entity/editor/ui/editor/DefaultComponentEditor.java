@@ -35,8 +35,13 @@ public class DefaultComponentEditor implements ComponentEditor {
                             }
                         });
 
-                tbl.add(name + ": ").width(120).left().pad(3);
-                tbl.add(widget).growX().pad(3).row();
+                if (fieldType.isEditorSmall()) {
+                    tbl.add(name + ": ").width(120).left().top().pad(3);
+                    tbl.add(widget).growX().pad(3).row();
+                } else {
+                    tbl.add(name + ":").colspan(2).left().pad(3).row();
+                    tbl.add(widget).colspan(2).growX().pad(3).row();
+                }
             } else if (type == FieldDefinition.Type.Array) {
                 ArrayFieldEditor arrayFieldEditor = new ArrayFieldEditor(editable, (Array) componentData.getValue(name),
                         fieldType,

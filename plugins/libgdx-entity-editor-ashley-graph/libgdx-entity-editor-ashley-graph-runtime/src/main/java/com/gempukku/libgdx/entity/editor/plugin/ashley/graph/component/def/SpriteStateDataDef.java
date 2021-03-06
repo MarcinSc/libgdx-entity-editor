@@ -1,18 +1,16 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def;
 
-import com.badlogic.gdx.utils.ObjectMap;
-
 public class SpriteStateDataDef {
     private float width = 1f;
     private float height = 1f;
-    private ObjectMap<String, Object> properties = new ObjectMap<>();
+    private GraphSpriteProperties graphSpriteProperties = new GraphSpriteProperties();
 
-    public ObjectMap<String, Object> getProperties() {
-        return properties;
+    public GraphSpriteProperties getGraphSpriteProperties() {
+        return graphSpriteProperties;
     }
 
-    public void setProperties(ObjectMap<String, Object> properties) {
-        this.properties = properties;
+    public void setGraphSpriteProperties(GraphSpriteProperties graphSpriteProperties) {
+        this.graphSpriteProperties = graphSpriteProperties;
     }
 
     public float getWidth() {

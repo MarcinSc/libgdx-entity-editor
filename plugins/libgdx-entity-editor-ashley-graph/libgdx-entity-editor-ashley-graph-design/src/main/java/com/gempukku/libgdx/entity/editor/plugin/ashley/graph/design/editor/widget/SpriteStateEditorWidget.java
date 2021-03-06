@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.GraphSpriteProperties;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.EditorConfig;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.PairOfFloatsEditorWidget;
@@ -16,6 +17,8 @@ import com.kotcrab.vis.ui.widget.VisDialog;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
+
+import java.util.function.Consumer;
 
 public class SpriteStateEditorWidget extends VisTable {
     public SpriteStateEditorWidget(
@@ -132,17 +135,18 @@ public class SpriteStateEditorWidget extends VisTable {
                                                     callback.run();
                                                 }
                                             })).growX().row();
+                            contentTable.add("Sprite State Data").growX().row();
                             contentTable.add(
-                                    new GraphShaderPropertiesEditorWidget(
-                                            "Sprite state data", true,
-                                            dataDef.getProperties(),
-                                            new GraphShaderPropertiesEditorWidget.Callback() {
+                                    new GraphSpritePropertiesEditorWidget(
+                                            true,
+                                            dataDef.getGraphSpriteProperties(),
+                                            new Consumer<GraphSpriteProperties>() {
                                                 @Override
-                                                public void setValue(ObjectMap<String, Object> value) {
-                                                    dataDef.setProperties(value);
+                                                public void accept(GraphSpriteProperties graphSpriteProperties) {
+                                                    dataDef.setGraphSpriteProperties(graphSpriteProperties);
                                                     callback.run();
                                                 }
-                                            })).grow().row();
+                                            })).growX().row();
                             VisTextButton done = new VisTextButton("Done");
                             done.addListener(
                                     new ChangeListener() {

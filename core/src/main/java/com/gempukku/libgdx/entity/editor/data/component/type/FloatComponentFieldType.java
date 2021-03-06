@@ -48,4 +48,9 @@ public class FloatComponentFieldType implements ComponentFieldType<Number> {
     public Number getDefaultValue() {
         return 0f;
     }
+
+    @Override
+    public boolean isEditorSmall() {
+        return true;
+    }
 }

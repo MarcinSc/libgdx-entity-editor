@@ -18,4 +18,6 @@ public interface ComponentFieldType<T> {
     JsonValue convertToJson(T value);
 
     T getDefaultValue();
+
+    boolean isEditorSmall();
 }

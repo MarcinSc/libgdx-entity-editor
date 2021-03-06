@@ -48,4 +48,9 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
     public Number getDefaultValue() {
         return 1;
     }
+
+    @Override
+    public boolean isEditorSmall() {
+        return true;
+    }
 }

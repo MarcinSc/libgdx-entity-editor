@@ -48,4 +48,9 @@ public class LongComponentFieldType implements ComponentFieldType<Number> {
     public Number getDefaultValue() {
         return 1L;
     }
+
+    @Override
+    public boolean isEditorSmall() {
+        return true;
+    }
 }

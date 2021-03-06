@@ -1,12 +1,12 @@
 package com.gempukku.libgdx.entity.editor.ui.editor;
 
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
 import com.kotcrab.vis.ui.widget.spinner.Spinner;
@@ -66,13 +66,13 @@ public class ArrayFieldEditor<T> extends VisTable {
             arrayEntries.addActor(arrayEntry);
         }
 
-        ScrollPane scrollPane = new ScrollPane(arrayEntries);
+        VisScrollPane scrollPane = new VisScrollPane(arrayEntries);
         scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(true, true);
+        scrollPane.setForceScroll(false, true);
 
         add("Size:").width(120).left();
         add(spinner).growX().row();
-        add(scrollPane).colspan(2).top().growX().row();
+        add(scrollPane).colspan(2).top().grow().row();
     }
 
     private void shrinkTo(int size) {

@@ -2,14 +2,14 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.GraphSpriteProperties;
 
 public class SpriteComponent implements Component {
     private float layer = 0f;
     private float width = 1f;
     private float height = 1f;
     private Array<String> tags = new Array<>();
-    private ObjectMap<String, Object> properties = new ObjectMap<>();
+    private GraphSpriteProperties properties = new GraphSpriteProperties();
 
     public float getLayer() {
         return layer;
@@ -47,11 +47,11 @@ public class SpriteComponent implements Component {
         this.tags = tags;
     }
 
-    public void setProperties(ObjectMap<String, Object> properties) {
-        this.properties = properties;
+    public GraphSpriteProperties getProperties() {
+        return properties;
     }
 
-    public ObjectMap<String, Object> getProperties() {
-        return properties;
+    public void setProperties(GraphSpriteProperties properties) {
+        this.properties = properties;
     }
 }

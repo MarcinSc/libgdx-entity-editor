@@ -1,9 +1,10 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
+import com.gempukku.libgdx.entity.editor.data.component.type.EnumFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.EntityEditorPluginInitializer;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.FaceDirectionFieldType;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.SpriteComponentEditorFactory;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.GraphSpritesPropertiesFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.SpriteStateComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorRegistry;
@@ -17,8 +18,8 @@ public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPlu
         SpritesPluginRuntimeInitializer.register();
         ProjectReaderRegistry.register(projectReader);
 
-        CustomFieldTypeRegistry.registerComponentFieldType(new FaceDirectionFieldType());
-        ComponentEditorRegistry.registerComponentEditorFactory("SpriteComponent", new SpriteComponentEditorFactory());
+        CustomFieldTypeRegistry.registerComponentFieldType(new EnumFieldType<>(FaceDirection.class, FaceDirection.Right));
+        CustomFieldTypeRegistry.registerComponentFieldType(new GraphSpritesPropertiesFieldType());
         ComponentEditorRegistry.registerComponentEditorFactory("SpriteStateComponent", new SpriteStateComponentEditorFactory());
     }
 }

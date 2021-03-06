@@ -47,4 +47,9 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
     public String getDefaultValue() {
         return "";
     }
+
+    @Override
+    public boolean isEditorSmall() {
+        return true;
+    }
 }

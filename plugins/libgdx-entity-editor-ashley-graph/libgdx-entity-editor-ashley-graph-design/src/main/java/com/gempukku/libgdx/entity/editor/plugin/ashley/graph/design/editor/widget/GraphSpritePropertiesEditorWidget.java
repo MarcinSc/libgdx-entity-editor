@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.GraphSpriteProperties;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.CurrentTimeValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.EditorConfig;
@@ -29,14 +30,18 @@ import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 import com.kotcrab.vis.ui.widget.color.ColorPicker;
 import com.kotcrab.vis.ui.widget.color.ColorPickerAdapter;
 
-public class GraphShaderPropertiesEditorWidget extends VisTable {
+import java.util.function.Consumer;
+
+public class GraphSpritePropertiesEditorWidget extends VisTable {
     private final Runnable updateValue;
     private final VerticalGroup verticalGroup;
-    private final Callback callback;
+    private GraphSpriteProperties graphSpriteProperties;
+    private Consumer<GraphSpriteProperties> consumer;
 
-    public GraphShaderPropertiesEditorWidget(
-            String label, boolean editable, ObjectMap<String, Object> pipelineProperties, Callback callback) {
-        this.callback = callback;
+    public GraphSpritePropertiesEditorWidget(
+            boolean editable, GraphSpriteProperties graphSpriteProperties, Consumer<GraphSpriteProperties> consumer) {
+        this.graphSpriteProperties = graphSpriteProperties;
+        this.consumer = consumer;
 
         verticalGroup = new VerticalGroup();
         verticalGroup.grow();
@@ -49,7 +54,7 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
             }
         };
 
-        for (ObjectMap.Entry<String, Object> entry : pipelineProperties.entries()) {
+        for (ObjectMap.Entry<String, Object> entry : graphSpriteProperties) {
             addProperty(verticalGroup, entry.key, editable, entry.value);
         }
 
@@ -114,9 +119,13 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
 
-        add(label + ":").growX().row();
-        add(scrollPane).height(200).growX().row();
+        add(scrollPane).grow().row();
         add(buttonTable).growX().row();
+    }
+
+    @Override
+    public float getPrefHeight() {
+        return 150;
     }
 
     private void addProperty(VerticalGroup verticalGroup, String name, boolean editable, Object value) {
@@ -125,16 +134,12 @@ public class GraphShaderPropertiesEditorWidget extends VisTable {
     }
 
     private void updateValue() {
-        ObjectMap<String, Object> result = new ObjectMap<>();
+        graphSpriteProperties.clear();
         for (Actor child : verticalGroup.getChildren()) {
             ShaderProperty shaderProperty = (ShaderProperty) child;
-            result.put(shaderProperty.getPropertyName(), shaderProperty.getValue());
+            graphSpriteProperties.put(shaderProperty.getPropertyName(), shaderProperty.getValue());
         }
-        callback.setValue(result);
-    }
-
-    public interface Callback {
-        void setValue(ObjectMap<String, Object> value);
+        consumer.accept(graphSpriteProperties);
     }
 
     private class AddPropertyChangeListener extends ChangeListener {
