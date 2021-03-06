@@ -65,7 +65,9 @@ public class EntityInspector<T, U extends EntityDefinition> extends VisTable {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         if (!entity && editedEntity != null) {
+                            mutating = true;
                             fire(new TemplateChanged());
+                            mutating = false;
                         }
                         event.stop();
                     }

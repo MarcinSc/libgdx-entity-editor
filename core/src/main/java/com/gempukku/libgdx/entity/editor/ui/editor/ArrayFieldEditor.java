@@ -88,6 +88,7 @@ public class ArrayFieldEditor<T> extends VisTable {
     private void expandTo(int size) {
         while (arrayEntryActors.size < size) {
             int addedIndex = arrayEntryActors.size;
+            result.add(fieldType.getDefaultValue());
             ArrayEntry<T> arrayEntry = new ArrayEntry<>(addedIndex, editable, null, fieldType,
                     new Consumer<T>() {
                         @Override
@@ -98,7 +99,6 @@ public class ArrayFieldEditor<T> extends VisTable {
                     });
             arrayEntryActors.add(arrayEntry);
             arrayEntries.addActor(arrayEntry);
-            result.add(fieldType.getDefaultValue());
         }
         consumer.accept(result);
     }

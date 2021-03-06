@@ -35,7 +35,7 @@ public class SpriteComponent implements Component {
         this.height = height;
     }
 
-    public Iterable<String> getTags() {
+    public Array<String> getTags() {
         return tags;
     }
 
@@ -44,13 +44,11 @@ public class SpriteComponent implements Component {
     }
 
     public void setTags(Array<String> tags) {
-        this.tags.clear();
-        this.tags.addAll(tags);
+        this.tags = tags;
     }
 
     public void setProperties(ObjectMap<String, Object> properties) {
-        this.properties.clear();
-        this.properties.putAll(properties);
+        this.properties = properties;
     }
 
     public ObjectMap<String, Object> getProperties() {

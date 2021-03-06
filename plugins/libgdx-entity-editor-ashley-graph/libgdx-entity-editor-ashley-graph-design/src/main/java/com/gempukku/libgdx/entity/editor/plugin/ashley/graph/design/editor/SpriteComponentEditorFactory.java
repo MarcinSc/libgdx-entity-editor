@@ -3,13 +3,14 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.gempukku.libgdx.entity.editor.data.component.type.StringComponentFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.SpriteComponentDataStorage;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget.GraphShaderPropertiesEditorWidget;
+import com.gempukku.libgdx.entity.editor.ui.editor.ArrayFieldEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditor;
 import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.ui.editor.widget.FloatEditorWidget;
-import com.gempukku.libgdx.entity.editor.ui.editor.widget.StringArrayEditorWidget;
 import com.kotcrab.vis.ui.widget.VisTable;
 
 import java.util.function.Consumer;
@@ -40,7 +41,8 @@ public class SpriteComponentEditorFactory implements ComponentEditorFactory<Spri
                             callback.run();
                         }
                     });
-            StringArrayEditorWidget tags = new StringArrayEditorWidget(editable, component.getTags(),
+
+            ArrayFieldEditor<String> tags = new ArrayFieldEditor<>(editable, component.getTags(), new StringComponentFieldType(),
                     new Consumer<Array<String>>() {
                         @Override
                         public void accept(Array<String> strings) {
