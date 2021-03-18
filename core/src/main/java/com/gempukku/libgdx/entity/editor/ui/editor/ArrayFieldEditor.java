@@ -5,7 +5,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
-import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
+import com.badlogic.gdx.utils.JsonValue;
+import com.gempukku.libgdx.entity.editor.data.component.EditableType;
 import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
@@ -19,15 +20,13 @@ public class ArrayFieldEditor<T> extends VisTable {
     private final Array<ArrayEntry<T>> arrayEntryActors = new Array<>();
 
     private final boolean editable;
-    private ComponentFieldType<T> fieldType;
+    private EditableType<T> fieldType;
     private final Consumer<Array<T>> consumer;
 
-    public ArrayFieldEditor(boolean editable, Array<T> value, ComponentFieldType<T> fieldType, Consumer<Array<T>> consumer) {
-        if (value == null) {
-            this.result = new Array<>();
-            consumer.accept(result);
-        } else {
-            this.result = value;
+    public ArrayFieldEditor(boolean editable, Iterable<JsonValue> value, EditableType<T> fieldType, Consumer<Array<T>> consumer) {
+        this.result = new Array<>();
+        for (JsonValue t : value) {
+            result.add(fieldType.convertToValue(t));
         }
         this.editable = editable;
         this.fieldType = fieldType;
@@ -109,7 +108,7 @@ public class ArrayFieldEditor<T> extends VisTable {
     }
 
     private static class ArrayEntry<T> extends VisTable {
-        public ArrayEntry(int index, boolean editable, T value, ComponentFieldType<T> fieldType, Consumer<T> consumer) {
+        public ArrayEntry(int index, boolean editable, T value, EditableType<T> fieldType, Consumer<T> consumer) {
             Actor editor = fieldType.createEditor(editable, value, consumer);
 
             add("[" + index + "]").left().width(120);

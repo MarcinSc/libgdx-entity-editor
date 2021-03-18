@@ -22,12 +22,12 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
     }
 
     @Override
-    public Actor createEditor(boolean editable, Boolean fieldValue, Consumer<Boolean> consumer) {
-        if (fieldValue == null) {
-            fieldValue = getDefaultValue();
-            consumer.accept(fieldValue);
+    public Actor createEditor(boolean editable, Boolean value, Consumer<Boolean> consumer) {
+        if (value == null) {
+            value = getDefaultValue();
+            consumer.accept(value);
         }
-        return new BooleanEditorWidget(editable, fieldValue, consumer);
+        return new BooleanEditorWidget(editable, value, consumer);
     }
 
     @Override
@@ -42,6 +42,11 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
     @Override
     public JsonValue convertToJson(Boolean value) {
         return new JsonValue(value);
+    }
+
+    @Override
+    public Boolean convertToValue(JsonValue json) {
+        return json.asBoolean();
     }
 
     @Override

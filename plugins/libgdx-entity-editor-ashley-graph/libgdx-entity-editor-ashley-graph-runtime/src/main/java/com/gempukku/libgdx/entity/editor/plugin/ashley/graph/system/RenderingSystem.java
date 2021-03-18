@@ -79,7 +79,7 @@ public class RenderingSystem extends EntitySystem {
                 if (stateData != null) {
                     sprite.setWidth(stateData.getWidth());
                     sprite.setHeight(stateData.getHeight());
-                    sprite.setProperties(stateData.getGraphSpriteProperties());
+                    sprite.setProperties(stateData.getProperties());
                 }
             }
         }

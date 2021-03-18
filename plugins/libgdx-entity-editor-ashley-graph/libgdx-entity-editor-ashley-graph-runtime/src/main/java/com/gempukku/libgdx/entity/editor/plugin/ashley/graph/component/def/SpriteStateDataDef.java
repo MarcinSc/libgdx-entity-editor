@@ -3,14 +3,14 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def;
 public class SpriteStateDataDef {
     private float width = 1f;
     private float height = 1f;
-    private GraphSpriteProperties graphSpriteProperties = new GraphSpriteProperties();
+    private GraphSpriteProperties properties = new GraphSpriteProperties();
 
-    public GraphSpriteProperties getGraphSpriteProperties() {
-        return graphSpriteProperties;
+    public GraphSpriteProperties getProperties() {
+        return properties;
     }
 
-    public void setGraphSpriteProperties(GraphSpriteProperties graphSpriteProperties) {
-        this.graphSpriteProperties = graphSpriteProperties;
+    public void setProperties(GraphSpriteProperties properties) {
+        this.properties = properties;
     }
 
     public float getWidth() {

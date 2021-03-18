@@ -111,7 +111,8 @@ public class EntityInspector<T, U extends EntityDefinition> extends VisTable {
                                             new ChangeListener() {
                                                 @Override
                                                 public void changed(ChangeEvent event, Actor actor) {
-                                                    DataStorage dataStorage = dataDefinition.createDataStorage(project);
+                                                    Object defaultValue = dataDefinition.createDefaultValue();
+                                                    DataStorage dataStorage = dataDefinition.wrapDataStorage(defaultValue);
                                                     editedEntity.addComponent(dataDefinition.getId(), dataStorage);
                                                     project.entityChanged(editedEntity);
                                                 }
@@ -301,7 +302,7 @@ public class EntityInspector<T, U extends EntityDefinition> extends VisTable {
             ComponentContainer container = new ComponentContainer(dataDefinition.getName(), componentEditor, inherited);
             entityComponents.addActor(container);
         } else {
-            DefaultComponentEditor defaultComponentEditor = new DefaultComponentEditor(dataDefinition, componentData, changeCallback, editable);
+            DefaultComponentEditor defaultComponentEditor = new DefaultComponentEditor(objectTreeData, dataDefinition, componentData, changeCallback, editable);
             ComponentContainer container = new ComponentContainer(dataDefinition.getName(), defaultComponentEditor, inherited);
             entityComponents.addActor(container);
         }

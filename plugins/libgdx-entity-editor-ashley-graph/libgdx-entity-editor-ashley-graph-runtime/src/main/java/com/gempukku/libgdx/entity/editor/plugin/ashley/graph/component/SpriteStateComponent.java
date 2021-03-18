@@ -21,7 +21,6 @@ public class SpriteStateComponent implements Component {
     }
 
     public void setStates(ObjectMap<String, SpriteStateDataDef> states) {
-        this.states.clear();
-        this.states.putAll(states);
+        this.states = states;
     }
 }

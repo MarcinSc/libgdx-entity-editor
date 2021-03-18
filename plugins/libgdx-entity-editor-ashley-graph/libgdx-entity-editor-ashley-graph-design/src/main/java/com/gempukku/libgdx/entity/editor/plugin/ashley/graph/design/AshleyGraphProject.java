@@ -13,14 +13,18 @@ import com.gempukku.libgdx.entity.editor.data.EntityGroup;
 import com.gempukku.libgdx.entity.editor.data.EntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.data.component.CustomClassDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.type.FloatComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.AnchorComponentDataDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.FacingComponentDataDefinition;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.GraphSpritesPropertiesFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.PositionComponentDataDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.ScaleComponentDataDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.SpriteComponentDataDefinition;
@@ -81,12 +85,13 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
         engineJson = new AshleyEngineJson(ashleyEngine);
 
-        objectTreeData.addCustomDataType(new PositionComponentDataDefinition());
-        objectTreeData.addCustomDataType(new AnchorComponentDataDefinition());
-        objectTreeData.addCustomDataType(new ScaleComponentDataDefinition());
-        objectTreeData.addCustomDataType(new FacingComponentDataDefinition());
-        objectTreeData.addCustomDataType(new SpriteComponentDataDefinition());
-        objectTreeData.addCustomDataType(new SpriteStateComponentDataDefinition());
+        objectTreeData.addCustomDataType(new PositionComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(new AnchorComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(new ScaleComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(new FacingComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(new SpriteComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(new SpriteStateComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(createSpriteStateDataType());
 
         if (project.hasChild("templates")) {
             for (JsonValue template : project.get("templates")) {
@@ -131,6 +136,14 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 }
             }
         }
+    }
+
+    private DataDefinition createSpriteStateDataType() {
+        CustomClassDataDefinition spriteStateDataDef = new CustomClassDataDefinition("SpriteStateDataDef", false, "Sprite state data", SpriteStateDataDef.class);
+        spriteStateDataDef.addFieldType("width", FloatComponentFieldType.ID);
+        spriteStateDataDef.addFieldType("height", FloatComponentFieldType.ID);
+        spriteStateDataDef.addFieldType("properties", GraphSpritesPropertiesFieldType.ID);
+        return spriteStateDataDef;
     }
 
     @Override
@@ -201,7 +214,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         project.addChild("entityGroups", entityGroups);
 
         JsonValue customDataDefinitions = new JsonValue(JsonValue.ValueType.array);
-        for (DataDefinition<?> dataDefinition : objectTreeData.getDataDefinitions()) {
+        for (DataDefinition<?, ?> dataDefinition : objectTreeData.getDataDefinitions()) {
             if (dataDefinition.isStoredWithProject()) {
                 JsonValue customComponentJson = new JsonValue(JsonValue.ValueType.object);
                 customComponentJson.addChild("id", new JsonValue(dataDefinition.getId()));

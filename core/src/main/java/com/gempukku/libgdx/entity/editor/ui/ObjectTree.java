@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.gempukku.libgdx.entity.editor.TextureSource;
 import com.gempukku.libgdx.entity.editor.data.CustomDataDefinitionNode;
 import com.gempukku.libgdx.entity.editor.data.CustomDataTypesNode;
@@ -23,6 +24,7 @@ import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolder;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesFolderNode;
 import com.gempukku.libgdx.entity.editor.data.EntityTemplatesNode;
 import com.gempukku.libgdx.entity.editor.data.ObjectTreeData;
+import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.CustomFieldTypeRegistry;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
@@ -35,8 +37,8 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.VariableDeclarator;
-import com.github.javaparser.ast.nodeTypes.NodeWithTypeArguments;
 import com.github.javaparser.ast.type.ArrayType;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.util.dialog.Dialogs;
@@ -492,19 +494,70 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                             VariableDeclarator variable = f.getVariable(0);
                             String variableName = variable.getName().asString();
                             Type variableType = variable.getType();
-                            if (variableType.isArrayType()) {
-                                variableType = ((ArrayType) variableType).getComponentType();
-                                result.addFieldType(variableName, FieldDefinition.Type.Array, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
-                            } else if (variableType.asString().startsWith("Array<") || variableType.asString().startsWith("com.badlogic.gdx.utils.Array<")) {
-                                Optional<NodeList<Type>> o = ((NodeWithTypeArguments) variableType).getTypeArguments();
-                                variableType = o.get().get(0);
-                                result.addFieldType(variableName, FieldDefinition.Type.Array, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                            Optional<ArrayType> arrayType = variableType.toArrayType();
+                            Optional<ClassOrInterfaceType> classOrInterfaceType = variableType.toClassOrInterfaceType();
+
+                            if (arrayType.isPresent()) {
+                                variableType = arrayType.get().getComponentType();
+                                ComponentFieldType<?> componentFieldType = CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType);
+                                if (componentFieldType != null) {
+                                    result.addFieldType(variableName, FieldDefinition.Type.Array, componentFieldType.getId());
+                                } else {
+                                    throw new GdxRuntimeException("Unable to parse class");
+                                }
+                            } else if (isGdxArrayType(classOrInterfaceType)) {
+                                Optional<NodeList<Type>> o = classOrInterfaceType.get().getTypeArguments();
+                                if (o.isPresent()) {
+                                    ComponentFieldType<?> componentFieldType = CustomFieldTypeRegistry.getComponentFieldType(className, variableName, o.get().get(0));
+                                    if (componentFieldType != null) {
+                                        result.addFieldType(variableName, FieldDefinition.Type.Array, componentFieldType.getId());
+                                    } else {
+                                        throw new GdxRuntimeException("Unable to parse class");
+                                    }
+                                } else {
+                                    throw new GdxRuntimeException("Unable to parse class");
+                                }
+                            } else if (isMapType(classOrInterfaceType)) {
+                                Optional<NodeList<Type>> o = classOrInterfaceType.get().getTypeArguments();
+                                if (o.isPresent()) {
+                                    NodeList<Type> typeParameters = o.get();
+                                    String firstTypeParameter = typeParameters.get(0).asString();
+                                    if (!firstTypeParameter.equals("String") && !firstTypeParameter.equals("java.lang.String"))
+                                        throw new GdxRuntimeException("Unable to parse class");
+                                    if (typeParameters.size() < 2)
+                                        throw new GdxRuntimeException("Unable to parse class");
+
+                                    ComponentFieldType<?> componentFieldType = CustomFieldTypeRegistry.getComponentFieldType(className, variableName, typeParameters.get(1));
+                                    if (componentFieldType != null) {
+                                        result.addFieldType(variableName, FieldDefinition.Type.Map, componentFieldType.getId());
+                                    } else {
+                                        throw new GdxRuntimeException("Unable to parse class");
+                                    }
+                                } else {
+                                    throw new GdxRuntimeException("Unable to parse class");
+                                }
                             } else {
-                                result.addFieldType(variableName, FieldDefinition.Type.Object, CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType).getId());
+                                ComponentFieldType<?> componentFieldType = CustomFieldTypeRegistry.getComponentFieldType(className, variableName, variableType);
+                                if (componentFieldType != null) {
+                                    result.addFieldType(variableName, FieldDefinition.Type.Object, componentFieldType.getId());
+                                } else {
+                                    throw new GdxRuntimeException("Unable to parse class");
+                                }
                             }
                         }
                 );
         return result;
+    }
+
+    private boolean isMapType(Optional<ClassOrInterfaceType> classOrInterfaceType) {
+        return classOrInterfaceType.isPresent() &&
+                (classOrInterfaceType.get().getName().asString().equals("ObjectMap") || classOrInterfaceType.get().getName().asString().equals("com.badlogic.gdx.utils.ObjectMap")
+                        || classOrInterfaceType.get().getName().asString().equals("Map") || classOrInterfaceType.get().getName().asString().equals("java.util.Map"));
+    }
+
+    private boolean isGdxArrayType(Optional<ClassOrInterfaceType> classOrInterfaceType) {
+        return classOrInterfaceType.isPresent() &&
+                (classOrInterfaceType.get().getName().asString().equals("Array") || classOrInterfaceType.get().getName().asString().equals("com.badlogic.gdx.utils.Array"));
     }
 
     private void entityGroupsClicked(float x, float y) {
@@ -700,8 +753,8 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     @Override
-    public Iterable<DataDefinition<?>> getDataDefinitions() {
-        Array<DataDefinition<?>> result = new Array<>();
+    public Iterable<DataDefinition<?, ?>> getDataDefinitions() {
+        Array<DataDefinition<?, ?>> result = new Array<>();
         for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
             result.add(child.getValue());
         }
@@ -709,9 +762,9 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     @Override
-    public DataDefinition<?> getDataDefinitionById(String id) {
+    public DataDefinition<?, ?> getDataDefinitionById(String id) {
         for (CustomDataDefinitionNode child : customDataTypesNode.getChildren()) {
-            DataDefinition<?> dataDefinition = child.getValue();
+            DataDefinition<?, ?> dataDefinition = child.getValue();
             if (dataDefinition.getId().equals(id))
                 return dataDefinition;
         }

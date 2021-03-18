@@ -31,12 +31,12 @@ public class GraphSpritesPropertiesFieldType implements ComponentFieldType<Graph
     }
 
     @Override
-    public Actor createEditor(boolean editable, GraphSpriteProperties fieldValue, Consumer<GraphSpriteProperties> consumer) {
-        if (fieldValue == null) {
-            fieldValue = getDefaultValue();
-            consumer.accept(fieldValue);
+    public Actor createEditor(boolean editable, GraphSpriteProperties value, Consumer<GraphSpriteProperties> consumer) {
+        if (value == null) {
+            value = getDefaultValue();
+            consumer.accept(value);
         }
-        return new GraphSpritePropertiesEditorWidget(editable, fieldValue, consumer);
+        return new GraphSpritePropertiesEditorWidget(editable, value, consumer);
     }
 
     @Override
@@ -44,6 +44,12 @@ public class GraphSpritesPropertiesFieldType implements ComponentFieldType<Graph
         JsonReader jsonReader = new JsonReader();
         Json json = new Json();
         return jsonReader.parse(json.toJson(value, GraphSpriteProperties.class));
+    }
+
+    @Override
+    public GraphSpriteProperties convertToValue(JsonValue json) {
+        Json jsonObj = new Json();
+        return jsonObj.readValue(GraphSpriteProperties.class, json);
     }
 
     @Override

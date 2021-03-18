@@ -2,7 +2,7 @@ package com.gempukku.libgdx.entity.editor.data.component;
 
 public interface FieldDefinition {
     enum Type {
-        Object, Array
+        Object, Array, Map
     }
 
     String getName();

@@ -1,7 +1,9 @@
 package com.gempukku.libgdx.entity.editor.data.component;
 
-public interface DataStorage {
-    Object getValue(String fieldName);
+import com.badlogic.gdx.utils.JsonValue;
 
-    void setValue(String fieldName, Object value);
+public interface DataStorage {
+    JsonValue getValue(String fieldName);
+
+    void setValue(String fieldName, JsonValue value);
 }

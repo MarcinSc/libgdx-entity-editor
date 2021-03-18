@@ -17,9 +17,9 @@ public interface ObjectTreeData<U extends EntityDefinition> {
 
     Iterable<LocatedEntityDefinition<U>> getTemplates();
 
-    Iterable<DataDefinition<?>> getDataDefinitions();
+    Iterable<DataDefinition<?, ?>> getDataDefinitions();
 
-    DataDefinition<?> getDataDefinitionById(String id);
+    DataDefinition<?, ?> getDataDefinitionById(String id);
 
     boolean canCreateTemplate(String parentPath, String name);
 

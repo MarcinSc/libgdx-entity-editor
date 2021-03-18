@@ -31,17 +31,6 @@
             ],
             "components": [
               {
-                "id": "f366d10a7e8d4a38ad6263c80880e7ed",
-                "data": {
-                  "value": [
-                    "a",
-                    "b",
-                    "c"
-                  ],
-                  "blah": 0.0
-                }
-              },
-              {
                 "id": "PositionComponent",
                 "data": {
                   "x": 1,
@@ -54,26 +43,7 @@
       ]
     }
   ],
-  "customDataDefinitions": [
-    {
-      "id": "f366d10a7e8d4a38ad6263c80880e7ed",
-      "name": "StringArrayComponent",
-      "className": "com.gempukku.example.component.StringArrayComponent",
-      "component": true,
-      "fields": [
-        {
-          "name": "value",
-          "type": "Array",
-          "fieldTypeId": "String"
-        },
-        {
-          "name": "blah",
-          "type": "Object",
-          "fieldTypeId": "float"
-        }
-      ]
-    }
-  ],
+  "customDataDefinitions": [],
   "templates": [
     {
       "path": null,
@@ -84,9 +54,25 @@
         "components": [
           {
             "id": "PositionComponent",
+            "data": {}
+          },
+          {
+            "id": "SpriteStateComponent",
             "data": {
-              "x": 0,
-              "y": 0
+              "state": "Idle",
+              "states": {
+                "Idle": {
+                  "width": 180,
+                  "height": 100,
+                  "properties": {
+                    "Texture": {
+                      "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.value.TextureValue",
+                      "atlas": "",
+                      "texture": "images/MossyHill.png"
+                    }
+                  }
+                }
+              }
             }
           },
           {

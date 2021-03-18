@@ -1,6 +1,9 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data;
 
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.SpriteComponent;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.GraphSpriteProperties;
 
@@ -15,34 +18,41 @@ public class SpriteComponentDataStorage extends ComponentDataStorage<SpriteCompo
     }
 
     @Override
-    public Object getValue(String fieldName) {
+    public JsonValue getValue(String fieldName) {
         if (fieldName.equals("width"))
-            return getComponent().getWidth();
+            return new JsonValue(getComponent().getWidth());
         else if (fieldName.equals("height"))
-            return getComponent().getHeight();
+            return new JsonValue(getComponent().getHeight());
         else if (fieldName.equals("layer"))
-            return getComponent().getLayer();
-        else if (fieldName.equals("tags"))
-            return getComponent().getTags();
-        else if (fieldName.equals("properties"))
-            return getComponent().getProperties();
-        else
+            return new JsonValue(getComponent().getLayer());
+        else if (fieldName.equals("tags")) {
+            JsonValue result = new JsonValue(JsonValue.ValueType.array);
+            for (String tag : getComponent().getTags()) {
+                result.addChild(new JsonValue(tag));
+            }
+            return result;
+        } else if (fieldName.equals("properties")) {
+            Json json = new Json();
+            JsonReader jsonReader = new JsonReader();
+            return jsonReader.parse(json.toJson(getComponent().getProperties(), GraphSpriteProperties.class));
+        } else
             throw new IllegalArgumentException();
     }
 
     @Override
-    public void setValue(String fieldName, Object value) {
+    public void setValue(String fieldName, JsonValue value) {
         if (fieldName.equals("width"))
-            getComponent().setWidth(((Number) value).floatValue());
+            getComponent().setWidth(value.asFloat());
         else if (fieldName.equals("height"))
-            getComponent().setHeight(((Number) value).floatValue());
+            getComponent().setHeight(value.asFloat());
         else if (fieldName.equals("layer"))
-            getComponent().setLayer(((Number) value).floatValue());
+            getComponent().setLayer(value.asFloat());
         else if (fieldName.equals("tags"))
-            getComponent().setTags((Array<String>) value);
-        else if (fieldName.equals("properties"))
-            getComponent().setProperties((GraphSpriteProperties) value);
-        else
+            getComponent().setTags(new Array<>(value.asStringArray()));
+        else if (fieldName.equals("properties")) {
+            Json json = new Json();
+            getComponent().setProperties(json.readValue(GraphSpriteProperties.class, value));
+        } else
             throw new IllegalArgumentException();
     }
 }

@@ -5,9 +5,7 @@ import com.gempukku.libgdx.entity.editor.data.component.type.EnumFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.EntityEditorPluginInitializer;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirection;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.GraphSpritesPropertiesFieldType;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.SpriteStateComponentEditorFactory;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
-import com.gempukku.libgdx.entity.editor.ui.editor.ComponentEditorRegistry;
 import com.gempukku.libgdx.graph.plugin.sprites.SpritesPluginRuntimeInitializer;
 
 public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPluginInitializer {
@@ -20,6 +18,5 @@ public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPlu
 
         CustomFieldTypeRegistry.registerComponentFieldType(new EnumFieldType<>(FaceDirection.class, FaceDirection.Right));
         CustomFieldTypeRegistry.registerComponentFieldType(new GraphSpritesPropertiesFieldType());
-        ComponentEditorRegistry.registerComponentEditorFactory("SpriteStateComponent", new SpriteStateComponentEditorFactory());
     }
 }

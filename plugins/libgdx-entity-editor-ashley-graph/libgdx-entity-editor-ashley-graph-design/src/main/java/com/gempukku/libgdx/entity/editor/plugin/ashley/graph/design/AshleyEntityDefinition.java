@@ -33,7 +33,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         for (JsonValue coreComponent : value.get("components")) {
             String id = coreComponent.getString("id");
             JsonValue data = coreComponent.get("data");
-            DataDefinition<?> dataDefinition = objectTreeData.getDataDefinitionById(id);
+            DataDefinition<?, ?> dataDefinition = objectTreeData.getDataDefinitionById(id);
             DataStorage dataStorage = dataDefinition.loadDataStorage(json, data);
             components.put(id, dataStorage);
         }
@@ -194,7 +194,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
 
             JsonValue component = new JsonValue(JsonValue.ValueType.object);
             component.addChild("id", new JsonValue(id));
-            component.addChild("data", dataDefinition.serializeDataStorage(json, componentEntry.value));
+            component.addChild("data", dataDefinition.serializeDataStorage(componentEntry.value));
             components.addChild(component);
         }
         result.addChild("components", components);
@@ -225,7 +225,7 @@ public class AshleyEntityDefinition extends DefaultEntityDefinition<Component> {
         for (ObjectMap.Entry<String, DataStorage> component : components) {
             DataDefinition dataDefinition = objectTreeData.getDataDefinitionById(component.key);
             String className = dataDefinition.getClassName();
-            JsonValue componentJson = dataDefinition.exportComponent(json, component.value);
+            JsonValue componentJson = dataDefinition.exportComponent(component.value);
             result.addChild(className, componentJson);
         }
 

@@ -2,7 +2,7 @@ package com.gempukku.libgdx.entity.editor.data.component;
 
 import com.badlogic.gdx.utils.Array;
 
-public abstract class DefaultDataDefinition<T extends DataStorage> implements DataDefinition<T> {
+public abstract class DefaultDataDefinition<T extends DataStorage, U> implements DataDefinition<T, U> {
     private String id;
     private boolean component;
     private String name;

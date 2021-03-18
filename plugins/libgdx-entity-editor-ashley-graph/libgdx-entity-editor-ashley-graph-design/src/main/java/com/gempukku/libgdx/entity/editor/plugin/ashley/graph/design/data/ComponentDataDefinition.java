@@ -5,20 +5,33 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.DefaultDataDefinition;
-import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.AshleyGraphProject;
 
-public abstract class ComponentDataDefinition<T extends Component, U extends ComponentDataStorage<T>> extends DefaultDataDefinition<U> {
+public abstract class ComponentDataDefinition<T extends Component, U extends ComponentDataStorage<T>> extends DefaultDataDefinition<U, T> {
+    private AshleyGraphProject ashleyGraphProject;
+
     protected abstract U createComponentDataStorage(T component);
 
     protected abstract Class<T> getComponentClass();
 
-    public ComponentDataDefinition(String id, boolean component, String name, String className) {
+    public ComponentDataDefinition(AshleyGraphProject ashleyGraphProject, String id, boolean component, String name, String className) {
         super(id, component, name, className);
+        this.ashleyGraphProject = ashleyGraphProject;
     }
 
     @Override
-    public U createDataStorage(EntityEditorProject project) {
-        return createComponentDataStorage((T) project.createCoreComponent(getComponentClass()));
+    public T createDefaultValue() {
+        return (T) ashleyGraphProject.createCoreComponent(getComponentClass());
+    }
+
+    @Override
+    public T unpackFromDataStorage(U dataStorage) {
+        return dataStorage.getComponent();
+    }
+
+    @Override
+    public U wrapDataStorage(T value) {
+        return createComponentDataStorage(value);
     }
 
     @Override
@@ -27,14 +40,15 @@ public abstract class ComponentDataDefinition<T extends Component, U extends Com
     }
 
     @Override
-    public JsonValue serializeDataStorage(Json json, U dataStorage) {
+    public JsonValue serializeDataStorage(U dataStorage) {
+        Json json = new Json();
         JsonReader jsonReader = new JsonReader();
         return jsonReader.parse(json.toJson(dataStorage.getComponent(), getComponentClass()));
     }
 
     @Override
-    public JsonValue exportComponent(Json json, U dataStorage) {
-        return serializeDataStorage(json, dataStorage);
+    public JsonValue exportComponent(U dataStorage) {
+        return serializeDataStorage(dataStorage);
     }
 
     @Override

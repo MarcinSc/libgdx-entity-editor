@@ -23,9 +23,9 @@ import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
 
 public class DataTypeEditorDialog extends VisDialog {
-    private DefaultDataDefinition<?> dataDefinition;
+    private DefaultDataDefinition<?, ?> dataDefinition;
 
-    public DataTypeEditorDialog(DefaultDataDefinition<?> dataDefinition) {
+    public DataTypeEditorDialog(DefaultDataDefinition<?, ?> dataDefinition) {
         super("Data Type Editor");
         this.dataDefinition = dataDefinition;
 

@@ -34,17 +34,28 @@ public class EnumFieldType<T extends Enum<T>> implements ComponentFieldType<T> {
     }
 
     @Override
-    public Actor createEditor(boolean editable, T fieldValue, Consumer<T> consumer) {
-        if (fieldValue == null)
-            fieldValue = getDefaultValue();
+    public Actor createEditor(boolean editable, T value, Consumer<T> consumer) {
+        if (value == null)
+            value = getDefaultValue();
         return new EnumEditorWidget<T>(
                 editable, clazz, false,
-                fieldValue, consumer);
+                value, consumer);
     }
 
     @Override
     public JsonValue convertToJson(T value) {
         return new JsonValue(value.name());
+    }
+
+    @Override
+    public T convertToValue(JsonValue json) {
+        String value = json.asString();
+        for (T enumConstant : clazz.getEnumConstants()) {
+            if (enumConstant.name().equals(value))
+                return enumConstant;
+        }
+
+        return null;
     }
 
     @Override

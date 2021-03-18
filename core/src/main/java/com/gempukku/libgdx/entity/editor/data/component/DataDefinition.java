@@ -2,9 +2,8 @@ package com.gempukku.libgdx.entity.editor.data.component;
 
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.gempukku.libgdx.entity.editor.project.EntityEditorProject;
 
-public interface DataDefinition<T extends DataStorage> {
+public interface DataDefinition<T extends DataStorage, U> {
     boolean isComponent();
 
     String getId();
@@ -19,13 +18,17 @@ public interface DataDefinition<T extends DataStorage> {
 
     Iterable<FieldDefinition> getFieldTypes();
 
-    T createDataStorage(EntityEditorProject project);
+    U createDefaultValue();
+
+    U unpackFromDataStorage(T dataStorage);
+
+    T wrapDataStorage(U value);
 
     T loadDataStorage(Json json, JsonValue data);
 
-    JsonValue serializeDataStorage(Json json, T dataStorage);
+    JsonValue serializeDataStorage(T dataStorage);
 
-    JsonValue exportComponent(Json json, T dataStorage);
+    JsonValue exportComponent(T dataStorage);
 //
 //    ObjectMap<String, ComponentFieldType> getArrayFieldTypes();
 //

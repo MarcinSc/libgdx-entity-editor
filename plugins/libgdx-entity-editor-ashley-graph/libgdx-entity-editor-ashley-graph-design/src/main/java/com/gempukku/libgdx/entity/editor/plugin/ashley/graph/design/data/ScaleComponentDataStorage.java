@@ -1,5 +1,6 @@
 package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data;
 
+import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.ScaleComponent;
 
 public class ScaleComponentDataStorage extends ComponentDataStorage<ScaleComponent> {
@@ -13,21 +14,21 @@ public class ScaleComponentDataStorage extends ComponentDataStorage<ScaleCompone
     }
 
     @Override
-    public Object getValue(String fieldName) {
+    public JsonValue getValue(String fieldName) {
         if (fieldName.equals("x"))
-            return getComponent().getX();
+            return new JsonValue(getComponent().getX());
         else if (fieldName.equals("y"))
-            return getComponent().getY();
+            return new JsonValue(getComponent().getY());
         else
             throw new IllegalArgumentException();
     }
 
     @Override
-    public void setValue(String fieldName, Object value) {
+    public void setValue(String fieldName, JsonValue value) {
         if (fieldName.equals("x"))
-            getComponent().setX(((Number) value).floatValue());
+            getComponent().setX(value.asFloat());
         else if (fieldName.equals("y"))
-            getComponent().setY(((Number) value).floatValue());
+            getComponent().setY(value.asFloat());
         else
             throw new IllegalArgumentException();
     }

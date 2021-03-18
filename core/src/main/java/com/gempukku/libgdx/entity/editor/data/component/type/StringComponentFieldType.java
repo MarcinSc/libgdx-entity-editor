@@ -22,12 +22,12 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
     }
 
     @Override
-    public Actor createEditor(boolean editable, String fieldValue, Consumer<String> consumer) {
-        if (fieldValue == null) {
-            fieldValue = getDefaultValue();
-            consumer.accept(fieldValue);
+    public Actor createEditor(boolean editable, String value, Consumer<String> consumer) {
+        if (value == null) {
+            value = getDefaultValue();
+            consumer.accept(value);
         }
-        return new StringEditorWidget(editable, fieldValue, consumer);
+        return new StringEditorWidget(editable, value, consumer);
     }
 
     @Override
@@ -41,6 +41,11 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
     @Override
     public JsonValue convertToJson(String value) {
         return new JsonValue(value);
+    }
+
+    @Override
+    public String convertToValue(JsonValue json) {
+        return json.asString();
     }
 
     @Override

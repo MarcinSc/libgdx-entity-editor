@@ -139,11 +139,11 @@ public class SpriteStateEditorWidget extends VisTable {
                             contentTable.add(
                                     new GraphSpritePropertiesEditorWidget(
                                             true,
-                                            dataDef.getGraphSpriteProperties(),
+                                            dataDef.getProperties(),
                                             new Consumer<GraphSpriteProperties>() {
                                                 @Override
                                                 public void accept(GraphSpriteProperties graphSpriteProperties) {
-                                                    dataDef.setGraphSpriteProperties(graphSpriteProperties);
+                                                    dataDef.setProperties(graphSpriteProperties);
                                                     callback.run();
                                                 }
                                             })).growX().row();

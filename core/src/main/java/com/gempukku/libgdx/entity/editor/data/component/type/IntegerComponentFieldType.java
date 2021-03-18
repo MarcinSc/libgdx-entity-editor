@@ -22,12 +22,12 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
     }
 
     @Override
-    public Actor createEditor(boolean editable, Number fieldValue, Consumer<Number> consumer) {
-        if (fieldValue == null) {
-            fieldValue = getDefaultValue();
-            consumer.accept(fieldValue);
+    public Actor createEditor(boolean editable, Number value, Consumer<Number> consumer) {
+        if (value == null) {
+            value = getDefaultValue();
+            consumer.accept(value);
         }
-        return new IntegerEditorWidget(editable, fieldValue.intValue(), consumer);
+        return new IntegerEditorWidget(editable, value.intValue(), consumer);
     }
 
     @Override
@@ -42,6 +42,11 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
     @Override
     public JsonValue convertToJson(Number value) {
         return new JsonValue(value.intValue());
+    }
+
+    @Override
+    public Number convertToValue(JsonValue json) {
+        return json.asInt();
     }
 
     @Override
