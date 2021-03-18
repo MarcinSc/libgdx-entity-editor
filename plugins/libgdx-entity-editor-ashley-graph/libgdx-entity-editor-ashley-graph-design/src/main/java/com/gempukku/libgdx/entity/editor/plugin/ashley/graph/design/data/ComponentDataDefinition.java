@@ -42,6 +42,7 @@ public abstract class ComponentDataDefinition<T extends Component, U extends Com
     @Override
     public JsonValue serializeDataStorage(U dataStorage) {
         Json json = new Json();
+        json.setUsePrototypes(false);
         JsonReader jsonReader = new JsonReader();
         return jsonReader.parse(json.toJson(dataStorage.getComponent(), getComponentClass()));
     }

@@ -54,7 +54,10 @@
         "components": [
           {
             "id": "PositionComponent",
-            "data": {}
+            "data": {
+              "x": 0,
+              "y": 0
+            }
           },
           {
             "id": "SpriteStateComponent",
@@ -73,6 +76,40 @@
                   }
                 }
               }
+            }
+          },
+          {
+            "id": "Box2DBodyComponent",
+            "data": {
+              "bodyType": "StaticBody",
+              "fixedRotation": false,
+              "bullet": false,
+              "linearDamping": 0,
+              "angularDamping": 0,
+              "allowSleep": true,
+              "gravityScale": 1,
+              "fixtures": [
+                {
+                  "friction": 0.2,
+                  "restitution": 0,
+                  "density": 0,
+                  "sensor": false,
+                  "type": "player",
+                  "mask": [
+                    "environment"
+                  ],
+                  "shape": {
+                    "class": "com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.BoxFixtureShape",
+                    "width": 1,
+                    "height": 1,
+                    "center": {
+                      "x": 0,
+                      "y": 0
+                    },
+                    "angle": 0
+                  }
+                }
+              ]
             }
           },
           {

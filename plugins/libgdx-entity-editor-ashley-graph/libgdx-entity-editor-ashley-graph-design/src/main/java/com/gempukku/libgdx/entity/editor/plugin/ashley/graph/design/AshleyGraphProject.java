@@ -17,12 +17,17 @@ import com.gempukku.libgdx.entity.editor.data.component.CustomClassDataDefinitio
 import com.gempukku.libgdx.entity.editor.data.component.CustomDataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
 import com.gempukku.libgdx.entity.editor.data.component.FieldDefinition;
+import com.gempukku.libgdx.entity.editor.data.component.type.BooleanComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.FloatComponentFieldType;
+import com.gempukku.libgdx.entity.editor.data.component.type.StringComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroup;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityGroupFolder;
 import com.gempukku.libgdx.entity.editor.data.impl.DefaultEntityTemplatesFolder;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.FixtureDefinition;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.FixtureShape;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.SpriteStateDataDef;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.AnchorComponentDataDefinition;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.Box2DBodyComponentDataDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.FacingComponentDataDefinition;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.GraphSpritesPropertiesFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.PositionComponentDataDefinition;
@@ -93,6 +98,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         objectTreeData.addCustomDataType(new SpriteStateComponentDataDefinition(this));
         objectTreeData.addCustomDataType(createSpriteStateDataType());
 
+        objectTreeData.addCustomDataType(new Box2DBodyComponentDataDefinition(this));
+        objectTreeData.addCustomDataType(createFixtureDefinitionDataType());
+        objectTreeData.addCustomDataType(createFixtureShapeDataType());
+
         if (project.hasChild("templates")) {
             for (JsonValue template : project.get("templates")) {
                 String path = template.getString("path", null);
@@ -136,6 +145,23 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 }
             }
         }
+    }
+
+    private DataDefinition createFixtureShapeDataType() {
+        CustomClassDataDefinition fixtureDefinitionDef = new CustomClassDataDefinition("FixtureShape", false, "Fixture shape", FixtureShape.class);
+        return fixtureDefinitionDef;
+    }
+
+    private DataDefinition createFixtureDefinitionDataType() {
+        CustomClassDataDefinition fixtureDefinitionDef = new CustomClassDataDefinition("FixtureDefinition", false, "Fixture definition", FixtureDefinition.class);
+        fixtureDefinitionDef.addFieldType("type", StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("mask", FieldDefinition.Type.Array, StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("sensor", BooleanComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("friction", FloatComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("restitution", FloatComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("density", FloatComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("shape", "FixtureShape");
+        return fixtureDefinitionDef;
     }
 
     private DataDefinition createSpriteStateDataType() {

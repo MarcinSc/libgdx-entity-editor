@@ -44,9 +44,11 @@ public class PairOfFloatsEditorWidget extends VisTable {
         field2.setDisabled(!editable);
 
         add(label1 + ": ").width(width);
-        add(field1).growX().row();
+        add(field1).growX();
         add(label2 + ": ").width(width);
-        add(field2).growX().row();
+        add(field2).growX();
+
+        row();
     }
 
     public interface Callback {

@@ -33,6 +33,7 @@ public class SpriteComponentDataStorage extends ComponentDataStorage<SpriteCompo
             return result;
         } else if (fieldName.equals("properties")) {
             Json json = new Json();
+            json.setUsePrototypes(false);
             JsonReader jsonReader = new JsonReader();
             return jsonReader.parse(json.toJson(getComponent().getProperties(), GraphSpriteProperties.class));
         } else
@@ -51,6 +52,7 @@ public class SpriteComponentDataStorage extends ComponentDataStorage<SpriteCompo
             getComponent().setTags(new Array<>(value.asStringArray()));
         else if (fieldName.equals("properties")) {
             Json json = new Json();
+            json.setUsePrototypes(false);
             getComponent().setProperties(json.readValue(GraphSpriteProperties.class, value));
         } else
             throw new IllegalArgumentException();

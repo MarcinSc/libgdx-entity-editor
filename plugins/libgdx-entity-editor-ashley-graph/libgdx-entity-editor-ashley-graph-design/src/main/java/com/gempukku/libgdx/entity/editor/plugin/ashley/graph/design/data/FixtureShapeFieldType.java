@@ -5,14 +5,16 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.ComponentFieldType;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.BoxFixtureShape;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.FixtureShape;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.def.GraphSpriteProperties;
-import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget.GraphSpritePropertiesEditorWidget;
+import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.editor.widget.FixtureShapeEditorWidget;
 import com.github.javaparser.ast.type.Type;
 
 import java.util.function.Consumer;
 
-public class GraphSpritesPropertiesFieldType implements ComponentFieldType<GraphSpriteProperties> {
-    public static final String ID = "GraphSpritesProperties";
+public class FixtureShapeFieldType implements ComponentFieldType<FixtureShape> {
+    public static final String ID = "FixtureShape";
 
     @Override
     public String getId() {
@@ -21,26 +23,26 @@ public class GraphSpritesPropertiesFieldType implements ComponentFieldType<Graph
 
     @Override
     public String getName() {
-        return "Graph Sprites Properties";
+        return "FixtureShape";
     }
 
     @Override
     public boolean accepts(String componentClass, String fieldName, Type type, boolean exact) {
         String stringType = type.asString();
-        return stringType.equals(GraphSpriteProperties.class.getName()) || stringType.equals(GraphSpriteProperties.class.getSimpleName());
+        return stringType.equals(FixtureShape.class.getName()) || stringType.equals(FixtureShape.class.getSimpleName());
     }
 
     @Override
-    public Actor createEditor(boolean editable, GraphSpriteProperties value, Consumer<GraphSpriteProperties> consumer) {
+    public Actor createEditor(boolean editable, FixtureShape value, Consumer<FixtureShape> consumer) {
         if (value == null) {
             value = getDefaultValue();
             consumer.accept(value);
         }
-        return new GraphSpritePropertiesEditorWidget(editable, value, consumer);
+        return new FixtureShapeEditorWidget(editable, value, consumer);
     }
 
     @Override
-    public JsonValue convertToJson(GraphSpriteProperties value) {
+    public JsonValue convertToJson(FixtureShape value) {
         JsonReader jsonReader = new JsonReader();
         Json json = new Json();
         json.setUsePrototypes(false);
@@ -48,14 +50,14 @@ public class GraphSpritesPropertiesFieldType implements ComponentFieldType<Graph
     }
 
     @Override
-    public GraphSpriteProperties convertToValue(JsonValue json) {
+    public FixtureShape convertToValue(JsonValue json) {
         Json jsonObj = new Json();
-        return jsonObj.readValue(GraphSpriteProperties.class, json);
+        return jsonObj.readValue(FixtureShape.class, json);
     }
 
     @Override
-    public GraphSpriteProperties getDefaultValue() {
-        return new GraphSpriteProperties();
+    public FixtureShape getDefaultValue() {
+        return new BoxFixtureShape();
     }
 
     @Override

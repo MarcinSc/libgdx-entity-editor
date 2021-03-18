@@ -30,6 +30,7 @@ public class CustomClassDataDefinition<T> extends DefaultDataDefinition<CustomDa
     public T unpackFromDataStorage(CustomDataStorage dataStorage) {
         JsonValue jsonValue = serializeDataStorage(dataStorage);
         Json json = new Json();
+        json.setUsePrototypes(false);
         return json.readValue(clazz, jsonValue);
     }
 

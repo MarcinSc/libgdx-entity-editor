@@ -4,4 +4,5 @@ eclipse.project.name = 'libgdx-entity-editor-ashley-graph-runtime'
 dependencies {
     api "com.gempukku.libgdx.lib:libgdx-gemp-lib-ashley:$gdxGempLibVersion"
     api "com.gempukku.libgdx.graph:libgdx-graph:$gdxGraphVersion"
+    api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
 }

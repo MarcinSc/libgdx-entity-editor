@@ -23,6 +23,7 @@ public class SpriteStateComponentDataStorage extends ComponentDataStorage<Sprite
             return new JsonValue(getComponent().getState());
         else if (fieldName.equals("states")) {
             Json json = new Json();
+            json.setUsePrototypes(false);
             JsonReader jsonReader = new JsonReader();
 
             JsonValue jsonValue = new JsonValue(JsonValue.ValueType.object);
@@ -41,6 +42,7 @@ public class SpriteStateComponentDataStorage extends ComponentDataStorage<Sprite
             getComponent().setState(value.asString());
         else if (fieldName.equals("states")) {
             Json json = new Json();
+            json.setUsePrototypes(false);
 
             ObjectMap<String, SpriteStateDataDef> result = new ObjectMap<>();
             for (JsonValue entry : value) {
