@@ -11,7 +11,6 @@ import com.gempukku.libgdx.entity.editor.data.component.EditableType;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisDialog;
-import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
@@ -87,21 +86,12 @@ public class MapFieldEditor<T> extends VisTable {
             addMapEntry(mapEntry.key, mapEntry.value);
         }
 
-        VisScrollPane scrollPane = new VisScrollPane(mapEntries);
-        scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(false, true);
-
         add(buttonTable).growX().row();
-        add(scrollPane).top().grow().row();
+        add(mapEntries).top().grow().row();
     }
 
     private void addMapEntry(String key, T value) {
         mapEntries.addActor(new MapEntry<T>(editable, key, value, fieldType, changeCallback));
-    }
-
-    @Override
-    public float getPrefHeight() {
-        return 150;
     }
 
     private boolean isValidKey(Actor skipActor, String key) {

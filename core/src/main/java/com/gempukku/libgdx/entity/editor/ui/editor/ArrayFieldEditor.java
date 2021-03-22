@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.JsonValue;
 import com.gempukku.libgdx.entity.editor.data.component.EditableType;
-import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.spinner.IntSpinnerModel;
 import com.kotcrab.vis.ui.widget.spinner.Spinner;
@@ -65,13 +64,9 @@ public class ArrayFieldEditor<T> extends VisTable {
             arrayEntries.addActor(arrayEntry);
         }
 
-        VisScrollPane scrollPane = new VisScrollPane(arrayEntries);
-        scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(false, true);
-
         add("Size:").width(120).left();
         add(spinner).growX().row();
-        add(scrollPane).colspan(2).top().grow().row();
+        add(arrayEntries).colspan(2).top().grow().row();
     }
 
     private void shrinkTo(int size) {
@@ -101,11 +96,6 @@ public class ArrayFieldEditor<T> extends VisTable {
             arrayEntries.addActor(arrayEntry);
         }
         consumer.accept(result);
-    }
-
-    @Override
-    public float getPrefHeight() {
-        return 150;
     }
 
     private static class ArrayEntry<T> extends VisTable {

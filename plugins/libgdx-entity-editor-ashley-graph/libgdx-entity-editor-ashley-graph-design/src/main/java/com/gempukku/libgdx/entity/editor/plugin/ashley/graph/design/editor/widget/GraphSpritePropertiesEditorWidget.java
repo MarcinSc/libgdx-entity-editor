@@ -23,7 +23,6 @@ import com.kotcrab.vis.ui.widget.MenuItem;
 import com.kotcrab.vis.ui.widget.PopupMenu;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisLabel;
-import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
@@ -57,10 +56,6 @@ public class GraphSpritePropertiesEditorWidget extends VisTable {
         for (ObjectMap.Entry<String, Object> entry : graphSpriteProperties) {
             addProperty(verticalGroup, entry.key, editable, entry.value);
         }
-
-        VisScrollPane scrollPane = new VisScrollPane(verticalGroup);
-        scrollPane.setFadeScrollBars(false);
-        scrollPane.setForceScroll(false, true);
 
         VisTable buttonTable = new VisTable();
 
@@ -119,13 +114,8 @@ public class GraphSpritePropertiesEditorWidget extends VisTable {
         buttonTable.add(addButton).pad(3);
         buttonTable.add(removeButton).pad(3);
 
-        add(scrollPane).grow().row();
+        add(verticalGroup).grow().row();
         add(buttonTable).growX().row();
-    }
-
-    @Override
-    public float getPrefHeight() {
-        return 150;
     }
 
     private void addProperty(VerticalGroup verticalGroup, String name, boolean editable, Object value) {
