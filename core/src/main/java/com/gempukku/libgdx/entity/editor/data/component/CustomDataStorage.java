@@ -38,6 +38,8 @@ public class CustomDataStorage implements DataStorage {
     }
 
     private JsonValue clone(JsonValue value) {
+        if (value == null)
+            return new JsonValue(JsonValue.ValueType.nullValue);
         if (value.isString())
             return new JsonValue(value.asString());
         JsonReader reader = new JsonReader();
