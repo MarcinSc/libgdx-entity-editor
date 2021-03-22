@@ -163,9 +163,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     private DataDefinition createFixtureDefinitionDataType() {
         CustomClassDataDefinition fixtureDefinitionDef = new CustomClassDataDefinition("FixtureDefinition", false, "Fixture definition", FixtureDefinition.class);
-        fixtureDefinitionDef.addFieldType("type", StringComponentFieldType.ID);
-        fixtureDefinitionDef.addFieldType("sensorName", StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("category", FieldDefinition.Type.Array, StringComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("mask", FieldDefinition.Type.Array, StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("sensorName", StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("sensorType", StringComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("sensor", BooleanComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("friction", FloatComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("restitution", FloatComponentFieldType.ID);

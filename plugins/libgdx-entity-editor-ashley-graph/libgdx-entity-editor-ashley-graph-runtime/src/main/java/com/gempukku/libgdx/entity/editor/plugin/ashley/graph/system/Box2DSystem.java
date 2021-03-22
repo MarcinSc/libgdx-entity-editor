@@ -119,7 +119,7 @@ public class Box2DSystem extends EntitySystem implements Disposable {
         if (fixtures != null) {
             for (FixtureDefinition fixture : fixtures) {
                 if (fixture.isSensor()) {
-                    SensorContactListener sensorContactListener = sensorContactListeners.get(fixture.getType());
+                    SensorContactListener sensorContactListener = sensorContactListeners.get(fixture.getSensorType());
                     Object value = null;
                     if (sensorContactListener != null)
                         value = sensorContactListener.createNewSensorValue();
@@ -185,7 +185,7 @@ public class Box2DSystem extends EntitySystem implements Disposable {
         fixtureDef.restitution = fixtureDefinition.getRestitution();
         fixtureDef.density = fixtureDefinition.getDensity();
         fixtureDef.isSensor = fixtureDefinition.isSensor();
-        fixtureDef.filter.categoryBits = getBitForCategory(fixtureDefinition.getType());
+        fixtureDef.filter.categoryBits = getBits(fixtureDefinition.getCategory());
         fixtureDef.filter.maskBits = getBits(fixtureDefinition.getMask());
         fixtureDef.shape = shape;
 
@@ -194,7 +194,7 @@ public class Box2DSystem extends EntitySystem implements Disposable {
 
         Box2DBodyDataComponent.SensorData sensorData = null;
         if (fixtureDefinition.isSensor()) {
-            sensorData = new Box2DBodyDataComponent.SensorData(fixtureDefinition.getSensorName(), fixtureDefinition.getType(), sensorValue);
+            sensorData = new Box2DBodyDataComponent.SensorData(fixtureDefinition.getSensorName(), fixtureDefinition.getSensorType(), sensorValue);
         }
 
         fixture.setUserData(sensorData);

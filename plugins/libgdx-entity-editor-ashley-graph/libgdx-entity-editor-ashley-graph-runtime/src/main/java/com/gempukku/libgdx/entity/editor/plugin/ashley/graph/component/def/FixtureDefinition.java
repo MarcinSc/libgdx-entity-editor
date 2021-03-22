@@ -8,7 +8,8 @@ public class FixtureDefinition {
     private float density = 0;
     private boolean sensor = false;
     private String sensorName = "";
-    private String type = "";
+    private String sensorType = "";
+    private Array<String> category = new Array<>();
     private Array<String> mask = new Array<>();
     private FixtureShape shape = new BoxFixtureShape();
 
@@ -52,12 +53,20 @@ public class FixtureDefinition {
         this.sensorName = sensorName;
     }
 
-    public String getType() {
-        return type;
+    public String getSensorType() {
+        return sensorType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSensorType(String sensorType) {
+        this.sensorType = sensorType;
+    }
+
+    public Array<String> getCategory() {
+        return category;
+    }
+
+    public void setCategory(Array<String> category) {
+        this.category = category;
     }
 
     public Array<String> getMask() {
