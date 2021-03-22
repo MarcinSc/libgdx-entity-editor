@@ -7,6 +7,7 @@ public class FixtureDefinition {
     private float restitution = 0;
     private float density = 0;
     private boolean sensor = false;
+    private String sensorName = "";
     private String type = "";
     private Array<String> mask = new Array<>();
     private FixtureShape shape = new BoxFixtureShape();
@@ -41,6 +42,14 @@ public class FixtureDefinition {
 
     public void setSensor(boolean sensor) {
         this.sensor = sensor;
+    }
+
+    public String getSensorName() {
+        return sensorName;
+    }
+
+    public void setSensorName(String sensorName) {
+        this.sensorName = sensorName;
     }
 
     public String getType() {

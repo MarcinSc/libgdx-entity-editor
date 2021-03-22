@@ -6,15 +6,24 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Ellipse;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Shape2D;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.Transform;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.gempukku.libgdx.entity.editor.EntityEditorScreen;
 import com.gempukku.libgdx.entity.editor.TextureSource;
@@ -31,6 +40,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private final ImmutableArray<Entity> positionEntities;
 
     private EntityEditorProject project;
+    private float pixelsToMeters;
     private Camera camera;
     private TextureSource textureSource;
     private Vector3 tmpVector = new Vector3();
@@ -40,6 +50,16 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private ObjectMap<Shape2D, Entity> entityCenters = new ObjectMap<>();
     private AshleyEntityDefinition editedEntity;
 
+    private World world;
+    private Matrix4 tmpMatrix = new Matrix4();
+    private ShapeRenderer renderer;
+    private final static Array<Body> bodies = new Array<Body>();
+    private final static Color SHAPE_NOT_ACTIVE = new Color(0.5f, 0.5f, 0.3f, 1);
+    private final static Color SHAPE_STATIC = new Color(0.5f, 0.9f, 0.5f, 1);
+    private final static Color SHAPE_KINEMATIC = new Color(0.5f, 0.5f, 0.9f, 1);
+    private final static Color SHAPE_NOT_AWAKE = new Color(0.6f, 0.6f, 0.6f, 1);
+    private final static Color SHAPE_AWAKE = new Color(0.9f, 0.7f, 0.7f, 1);
+
     private boolean panning;
     private float panX;
     private float panY;
@@ -48,12 +68,17 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     private float entityX;
     private float entityY;
 
-    public AshleyGraphPreviewHandler(EntityEditorProject project, Engine engine, Camera camera, TextureSource textureSource) {
+    public AshleyGraphPreviewHandler(EntityEditorProject project, Engine engine,
+                                     World world, float pixelsToMeters, Camera camera, TextureSource textureSource) {
         this.project = project;
+        this.world = world;
+        this.pixelsToMeters = pixelsToMeters;
         this.camera = camera;
         this.textureSource = textureSource;
         Family position = Family.all(PositionComponent.class).get();
         positionEntities = engine.getEntitiesFor(position);
+
+        renderer = new ShapeRenderer();
     }
 
     @Override
@@ -72,6 +97,7 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
     public void destroy(EntityEditorScreen screen) {
         screen.getEntityEditorPreview().removeListener(this);
         whitePixel.dispose();
+        renderer.dispose();
     }
 
     @Override
@@ -90,6 +116,40 @@ public class AshleyGraphPreviewHandler extends InputListener implements EntityEd
             }
             entityCenters.put(new Ellipse(location.x, location.y, 23, 23), positionEntity);
         }
+//        batch.end();
+//
+//        tmpMatrix.set(camera.combined).translate(-x, -y, 0).scale(pixelsToMeters, pixelsToMeters, 0);
+//        renderer.setProjectionMatrix(tmpMatrix);
+//        renderer.begin(ShapeRenderer.ShapeType.Line);
+//        world.getBodies(bodies);
+//        for (Iterator<Body> iter = bodies.iterator(); iter.hasNext(); ) {
+//            Body body = iter.next();
+//            if (body.isActive())
+//                renderBody(body);
+//        }
+//        renderer.end();
+//
+//        batch.begin();
+    }
+
+    protected void renderBody(Body body) {
+        Transform transform = body.getTransform();
+        for (Fixture fixture : body.getFixtureList()) {
+            PhysicsRenderingHelper.drawShape(renderer, fixture, transform, getColorByBody(body));
+        }
+    }
+
+    private Color getColorByBody(Body body) {
+        if (body.isActive() == false)
+            return SHAPE_NOT_ACTIVE;
+        else if (body.getType() == BodyDef.BodyType.StaticBody)
+            return SHAPE_STATIC;
+        else if (body.getType() == BodyDef.BodyType.KinematicBody)
+            return SHAPE_KINEMATIC;
+        else if (body.isAwake() == false)
+            return SHAPE_NOT_AWAKE;
+        else
+            return SHAPE_AWAKE;
     }
 
     @Override

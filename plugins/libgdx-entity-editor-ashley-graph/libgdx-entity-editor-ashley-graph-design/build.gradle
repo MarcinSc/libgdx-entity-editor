@@ -5,4 +5,5 @@ dependencies {
 	api project(':core')
 	api project(':libgdx-entity-editor-ashley-graph-runtime')
 	implementation "space.earlygrey:shapedrawer:$shapedrawerVersion"
+	implementation "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"
 }

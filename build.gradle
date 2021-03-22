@@ -14,18 +14,10 @@ buildscript {
 allprojects {
 	apply plugin: 'eclipse'
 	apply plugin: 'idea'
-}
 
-configure(subprojects) {
-	apply plugin: 'java-library'
-	sourceCompatibility = 8.0
-	compileJava {
-		options.incremental = true
-	}
-}
-
-subprojects {
+	group = "com.gempukku.libgdx.entity"
 	version = '0.0.1-SNAPSHOT'
+
 	ext.appName = 'libgdx-entity-editor'
 	repositories {
 		mavenLocal()
@@ -33,6 +25,14 @@ subprojects {
 		maven { url 'https://plugins.gradle.org/m2/' }
 		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 		maven { url 'https://jitpack.io' }
+	}
+}
+
+configure(subprojects) {
+	apply plugin: 'java-library'
+	sourceCompatibility = 8.0
+	compileJava {
+		options.incremental = true
 	}
 }
 

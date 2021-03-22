@@ -3,7 +3,11 @@ package com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter;
@@ -53,6 +57,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     private WhitePixel whitePixel;
 
     private Engine ashleyEngine;
+    private World world;
+    private float pixelsToMeters = 100;
     private DefaultTimeKeeper timeKeeper;
     private GraphPreviewRenderer graphPreviewRenderer;
     private DirectTextureLoader directTextureLoader;
@@ -81,10 +87,13 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
         ashleyEngine = new Engine();
         ashleyEngine.addSystem(new CleaningSystem(100));
+
+        world = new World(new Vector2(0, 0), true);
+
         timeKeeper = new DefaultTimeKeeper();
         directTextureLoader = new DirectTextureLoader(folder.child(settings.getAssetsFolder()));
 
-        entityEditorScreen.setDefaultPreviewHandler(new AshleyGraphPreviewHandler(this, ashleyEngine, entityEditorScreen.getCamera(), entityEditorScreen.getTextureSource()));
+        entityEditorScreen.setDefaultPreviewHandler(new AshleyGraphPreviewHandler(this, ashleyEngine, world, pixelsToMeters, entityEditorScreen.getCamera(), entityEditorScreen.getTextureSource()));
 
         setupProject(entityEditorScreen);
 
@@ -155,6 +164,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     private DataDefinition createFixtureDefinitionDataType() {
         CustomClassDataDefinition fixtureDefinitionDef = new CustomClassDataDefinition("FixtureDefinition", false, "Fixture definition", FixtureDefinition.class);
         fixtureDefinitionDef.addFieldType("type", StringComponentFieldType.ID);
+        fixtureDefinitionDef.addFieldType("sensorName", StringComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("mask", FieldDefinition.Type.Array, StringComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("sensor", BooleanComponentFieldType.ID);
         fixtureDefinitionDef.addFieldType("friction", FloatComponentFieldType.ID);
@@ -188,6 +198,10 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
                 UpdatingRenderingSystem renderingSystem = new UpdatingRenderingSystem(0, timeKeeper, pipelineRenderer, directTextureLoader);
                 ashleyEngine.addSystem(renderingSystem);
+
+                UpdatingBox2DSystem physicsSystem = new UpdatingBox2DSystem(1, world, pixelsToMeters);
+                ashleyEngine.addSystem(physicsSystem);
+
                 graphPreviewRenderer = new GraphPreviewRenderer(pipelineRenderer);
                 entityEditorScreen.setPreviewRenderer(graphPreviewRenderer);
             } finally {
@@ -426,6 +440,11 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
 
     @Override
     public void dispose() {
+        for (EntitySystem system : ashleyEngine.getSystems()) {
+            if (system instanceof Disposable)
+                ((Disposable) system).dispose();
+        }
+
         if (graphPreviewRenderer != null) {
             graphPreviewRenderer.dispose();
         }

@@ -9,6 +9,7 @@ import com.gempukku.libgdx.entity.editor.data.component.type.BooleanComponentFie
 import com.gempukku.libgdx.entity.editor.data.component.type.FloatComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.IntegerComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.LongComponentFieldType;
+import com.gempukku.libgdx.entity.editor.data.component.type.RectangleComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.StringComponentFieldType;
 import com.gempukku.libgdx.entity.editor.data.component.type.Vector2ComponentFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.PluginDefinition;
@@ -55,7 +56,9 @@ public class DesktopLauncher {
             CustomFieldTypeRegistry.registerComponentFieldType(new LongComponentFieldType());
             CustomFieldTypeRegistry.registerComponentFieldType(new BooleanComponentFieldType());
             CustomFieldTypeRegistry.registerComponentFieldType(new StringComponentFieldType());
+            
             CustomFieldTypeRegistry.registerComponentFieldType(new Vector2ComponentFieldType());
+            CustomFieldTypeRegistry.registerComponentFieldType(new RectangleComponentFieldType());
 
             PluginRegistry.addPluginDefinition(
                     new PluginDefinition("internal", AshleyGraphEntityEditorPluginInitializer.class,
