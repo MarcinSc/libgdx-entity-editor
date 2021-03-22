@@ -19,6 +19,7 @@ public class CustomDataDefinition extends DefaultDataDefinition<CustomDataStorag
     @Override
     public ObjectMap<String, JsonValue> createDefaultValue() {
         ObjectMap<String, JsonValue> result = new ObjectMap<>();
+        // TODO Maybe not needed?
         for (FieldDefinition fieldDefinition : getFieldTypes()) {
             final String name = fieldDefinition.getName();
             FieldDefinition.Type type = fieldDefinition.getType();
