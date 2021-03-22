@@ -216,7 +216,7 @@ public class Box2DSystem extends EntitySystem implements Disposable {
         return result;
     }
 
-    private short getBitForCategory(String category) {
+    public short getBitForCategory(String category) {
         Short result = categoryBits.get(category);
         if (result == null) {
             result = (short) (0x1 << nextCategoryBit);
