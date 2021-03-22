@@ -111,15 +111,6 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         objectTreeData.addCustomDataType(createFixtureDefinitionDataType());
         objectTreeData.addCustomDataType(createFixtureShapeDataType());
 
-        if (project.hasChild("templates")) {
-            for (JsonValue template : project.get("templates")) {
-                String path = template.getString("path", null);
-                JsonValue data = template.get("data");
-                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data);
-                objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
-            }
-        }
-
         if (project.hasChild("customDataDefinitions")) {
             for (JsonValue customDataDefinition : project.get("customDataDefinitions")) {
                 String id = customDataDefinition.getString("id");
@@ -127,7 +118,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 String className = customDataDefinition.getString("className");
                 boolean component = customDataDefinition.getBoolean("component");
 
-                CustomDataDefinition dataDefinition = new CustomDataDefinition(id, component, name, className);
+                CustomDataDefinition dataDefinition = new CustomDataDefinition(objectTreeData, id, component, name, className);
 
                 for (JsonValue field : customDataDefinition.get("fields")) {
                     String fieldName = field.getString("name");
@@ -137,6 +128,15 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                 }
 
                 objectTreeData.addCustomDataType(dataDefinition);
+            }
+        }
+
+        if (project.hasChild("templates")) {
+            for (JsonValue template : project.get("templates")) {
+                String path = template.getString("path", null);
+                JsonValue data = template.get("data");
+                AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data);
+                objectTreeData.addTemplate(path, entityDefinition.getName(), entityDefinition);
             }
         }
 

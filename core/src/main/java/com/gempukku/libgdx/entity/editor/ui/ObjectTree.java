@@ -421,7 +421,7 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
                         String id = createId();
-                        CustomDataDefinition customDataDefinition = new CustomDataDefinition(id, false, "", "");
+                        CustomDataDefinition customDataDefinition = new CustomDataDefinition(ObjectTree.this, id, false, "", "");
                         DataTypeEditorDialog dialog = new DataTypeEditorDialog(customDataDefinition) {
                             @Override
                             protected void result(Object object) {
@@ -487,7 +487,7 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         ClassOrInterfaceDeclaration classDeclaration = compilationUnit.getClassByName(name).get();
         String className = classDeclaration.getFullyQualifiedName().get();
 
-        CustomDataDefinition result = new CustomDataDefinition(id, false, name, className);
+        CustomDataDefinition result = new CustomDataDefinition(this, id, false, name, className);
         classDeclaration.findAll(FieldDeclaration.class).stream()
                 .filter(f -> !f.isStatic() && !f.isTransient())
                 .forEach(f -> {

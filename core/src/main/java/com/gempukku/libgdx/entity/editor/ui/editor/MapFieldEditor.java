@@ -11,6 +11,7 @@ import com.gempukku.libgdx.entity.editor.data.component.EditableType;
 import com.kotcrab.vis.ui.util.InputValidator;
 import com.kotcrab.vis.ui.widget.VisCheckBox;
 import com.kotcrab.vis.ui.widget.VisDialog;
+import com.kotcrab.vis.ui.widget.VisScrollPane;
 import com.kotcrab.vis.ui.widget.VisTable;
 import com.kotcrab.vis.ui.widget.VisTextButton;
 import com.kotcrab.vis.ui.widget.VisValidatableTextField;
@@ -148,13 +149,20 @@ public class MapFieldEditor<T> extends VisTable {
                                 VisDialog dialog = new VisDialog("Edit value");
                                 dialog.setResizable(true);
                                 Table contentTable = dialog.getContentTable();
-                                contentTable.add(fieldType.createEditor(editable, mapValue, new Consumer<T>() {
+
+                                Actor editor = fieldType.createEditor(editable, mapValue, new Consumer<T>() {
                                     @Override
                                     public void accept(T t) {
                                         mapValue = t;
                                         changeCallback.run();
                                     }
-                                }));
+                                });
+
+                                VisScrollPane scrollPane = new VisScrollPane(editor);
+                                scrollPane.setFadeScrollBars(false);
+                                scrollPane.setForceScroll(false, true);
+
+                                contentTable.add(scrollPane).grow();
                                 VisTextButton done = new VisTextButton("Done");
                                 done.addListener(
                                         new ChangeListener() {
