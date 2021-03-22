@@ -56,7 +56,7 @@ public class RenderingSystem extends EntitySystem {
                         spriteData.setGraphSprite(graphSprite);
                         entity.add(spriteData);
 
-                        setSpriteProperties(entity);
+                        updateSprite(entity);
                     }
 
                     @Override
@@ -68,9 +68,9 @@ public class RenderingSystem extends EntitySystem {
                 });
     }
 
-    public void updateSprite(Entity spriteEntity) {
-        SpriteComponent sprite = spriteEntity.getComponent(SpriteComponent.class);
-        SpriteStateComponent spriteState = spriteEntity.getComponent(SpriteStateComponent.class);
+    public void updateSprite(Entity entity) {
+        SpriteComponent sprite = entity.getComponent(SpriteComponent.class);
+        SpriteStateComponent spriteState = entity.getComponent(SpriteStateComponent.class);
 
         if (spriteState != null) {
             String state = spriteState.getState();
@@ -84,10 +84,55 @@ public class RenderingSystem extends EntitySystem {
             }
         }
 
-        setSpriteProperties(spriteEntity);
+        updateSpriteData(entity);
+
+        updateSpriteProperties(entity);
+
+        updateSpriteTags(entity);
     }
 
-    private void setSpriteProperties(Entity entity) {
+    public void updateSpriteProperties(Entity entity) {
+        final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
+        final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
+
+        GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
+        GraphSprite graphSprite = spriteDataComponent.getGraphSprite();
+
+        for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
+            Object value = property.value;
+            if (value instanceof Number) {
+                graphSprites.setProperty(graphSprite, property.key, ((Number) value).floatValue());
+            } else if (value instanceof TextureValue) {
+                TextureValue textureValue = (TextureValue) value;
+                TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());
+                graphSprites.setProperty(graphSprite, property.key, textureRegionValue);
+            } else if (value instanceof CurrentTimeValue) {
+                graphSprites.setProperty(graphSprite, property.key, timeProvider.getTime());
+            } else {
+                graphSprites.setProperty(graphSprite, property.key, value);
+            }
+        }
+    }
+
+    public void updateSpriteTags(Entity entity) {
+        final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
+        final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
+
+        GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
+        GraphSprite graphSprite = spriteDataComponent.getGraphSprite();
+
+        for (String tag : graphSprite.getAllTags()) {
+            if (!spriteComponent.hasTag(tag))
+                graphSprites.removeTag(graphSprite, tag);
+        }
+
+        for (String tag : spriteComponent.getTags()) {
+            if (!graphSprite.hasTag(tag))
+                graphSprites.addTag(graphSprite, tag);
+        }
+    }
+
+    public void updateSpriteData(Entity entity) {
         GraphSprites graphSprites = pipelineRenderer.getPluginData(GraphSprites.class);
         final SpriteDataComponent spriteDataComponent = entity.getComponent(SpriteDataComponent.class);
         final SpriteComponent spriteComponent = entity.getComponent(SpriteComponent.class);
@@ -122,30 +167,5 @@ public class RenderingSystem extends EntitySystem {
                         }
                     }
                 });
-
-        for (ObjectMap.Entry<String, Object> property : spriteComponent.getProperties()) {
-            Object value = property.value;
-            if (value instanceof Number) {
-                graphSprites.setProperty(graphSprite, property.key, ((Number) value).floatValue());
-            } else if (value instanceof TextureValue) {
-                TextureValue textureValue = (TextureValue) value;
-                TextureRegion textureRegionValue = textureLoader.loadTexture(textureValue.getAtlas(), textureValue.getTexture());
-                graphSprites.setProperty(graphSprite, property.key, textureRegionValue);
-            } else if (value instanceof CurrentTimeValue) {
-                graphSprites.setProperty(graphSprite, property.key, timeProvider.getTime());
-            } else {
-                graphSprites.setProperty(graphSprite, property.key, value);
-            }
-        }
-
-        for (String tag : graphSprite.getAllTags()) {
-            if (!spriteComponent.hasTag(tag))
-                graphSprites.removeTag(graphSprite, tag);
-        }
-
-        for (String tag : spriteComponent.getTags()) {
-            if (!graphSprite.hasTag(tag))
-                graphSprites.addTag(graphSprite, tag);
-        }
     }
 }
