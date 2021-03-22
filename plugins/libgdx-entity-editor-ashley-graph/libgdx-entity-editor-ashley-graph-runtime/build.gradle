@@ -14,14 +14,6 @@ apply plugin: "maven-publish"
 sourceCompatibility = 1.8
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
-sourceSets.main.java.srcDirs = ["src/"]
-sourceSets.main.resources.srcDirs = ["resources/"]
-sourceSets.test.java.srcDirs = ["test/"]
-sourceSets.test.resources.srcDirs = ["test-resources/"]
-
-
-sourceSets.main.java.srcDirs = ["src/"]
-
 archivesBaseName = "libgdx-entity-editor-ashley-graph-runtime"
 
 eclipse.project.name = "libgdx-entity-editor-ashley-graph-runtime"

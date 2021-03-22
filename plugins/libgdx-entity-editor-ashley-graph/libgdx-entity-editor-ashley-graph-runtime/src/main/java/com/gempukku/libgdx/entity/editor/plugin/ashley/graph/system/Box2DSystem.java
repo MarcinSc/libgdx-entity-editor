@@ -37,6 +37,7 @@ public class Box2DSystem extends EntitySystem implements Disposable {
     private boolean ownsWorld;
 
     private ImmutableArray<Entity> physicsEntities;
+    private Array<EntityPositionUpdateListener> listeners = new Array<>();
 
     public Box2DSystem(int priority, World world, float pixelsToMeters) {
         super(priority);
@@ -70,6 +71,14 @@ public class Box2DSystem extends EntitySystem implements Disposable {
     public Box2DSystem(int priority, Vector2 gravity, boolean doSleep, float pixelsToMeters) {
         this(priority, new World(gravity, doSleep), pixelsToMeters);
         this.ownsWorld = true;
+    }
+
+    public void addEntityPositionUpdateListener(EntityPositionUpdateListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeEntityPositionUpdateListener(EntityPositionUpdateListener listener) {
+        listeners.removeValue(listener, true);
     }
 
     public World getWorld() {
@@ -229,6 +238,10 @@ public class Box2DSystem extends EntitySystem implements Disposable {
                     PositionComponent position = physicsEntity.getComponent(PositionComponent.class);
                     position.setX(body.getPosition().x * pixelsToMeters);
                     position.setY(body.getPosition().y * pixelsToMeters);
+
+                    for (EntityPositionUpdateListener listener : listeners) {
+                        listener.positionUpdated(physicsEntity);
+                    }
                 }
             }
         }
