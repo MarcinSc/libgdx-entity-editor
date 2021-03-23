@@ -79,6 +79,8 @@ public class RectangleComponentFieldType implements ComponentFieldType<Rectangle
 
     @Override
     public Rectangle convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
         return new Rectangle(json.getFloat("x"), json.getFloat("y"),
                 json.getFloat("width"), json.getFloat("height"));
     }

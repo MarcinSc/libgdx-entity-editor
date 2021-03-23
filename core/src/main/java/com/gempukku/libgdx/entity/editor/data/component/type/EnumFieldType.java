@@ -49,6 +49,9 @@ public class EnumFieldType<T extends Enum<T>> implements ComponentFieldType<T> {
 
     @Override
     public T convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
+
         String value = json.asString();
         for (T enumConstant : clazz.getEnumConstants()) {
             if (enumConstant.name().equals(value))

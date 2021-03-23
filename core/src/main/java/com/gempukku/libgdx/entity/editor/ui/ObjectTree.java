@@ -196,13 +196,13 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                                 new InputValidator() {
                                     @Override
                                     public boolean validateInput(String input) {
-                                        return canCreateEntity(treeNode.getParent(), input);
+                                        return canCreateEntity(treeNode.getParent(), input.trim());
                                     }
                                 },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        treeNode.setName(input);
+                                        treeNode.setName(input.trim());
                                     }
 
                                     @Override
@@ -571,13 +571,13 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                                 new InputValidator() {
                                     @Override
                                     public boolean validateInput(String input) {
-                                        return canCreateEntityGroup(input);
+                                        return canCreateEntityGroup(input.trim());
                                     }
                                 },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        createEntityGroupNode(input);
+                                        createEntityGroupNode(input.trim());
                                         entityGroupsNode.setExpanded(true);
                                     }
 
@@ -609,13 +609,13 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                                 new InputValidator() {
                                     @Override
                                     public boolean validateInput(String input) {
-                                        return canCreateEntityFolder(treeNode, input);
+                                        return canCreateEntityFolder(treeNode, input.trim());
                                     }
                                 },
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        createEntityGroupFolderNode(treeNode, input);
+                                        createEntityGroupFolderNode(treeNode, input.trim());
                                         treeNode.setExpanded(true);
                                     }
 
@@ -793,9 +793,6 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
 //    }
 
     private boolean canCreateEntityFolder(ObjectTreeNode parent, String name) {
-        if (!validName(name))
-            return false;
-
         for (Object child : parent.getChildren()) {
             if (child instanceof EntityGroupFolderNode) {
                 EntityGroupFolderNode folder = (EntityGroupFolderNode) child;
@@ -807,9 +804,6 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     private boolean canCreateEntityGroup(String name) {
-        if (!validEntityGroup(name))
-            return false;
-
         for (EntityGroupNode child : entityGroupsNode.getChildren()) {
             if (child.getValue().getName().equals(name))
                 return false;
@@ -832,9 +826,6 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     private boolean canCreateEntity(ObjectTreeNode parent, String name) {
-        if (!validName(name))
-            return false;
-
         for (Object child : parent.getChildren()) {
             if (child instanceof EntityDefinitionNode) {
                 EntityDefinitionNode<T, U> entity = (EntityDefinitionNode<T, U>) child;
@@ -875,10 +866,6 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
             }
         }
         return true;
-    }
-
-    private boolean validEntityGroup(String groupName) {
-        return validName(groupName);
     }
 
     private boolean validParentPath(String parentPath) {

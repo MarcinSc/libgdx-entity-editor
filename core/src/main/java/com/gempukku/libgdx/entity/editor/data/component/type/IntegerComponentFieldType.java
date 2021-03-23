@@ -46,6 +46,8 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
 
     @Override
     public Number convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
         return json.asInt();
     }
 

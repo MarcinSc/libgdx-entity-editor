@@ -49,6 +49,9 @@ public class GraphSpritesPropertiesFieldType implements ComponentFieldType<Graph
 
     @Override
     public GraphSpriteProperties convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
+
         Json jsonObj = new Json();
         return jsonObj.readValue(GraphSpriteProperties.class, json);
     }

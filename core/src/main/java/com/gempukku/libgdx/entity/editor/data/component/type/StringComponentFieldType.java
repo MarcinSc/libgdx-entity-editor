@@ -45,6 +45,8 @@ public class StringComponentFieldType implements ComponentFieldType<String> {
 
     @Override
     public String convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
         return json.asString();
     }
 

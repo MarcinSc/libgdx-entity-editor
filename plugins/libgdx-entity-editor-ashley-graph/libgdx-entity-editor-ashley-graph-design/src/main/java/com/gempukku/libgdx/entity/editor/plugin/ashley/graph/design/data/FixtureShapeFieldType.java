@@ -51,6 +51,9 @@ public class FixtureShapeFieldType implements ComponentFieldType<FixtureShape> {
 
     @Override
     public FixtureShape convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
+
         Json jsonObj = new Json();
         return jsonObj.readValue(FixtureShape.class, json);
     }

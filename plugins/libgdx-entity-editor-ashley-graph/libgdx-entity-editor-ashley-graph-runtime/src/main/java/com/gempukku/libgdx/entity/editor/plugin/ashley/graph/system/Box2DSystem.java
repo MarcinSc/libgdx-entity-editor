@@ -192,14 +192,14 @@ public class Box2DSystem extends EntitySystem implements Disposable {
         Fixture fixture = body.createFixture(fixtureDef);
         shape.dispose();
 
-        Box2DBodyDataComponent.SensorData sensorData = null;
         if (fixtureDefinition.isSensor()) {
-            sensorData = new Box2DBodyDataComponent.SensorData(fixtureDefinition.getSensorName(), fixtureDefinition.getSensorType(), sensorValue);
+            Box2DBodyDataComponent.SensorData sensorData = new Box2DBodyDataComponent.SensorData(fixtureDefinition.getSensorName(), fixtureDefinition.getSensorType(), sensorValue);
+            fixture.setUserData(sensorData);
+            return sensorData;
+        } else {
+            fixture.setUserData(entity);
+            return null;
         }
-
-        fixture.setUserData(sensorData);
-
-        return sensorData;
     }
 
     private void createFixture(Entity entity, Body body, FixtureDefinition fixtureDefinition) {

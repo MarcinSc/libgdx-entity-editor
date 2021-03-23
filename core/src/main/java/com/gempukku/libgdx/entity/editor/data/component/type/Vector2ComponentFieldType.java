@@ -55,6 +55,8 @@ public class Vector2ComponentFieldType implements ComponentFieldType<Vector2> {
 
     @Override
     public Vector2 convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
         return new Vector2(json.getFloat("x"), json.getFloat("y"));
     }
 

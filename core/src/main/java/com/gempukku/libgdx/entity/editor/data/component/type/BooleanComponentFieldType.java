@@ -46,6 +46,8 @@ public class BooleanComponentFieldType implements ComponentFieldType<Boolean> {
 
     @Override
     public Boolean convertToValue(JsonValue json) {
+        if (json.isNull())
+            return getDefaultValue();
         return json.asBoolean();
     }
 
