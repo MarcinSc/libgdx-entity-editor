@@ -23,12 +23,13 @@ public interface EntityEditorProject<T, U extends EntityDefinition> extends Disp
 
     void entityChanged(U entityDefinition);
 
-
-    EntityGroup createEntityGroup(String entityGroupName);
+    EntityGroup createEntityGroup(String entityGroupName, boolean enabled);
 
     EntityGroupFolder createEntityFolder(String name);
 
-    U createEntity(String id, String name);
+    U createEntity(String id, String name, boolean enabled);
+
+    void setEntityEnabled(U entity, boolean enabled);
 
     EntityTemplatesFolder createTemplatesFolder(String name);
 

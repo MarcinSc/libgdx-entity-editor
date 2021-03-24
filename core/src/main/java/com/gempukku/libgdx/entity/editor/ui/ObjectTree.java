@@ -91,7 +91,7 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                             entityGroupsClicked(x, y);
                         } else if (clickedNode instanceof EntityGroupNode
                                 || clickedNode instanceof EntityGroupFolderNode) {
-                            entityGroupClicked(clickedNode, x, y);
+                            entityGroupClicked((EntityGroupNode) clickedNode, x, y);
                         } else if (clickedNode instanceof EntityTemplatesNode
                                 || clickedNode instanceof EntityTemplatesFolderNode) {
                             entityTemplatesClicked(clickedNode, x, y);
@@ -577,7 +577,7 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        createEntityGroupNode(input.trim());
+                                        createEntityGroupNode(input.trim(), true);
                                         entityGroupsNode.setExpanded(true);
                                     }
 
@@ -592,9 +592,9 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
     }
 
-    private EntityGroupNode createEntityGroupNode(String input) {
-        EntityGroup entityGroup = project.createEntityGroup(input);
-        EntityGroupNode node = new EntityGroupNode(entityGroup, new TextureRegionDrawable(textureSource.getTexture("images/entity-group.png")));
+    private EntityGroupNode createEntityGroupNode(String input, boolean enabled) {
+        EntityGroup entityGroup = project.createEntityGroup(input, enabled);
+        EntityGroupNode node = new EntityGroupNode(entityGroup, new TextureRegionDrawable(textureSource.getTexture("images/entity-group.png")), enabled);
         mergeInNode(entityGroupsNode, node);
         return node;
     }
@@ -642,7 +642,7 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
                                 new InputDialogListener() {
                                     @Override
                                     public void finished(String input) {
-                                        U entity = project.createEntity(createId(), input);
+                                        U entity = project.createEntity(createId(), input, findEntityGroup(treeNode).isEnabled());
                                         EntityDefinitionNode<T, U> node = new EntityDefinitionNode<>(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
                                         mergeInNode(treeNode, node);
                                         treeNode.setExpanded(true);
@@ -659,7 +659,50 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         PopupMenu popupMenu = new PopupMenu();
         popupMenu.addItem(createFolder);
         popupMenu.addItem(createEntity);
+
+        if (treeNode instanceof EntityGroupNode) {
+            EntityGroupNode entityGroupNode = (EntityGroupNode) treeNode;
+            final EntityGroup entityGroup = entityGroupNode.getValue();
+            boolean enabled = entityGroup.isEnabled();
+            if (enabled) {
+                MenuItem disableGroup = new MenuItem("Disable");
+                disableGroup.addListener(
+                        new ChangeListener() {
+                            @Override
+                            public void changed(ChangeEvent event, Actor actor) {
+                                entityGroup.setEnabled(false);
+                                entityGroupNode.setEnabled(false);
+                                for (LocatedEntityDefinition<U> entity : getEntities(entityGroup.getName())) {
+                                    project.setEntityEnabled(entity.getEntityDefinition(), false);
+                                }
+                            }
+                        });
+                popupMenu.addItem(disableGroup);
+            } else {
+                MenuItem enableGroup = new MenuItem("Enable");
+                enableGroup.addListener(
+                        new ChangeListener() {
+                            @Override
+                            public void changed(ChangeEvent event, Actor actor) {
+                                entityGroup.setEnabled(true);
+                                entityGroupNode.setEnabled(true);
+                                for (LocatedEntityDefinition<U> entity : getEntities(entityGroup.getName())) {
+                                    project.setEntityEnabled(entity.getEntityDefinition(), true);
+                                }
+                            }
+                        });
+                popupMenu.addItem(enableGroup);
+            }
+        }
+
         popupMenu.showMenu(getStage(), x + getX(), y + getY());
+    }
+
+    private EntityGroup findEntityGroup(ObjectTreeNode objectTreeNode) {
+        if (objectTreeNode instanceof EntityGroupNode)
+            return ((EntityGroupNode) objectTreeNode).getValue();
+
+        return findEntityGroup((ObjectTreeNode) objectTreeNode.getParent());
     }
 
     private String createId() {
@@ -682,8 +725,13 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     @Override
+    public void addEntityGroup(String entityGroup, boolean enabled) {
+        createEntityGroupNode(entityGroup, enabled);
+    }
+
+    @Override
     public void addEntity(String entityGroup, String parentPath, String name, U entity) {
-        EntityGroupNode group = getEntityGroupNode(entityGroup, true);
+        EntityGroupNode group = getEntityGroupNode(entityGroup);
         ObjectTreeNode entityGroupFolderNode = getEntityGroupFolderNode(group, parentPath, true);
         EntityDefinitionNode<T, U> node = new EntityDefinitionNode<>(entity, new TextureRegionDrawable(textureSource.getTexture("images/entity.png")));
         mergeInNode(entityGroupFolderNode, node);
@@ -738,8 +786,18 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
     }
 
     @Override
+    public boolean isEntityGroupEnabled(String entityGroup) {
+        for (EntityGroupNode child : entityGroupsNode.getChildren()) {
+            if (child.getValue().getName().equals(entityGroup))
+                return child.getValue().isEnabled();
+        }
+
+        return true;
+    }
+
+    @Override
     public Iterable<LocatedEntityDefinition<U>> getEntities(String entityGroup) {
-        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup, false);
+        EntityGroupNode entityGroupNode = getEntityGroupNode(entityGroup);
         Array<LocatedEntityDefinition<U>> result = new Array<>();
         appendEntities(entityGroupNode, result, null);
         return result;
@@ -917,16 +975,12 @@ public class ObjectTree<T, U extends EntityDefinition> extends VisTable implemen
         }
     }
 
-    private EntityGroupNode getEntityGroupNode(String name, boolean create) {
+    private EntityGroupNode getEntityGroupNode(String name) {
         for (EntityGroupNode child : entityGroupsNode.getChildren()) {
             if (child.getValue().getName().equals(name))
                 return child;
         }
-
-        if (create)
-            return createEntityGroupNode(name);
-        else
-            return null;
+        return null;
     }
 
     private ObjectTreeNode getEntityGroupFolderNode(EntityGroupNode groupNode, String path, boolean create) {

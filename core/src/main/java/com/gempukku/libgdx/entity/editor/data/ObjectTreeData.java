@@ -3,6 +3,8 @@ package com.gempukku.libgdx.entity.editor.data;
 import com.gempukku.libgdx.entity.editor.data.component.DataDefinition;
 
 public interface ObjectTreeData<U extends EntityDefinition> {
+    void addEntityGroup(String entityGroup, boolean enabled);
+
     void addEntity(String entityGroup, String parentPath, String name, U entity);
 
     void addTemplate(String parentPath, String name, U template);
@@ -12,6 +14,8 @@ public interface ObjectTreeData<U extends EntityDefinition> {
     LocatedEntityDefinition<U> getTemplateById(String id);
 
     Iterable<String> getEntityGroups();
+
+    boolean isEntityGroupEnabled(String entityGroup);
 
     Iterable<LocatedEntityDefinition<U>> getEntities(String entityGroup);
 

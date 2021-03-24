@@ -143,6 +143,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         if (project.hasChild("entityGroups")) {
             for (JsonValue entityGroup : project.get("entityGroups")) {
                 String name = entityGroup.getString("name");
+                boolean enabled = entityGroup.getBoolean("enabled", true);
+                objectTreeData.addEntityGroup(name, enabled);
                 for (JsonValue entity : entityGroup.get("entities")) {
                     String path = entity.getString("path", null);
                     Entity ashleyEntity = ashleyEngine.createEntity();
@@ -150,7 +152,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
                     AshleyEntityDefinition entityDefinition = new AshleyEntityDefinition(engineJson, objectTreeData, data, ashleyEntity);
                     initializeAshleyEntity(ashleyEntity, entityDefinition);
                     objectTreeData.addEntity(name, path, entityDefinition.getName(), entityDefinition);
-                    ashleyEngine.addEntity(ashleyEntity);
+                    if (enabled)
+                        ashleyEngine.addEntity(ashleyEntity);
                 }
             }
         }
@@ -240,6 +243,7 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
         for (String entityGroup : objectTreeData.getEntityGroups()) {
             JsonValue group = new JsonValue(JsonValue.ValueType.object);
             group.addChild("name", new JsonValue(entityGroup));
+            group.addChild("enabled", new JsonValue(objectTreeData.isEntityGroupEnabled(entityGroup)));
 
             JsonValue entities = new JsonValue(JsonValue.ValueType.array);
             for (ObjectTreeData.LocatedEntityDefinition<AshleyEntityDefinition> entity : objectTreeData.getEntities(entityGroup)) {
@@ -356,8 +360,8 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     }
 
     @Override
-    public EntityGroup createEntityGroup(String entityGroupName) {
-        return new DefaultEntityGroup(entityGroupName);
+    public EntityGroup createEntityGroup(String entityGroupName, boolean enabled) {
+        return new DefaultEntityGroup(entityGroupName, enabled);
     }
 
     @Override
@@ -366,13 +370,22 @@ public class AshleyGraphProject implements EntityEditorProject<Component, Ashley
     }
 
     @Override
-    public AshleyEntityDefinition createEntity(String id, String name) {
+    public AshleyEntityDefinition createEntity(String id, String name, boolean enabled) {
         Entity entity = ashleyEngine.createEntity();
-        ashleyEngine.addEntity(entity);
+        if (enabled)
+            ashleyEngine.addEntity(entity);
 
         AshleyEntityDefinition ashleyEntityDefinition = new AshleyEntityDefinition(id, name, objectTreeData, entity);
         initializeAshleyEntity(entity, ashleyEntityDefinition);
         return ashleyEntityDefinition;
+    }
+
+    @Override
+    public void setEntityEnabled(AshleyEntityDefinition entity, boolean enabled) {
+        if (enabled)
+            ashleyEngine.addEntity(entity.getEntity());
+        else
+            ashleyEngine.removeEntity(entity.getEntity());
     }
 
     private void initializeAshleyEntity(Entity entity, AshleyEntityDefinition ashleyEntityDefinition) {
