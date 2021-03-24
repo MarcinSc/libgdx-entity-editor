@@ -8,14 +8,27 @@ import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.component.FaceDirec
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.FixtureShapeFieldType;
 import com.gempukku.libgdx.entity.editor.plugin.ashley.graph.design.data.GraphSpritesPropertiesFieldType;
 import com.gempukku.libgdx.entity.editor.project.ProjectReaderRegistry;
+import com.gempukku.libgdx.graph.plugin.lighting3d.Lighting3DPluginRuntimeInitializer;
+import com.gempukku.libgdx.graph.plugin.maps.MapsPluginRuntimeInitializer;
+import com.gempukku.libgdx.graph.plugin.models.ModelsPluginRuntimeInitializer;
+import com.gempukku.libgdx.graph.plugin.particles.ParticlesPluginRuntimeInitializer;
+import com.gempukku.libgdx.graph.plugin.screen.ScreenPluginRuntimeInitializer;
 import com.gempukku.libgdx.graph.plugin.sprites.SpritesPluginRuntimeInitializer;
+import com.gempukku.libgdx.graph.plugin.ui.UIPluginRuntimeInitializer;
 
 public class AshleyGraphEntityEditorPluginInitializer implements EntityEditorPluginInitializer {
     private AshleyGraphProjectReader projectReader = new AshleyGraphProjectReader();
 
     @Override
     public void initialize() {
+        Lighting3DPluginRuntimeInitializer.register();
+        ModelsPluginRuntimeInitializer.register();
         SpritesPluginRuntimeInitializer.register();
+        ParticlesPluginRuntimeInitializer.register();
+        ScreenPluginRuntimeInitializer.register();
+        MapsPluginRuntimeInitializer.register();
+        UIPluginRuntimeInitializer.register();
+
         ProjectReaderRegistry.register(projectReader);
 
         CustomFieldTypeRegistry.registerComponentFieldType(new EnumFieldType<>(FaceDirection.class, FaceDirection.Right));

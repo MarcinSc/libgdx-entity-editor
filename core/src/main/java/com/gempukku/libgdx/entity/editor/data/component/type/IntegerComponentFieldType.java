@@ -53,7 +53,7 @@ public class IntegerComponentFieldType implements ComponentFieldType<Number> {
 
     @Override
     public Number getDefaultValue() {
-        return 1;
+        return 0;
     }
 
     @Override
